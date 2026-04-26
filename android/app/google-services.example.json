@@ -1,0 +1,27 @@
+{
+  "_comment": "Renombra este archivo a google-services.json y completa con tus credenciales.",
+  "_instructions": "Descarga este archivo desde https://console.firebase.google.com → Configuración del proyecto → Tus apps (Android)",
+  "project_info": {
+    "project_number": "TU_PROJECT_NUMBER",
+    "project_id": "TU_PROJECT_ID",
+    "storage_bucket": "TU_PROJECT_ID.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "TU_MOBILE_SDK_APP_ID",
+        "android_client_info": {
+          "package_name": "TU_PACKAGE_NAME"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "TU_ANDROID_API_KEY"
+        }
+      ],
+      "services": {}
+    }
+  ],
+  "configuration_version": "1"
+}

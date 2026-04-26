@@ -1,0 +1,227 @@
+/* src/app/settings/settings.page.scss */
+
+/* ===== Perfil de usuario ===== */
+.profile-section {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 24px;
+  background: linear-gradient(135deg, var(--ion-color-primary) 0%, #2563eb 100%);
+  border-radius: 20px;
+  margin-bottom: 32px;
+  box-shadow: 0 10px 30px rgba(59, 130, 246, 0.2);
+}
+
+.profile-avatar {
+  width: 72px;
+  height: 72px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  flex-shrink: 0;
+
+  ion-icon {
+    font-size: 36px;
+    color: white;
+  }
+}
+
+.profile-info {
+  flex: 1;
+  min-width: 0;
+
+  .profile-name {
+    font-size: 22px;
+    font-weight: 800;
+    color: white;
+    margin: 0 0 4px;
+  }
+
+  .profile-email {
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.9);
+    margin: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+/* ===== Secciones de ajustes ===== */
+.settings-section {
+  margin-bottom: 32px;
+}
+
+.section-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  color: #64748b;
+  margin: 0 0 16px;
+  text-transform: uppercase;
+
+  ion-icon {
+    font-size: 20px;
+    color: var(--ion-color-primary);
+  }
+}
+
+.settings-card {
+  margin: 0;
+  border-radius: 16px;
+  background: #fff;
+  box-shadow: 0 6px 18px rgba(31, 41, 55, 0.08);
+
+  ion-list {
+    background: transparent;
+    padding: 0;
+  }
+
+  ion-item {
+    --padding-start: 20px;
+    --padding-end: 20px;
+    --inner-padding-end: 0;
+    --min-height: 72px;
+    --background: transparent;
+    --border-color: #f1f5f9;
+    margin-bottom: 8px;
+
+    &:last-child {
+      --border-width: 0;
+      margin-bottom: 0;
+    }
+
+    h3 {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--ion-text-color);
+      margin: 0 0 6px;
+    }
+
+    p {
+      font-size: 13px;
+      color: #64748b;
+      margin: 0;
+      padding-top: 2px;
+    }
+
+    ion-input {
+      --padding-start: 12px;
+      --padding-end: 12px;
+      border: 2px solid #e2e8f0;
+      border-radius: 10px;
+      min-height: 44px;
+      font-weight: 600;
+      margin-top: 8px;
+
+      &:focus-within {
+        border-color: var(--ion-color-primary);
+      }
+    }
+
+    ion-select {
+      font-weight: 600;
+      max-width: 180px;
+    }
+
+    ion-toggle {
+      --handle-width: 24px;
+      --handle-height: 24px;
+      --handle-spacing: 4px;
+    }
+    
+    ion-label {
+      margin-top: 4px;
+      margin-bottom: 4px;
+    }
+  }
+
+  ion-item[disabled] {
+    opacity: 0.5;
+  }
+
+  .item-icon {
+    font-size: 24px;
+    color: var(--ion-color-primary);
+    margin-right: 4px;
+
+    &.danger {
+      color: var(--ion-color-danger);
+    }
+  }
+}
+
+/* ===== Botón de cerrar sesión ===== */
+.logout-button {
+  --background: var(--ion-color-danger);
+  --background-hover: #dc2626;
+  --border-radius: 14px;
+  --padding-top: 16px;
+  --padding-bottom: 16px;
+  font-weight: 700;
+  font-size: 15px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-top: 16px;
+  box-shadow: 0 8px 20px rgba(239, 68, 68, 0.2);
+
+  ion-icon {
+    margin-right: 8px;
+    font-size: 20px;
+  }
+}
+
+/* ===== Modo oscuro ===== */
+:host-context(body.dark) {
+  .settings-card {
+    background: #1e293b;
+
+    ion-item {
+      --border-color: #334155;
+
+      h3 {
+        color: #f1f5f9;
+      }
+
+      p {
+        color: #94a3b8;
+      }
+
+      ion-input {
+        --background: #0f172a;
+        --color: #f1f5f9;
+        border-color: #334155;
+      }
+    }
+  }
+
+  .section-title {
+    color: #94a3b8;
+  }
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 640px) {
+  .profile-section {
+    padding: 20px;
+  }
+
+  .profile-avatar {
+    width: 64px;
+    height: 64px;
+
+    ion-icon {
+      font-size: 32px;
+    }
+  }
+
+  .profile-info .profile-name {
+    font-size: 20px;
+  }
+}

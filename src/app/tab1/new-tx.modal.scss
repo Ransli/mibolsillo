@@ -1,0 +1,560 @@
+/* ====== Contenedor ====== */
+:host {
+  display: block;
+}
+
+ion-content {
+  --background: #f8fafc;
+}
+
+/* ====== Header ====== */
+ion-header {
+  ion-toolbar {
+    --background: #fff;
+    --border-width: 0;
+    --padding-top: 8px;
+    --padding-bottom: 8px;
+    
+    ion-title {
+      font-weight: 800;
+      font-size: 20px;
+      color: var(--ion-text-color);
+    }
+    
+    ion-button {
+      font-weight: 700;
+    }
+  }
+}
+
+/* ====== Segment de tipo ====== */
+ion-segment {
+  margin: 16px 0;
+  --background: #f1f5f9;
+  border-radius: 12px;
+  padding: 4px;
+  box-shadow: 0 4px 12px rgba(31,41,55,.08);
+  position: relative;
+  display: flex;
+  gap: 0;
+  overflow: visible;
+  
+  /* 🔥 Pseudo-elemento para el efecto de fondo deslizante */
+  &::before {
+    content: '';
+    position: absolute;
+    height: calc(100% - 8px);
+    width: calc(50% - 4px);
+    background: linear-gradient(135deg, var(--ion-color-primary) 0%, var(--ion-color-primary-shade) 100%);
+    border-radius: 10px;
+    top: 4px;
+    left: 4px;
+    transition: left 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    box-shadow: 
+      0 2px 8px rgba(59, 130, 246, 0.3),
+      0 1px 3px rgba(59, 130, 246, 0.2);
+    z-index: 0;
+    will-change: left;
+  }
+  
+  /* 🔥 Posiciones del indicador según el botón seleccionado */
+  &:has(ion-segment-button[value="out"].segment-button-checked)::before {
+    left: 4px;
+  }
+  
+  &:has(ion-segment-button[value="in"].segment-button-checked)::before {
+    left: calc(50% + 2px);
+  }
+  
+  ion-segment-button {
+    --indicator-height: 0;
+    --indicator-box-shadow: none;
+    --indicator-color: transparent;
+    --color: #64748b;
+    --color-checked: #ffffff;
+    --background: transparent;
+    --background-checked: transparent;
+    
+    font-weight: 600;
+    font-size: 13px;
+    min-height: 40px;
+    border-radius: 10px;
+    position: relative;
+    z-index: 1;
+    flex: 1;
+    transition: color 0.25s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    
+    /* Efecto hover */
+    &:hover:not(.segment-button-checked) {
+      --color: #475569;
+    }
+    
+    /* Estado seleccionado - solo cambio de color */
+    &.segment-button-checked {
+      color: #ffffff !important;
+      font-weight: 700;
+    }
+  }
+}
+
+/* ====== Lista de campos ====== */
+ion-list {
+  border-radius: 16px;
+  background: #fff;
+  box-shadow: 0 10px 24px rgba(31,41,55,.08);
+  padding: 8px 0;
+  margin: 16px 0;
+}
+
+ion-item {
+  --min-height: 88px;
+  --background: transparent;
+  --padding-start: 20px;
+  --inner-padding-end: 20px;
+  --highlight-height: 0;
+  --border-color: #e2e8f0;
+  margin-bottom: 4px;
+  padding: 12px 0;
+}
+
+ion-label {
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--ion-text-color);
+  margin-bottom: 12px;
+}
+
+ion-textarea,
+ion-select {
+  --padding-start: 12px;
+  --padding-end: 12px;
+  --placeholder-color: #94a3b8;
+  --placeholder-opacity: 1;
+  color: var(--ion-text-color);
+  font-size: 15px;
+  font-weight: 500;
+  border: 2px solid #e2e8f0;
+  border-radius: 10px;
+  margin-top: 8px;
+  min-height: 44px;
+  background: transparent;
+}
+
+ion-textarea {
+  --padding-top: 12px;
+  --padding-bottom: 12px;
+  min-height: 100px;
+}
+
+ion-select {
+  --padding-top: 10px;
+  --padding-bottom: 10px;
+}
+
+/* 🔥 Input de monto con símbolo de moneda */
+.amount-input-wrapper {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  border: 2px solid #e2e8f0;
+  border-radius: 10px;
+  margin-top: 8px;
+  background: transparent;
+  transition: all 0.2s ease;
+  
+  &:focus-within {
+    border-color: var(--ion-color-primary);
+    box-shadow: 0 0 0 3px rgba(59,130,246,.15);
+  }
+  
+  .currency-symbol {
+    padding-left: 16px;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--ion-color-primary);
+  }
+  
+  .amount-input {
+    flex: 1;
+    border: none;
+    outline: none;
+    padding: 12px 16px 12px 8px;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--ion-text-color);
+    background: transparent;
+    font-family: 'Courier New', monospace;
+    letter-spacing: 0.5px;
+    
+    &::placeholder {
+      color: #94a3b8;
+      opacity: 0.6;
+    }
+  }
+}
+
+/* 🔥 Input de fecha nativo */
+.date-input {
+  width: 100%;
+  border: 2px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 12px 16px;
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--ion-text-color);
+  background: transparent;
+  margin-top: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  
+  &:focus {
+    outline: none;
+    border-color: var(--ion-color-primary);
+    box-shadow: 0 0 0 3px rgba(59,130,246,.15);
+  }
+  
+  /* Personalizar el icono del calendario */
+  &::-webkit-calendar-picker-indicator {
+    cursor: pointer;
+    filter: invert(0.5);
+  }
+}
+
+/* Foco del campo */
+ion-item.item-has-focus {
+  ion-textarea,
+  ion-select {
+    border-color: var(--ion-color-primary);
+    box-shadow: 0 0 0 3px rgba(59,130,246,.15);
+  }
+}
+
+/* ====== Segment de método de pago ====== */
+ion-item ion-segment {
+  margin: 8px 0 0 0;
+  width: 100%;
+  --background: #f1f5f9;
+  border: none;
+  box-shadow: 0 2px 8px rgba(31,41,55,.05);
+  position: relative;
+  display: flex;
+  gap: 0;
+  overflow: visible;
+  
+  /* 🔥 Pseudo-elemento para el efecto de fondo deslizante */
+  &::before {
+    content: '';
+    position: absolute;
+    height: calc(100% - 8px);
+    width: calc(50% - 4px);
+    background: linear-gradient(135deg, var(--ion-color-primary) 0%, var(--ion-color-primary-shade) 100%);
+    border-radius: 8px;
+    top: 4px;
+    left: 4px;
+    transition: left 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    box-shadow: 
+      0 2px 8px rgba(59, 130, 246, 0.3),
+      0 1px 3px rgba(59, 130, 246, 0.2);
+    z-index: 0;
+    will-change: left;
+  }
+  
+  /* 🔥 Posiciones del indicador según el botón seleccionado */
+  &:has(ion-segment-button[value="cash"].segment-button-checked)::before {
+    left: 4px;
+  }
+  
+  &:has(ion-segment-button[value="card"].segment-button-checked)::before {
+    left: calc(50% + 2px);
+  }
+  
+  ion-segment-button {
+    --indicator-height: 0;
+    --indicator-box-shadow: none;
+    --indicator-color: transparent;
+    --color: #64748b;
+    --color-checked: #ffffff;
+    --background: transparent;
+    --background-checked: transparent;
+    
+    font-weight: 600;
+    font-size: 12px;
+    min-height: 36px;
+    border-radius: 8px;
+    position: relative;
+    z-index: 1;
+    flex: 1;
+    transition: color 0.25s ease;
+    
+    /* Efecto hover */
+    &:hover:not(.segment-button-checked) {
+      --color: #475569;
+    }
+    
+    /* Estado seleccionado - solo cambio de color */
+    &.segment-button-checked {
+      color: #ffffff !important;
+      font-weight: 700;
+    }
+  }
+}
+
+/* ====== Pie de acciones fijo ====== */
+.actions-fixed {
+  position: sticky;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 12px;
+  background: rgba(255,255,255,.98);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  padding: 16px 20px;
+  z-index: 10;
+  border-top: 1px solid #e2e8f0;
+  box-shadow: 0 -4px 12px rgba(31,41,55,.06);
+}
+
+/* ====== Botones ====== */
+ion-button {
+  --border-radius: 12px;
+  font-weight: 700;
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+ion-button[color="primary"] {
+  --background: var(--ion-color-primary);
+  --background-hover: color-mix(in srgb, var(--ion-color-primary) 90%, #000);
+  --background-activated: color-mix(in srgb, var(--ion-color-primary) 80%, #000);
+  --color: #fff;
+  --padding-start: 24px;
+  --padding-end: 24px;
+  height: 44px;
+  min-width: 120px;
+}
+
+ion-button[fill="outline"] {
+  --border-color: #cbd5e1;
+  --color: #475569;
+  --background: #fff;
+  --background-hover: #f8fafc;
+  --background-activated: #f1f5f9;
+  --padding-start: 20px;
+  --padding-end: 20px;
+  height: 44px;
+  min-width: 100px;
+}
+
+ion-button[disabled] {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* ====== Debug info ====== */
+.debug-info {
+  font-size: 10px;
+  color: var(--ion-color-medium);
+  padding: 16px;
+  border-radius: 8px;
+  background: rgba(0,0,0,0.03);
+  margin-top: 16px;
+}
+
+/* ====== Modo oscuro ====== */
+:host-context(body.dark) {
+  ion-content {
+    --background: #0f172a;
+  }
+  
+  ion-header ion-toolbar {
+    --background: #1e293b;
+    
+    ion-title {
+      color: #f1f5f9;
+    }
+  }
+  
+  ion-segment {
+    --background: #1e293b;
+    
+    ion-segment-button {
+      --color: #94a3b8;
+      --color-checked: #fff;
+      
+      &::part(indicator-background) {
+        background: linear-gradient(135deg, 
+          var(--ion-color-primary) 0%, 
+          color-mix(in srgb, var(--ion-color-primary) 90%, #fff) 100%
+        );
+        box-shadow: 
+          0 4px 16px rgba(59,130,246,.4),
+          0 2px 8px rgba(59,130,246,.3),
+          inset 0 1px 0 rgba(255,255,255,0.1);
+      }
+    }
+  }
+  
+  ion-list {
+    background: #1e293b;
+  }
+  
+  ion-item {
+    --border-color: #334155;
+    
+    ion-label {
+      color: #f1f5f9;
+    }
+  }
+  
+  ion-textarea,
+  ion-select {
+    border-color: #334155;
+    background: #0f172a;
+    color: #f1f5f9;
+    
+    &::part(text),
+    &::part(placeholder) {
+      color: #f1f5f9;
+    }
+  }
+  
+  /* 🔥 Input de monto en modo oscuro */
+  .amount-input-wrapper {
+    border-color: #334155;
+    background: #0f172a;
+    
+    &:focus-within {
+      border-color: var(--ion-color-primary);
+    }
+    
+    .amount-input {
+      color: #f1f5f9;
+      
+      &::placeholder {
+        color: #64748b;
+      }
+    }
+  }
+  
+  /* 🔥 Input de fecha en modo oscuro */
+  .date-input {
+    border-color: #334155;
+    background: #0f172a;
+    color: #f1f5f9;
+    
+    &::-webkit-calendar-picker-indicator {
+      filter: invert(1);
+    }
+  }
+  
+  ion-item.item-has-focus {
+    ion-textarea,
+    ion-select {
+      border-color: var(--ion-color-primary);
+    }
+  }
+  
+  /* 🔥 Segment de método de pago en modo oscuro */
+  ion-item ion-segment {
+    --background: #1e293b;
+    box-shadow: 0 2px 8px rgba(0,0,0,.2);
+    
+    /* 🔥 Fondo deslizante en modo oscuro */
+    &::before {
+      background: linear-gradient(135deg, var(--ion-color-primary) 0%, var(--ion-color-primary-shade) 100%);
+      box-shadow: 
+        0 2px 10px rgba(59, 130, 246, 0.5),
+        0 1px 4px rgba(59, 130, 246, 0.3);
+    }
+    
+    ion-segment-button {
+      --color: #94a3b8;
+      --color-checked: #ffffff;
+      
+      &:hover:not(.segment-button-checked) {
+        --color: #cbd5e1;
+      }
+      
+      &.segment-button-checked {
+        color: #ffffff !important;
+      }
+    }
+  }
+  
+  .actions-fixed {
+    background: rgba(30,41,59,.98);
+    border-top-color: #334155;
+  }
+  
+  ion-button[fill="outline"] {
+    --border-color: #475569;
+    --color: #e2e8f0;
+    --background: #1e293b;
+    --background-hover: #334155;
+  }
+  
+  .debug-info {
+    background: rgba(255,255,255,0.05);
+    color: #94a3b8;
+  }
+}
+
+/* 🔥 Estilos para action sheet personalizado */
+.custom-action-sheet {
+  .action-sheet-group {
+    background: var(--ion-background-color);
+  }
+  
+  .action-sheet-title {
+    color: var(--ion-text-color);
+    font-weight: 700;
+  }
+  
+  button {
+    color: var(--ion-text-color) !important;
+  }
+}
+
+/* 🔥 Fix para action sheets en modo oscuro - GLOBAL */
+:host-context(body.dark) {
+  ion-action-sheet {
+    --background: #1e293b;
+    --color: #f1f5f9;
+    
+    .action-sheet-title {
+      color: #f1f5f9 !important;
+    }
+    
+    .action-sheet-button {
+      color: #f1f5f9 !important;
+    }
+    
+    .action-sheet-cancel {
+      color: #f87171 !important;
+    }
+  }
+}
+
+/* ====== Responsive ====== */
+@media (max-width: 520px) {
+  .actions-fixed {
+    justify-content: stretch;
+    padding: 12px 16px;
+    
+    ion-button {
+      flex: 1;
+      min-width: auto;
+    }
+  }
+  
+  .amount-input {
+    font-size: 18px !important;
+  }
+}

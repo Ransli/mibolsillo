@@ -1,0 +1,38 @@
+<ion-content class="ion-padding login-bg">
+    <div class="login-card">
+      <!-- Cabecera -->
+      <div class="logo">
+        <img src="assets/icon/Mi Bolsillo2.png" alt="Logo" />
+        <h1>MiBolsillo</h1>
+        <p class="subtitle">Controla tus gastos con estilo</p>
+      </div>
+  
+      <!-- Botón principal -->
+      <button class="btn-primary" (click)="continueWithGoogle()">
+        <img class="g" src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="">
+        Continuar con Google
+      </button>
+  
+      <!-- Separador -->
+      <div class="divider">
+        <span>O elige una cuenta reciente</span>
+      </div>
+  
+      <!-- Usuarios recientes -->
+      <div *ngIf="recentUsers.length > 0" class="recent-list">
+        <div class="recent-item" *ngFor="let u of recentUsers">
+          <img class="avatar" [src]="u.photoURL || 'assets/default-avatar.png'" alt="avatar" />
+          <div class="info">
+            <div class="name">{{ u.displayName || 'Usuario' }}</div>
+            <div class="email">{{ u.email }}</div>
+          </div>
+  
+          <div class="actions">
+            <button class="btn" (click)="continueWithRecent(u)">Continuar</button>
+            <button class="btn ghost danger" (click)="forget(u)">Quitar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </ion-content>
+  

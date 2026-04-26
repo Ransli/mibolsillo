@@ -1,0 +1,339 @@
+/* ====== Modal de Categorías ====== */
+:host {
+  display: block;
+}
+
+ion-content {
+  --background: #f8fafc;
+}
+
+/* ====== Header ====== */
+ion-header {
+  ion-toolbar {
+    --background: #fff;
+    --border-width: 0 0 1px 0;
+    --border-color: #e5e7eb;
+    --padding-top: 8px;
+    --padding-bottom: 8px;
+    
+    ion-title {
+      font-weight: 800;
+      font-size: 20px;
+      color: #1f2937;
+    }
+    
+    .close-btn {
+      font-weight: 700;
+      font-size: 14px;
+      color: #1f2937 !important;
+      --color: #1f2937;
+    }
+  }
+}
+
+/* ====== Espaciadores ====== */
+.spacer-20 {
+  height: 20px;
+}
+
+/* ====== Headers de sección ====== */
+.form-header,
+.categories-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+  padding: 0 4px;
+  
+  ion-icon {
+    font-size: 24px;
+    color: var(--ion-color-primary);
+  }
+  
+  h3 {
+    font-size: 18px;
+    font-weight: 800;
+    color: var(--ion-text-color);
+    margin: 0;
+  }
+}
+
+/* ====== Card Panel Base ====== */
+.card-panel {
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 10px 24px rgba(31,41,55,.08);
+  padding: 16px;
+  margin: 0;
+}
+
+/* ====== Formulario de nueva categoría ====== */
+.form-card {
+  border: 2px solid var(--ion-color-primary);
+  box-shadow: 0 10px 32px rgba(59, 130, 246, .15);
+  
+  .form-header {
+    padding: 0 0 12px 0;
+    border-bottom: 1px solid #e5e7eb;
+    margin-bottom: 16px;
+  }
+  
+  ion-item {
+    --background: transparent;
+    --padding-start: 0;
+    --inner-padding-end: 0;
+    --border-width: 0;
+    margin-bottom: 16px;
+  }
+  
+  ion-label {
+    font-weight: 700;
+    font-size: 14px;
+    color: var(--ion-text-color);
+    margin-bottom: 8px;
+  }
+  
+  ion-input {
+    --padding-start: 14px;
+    --padding-end: 14px;
+    --padding-top: 12px;
+    --padding-bottom: 12px;
+    --placeholder-color: #94a3b8;
+    --placeholder-opacity: 1;
+    color: var(--ion-text-color);
+    font-size: 15px;
+    font-weight: 500;
+    border: 2px solid #e2e8f0;
+    border-radius: 10px;
+    margin-top: 6px;
+    min-height: 46px;
+    transition: all 0.2s ease;
+    
+    &:focus {
+      border-color: var(--ion-color-primary);
+      box-shadow: 0 0 0 3px rgba(59,130,246,.15);
+    }
+  }
+  
+  .add-button {
+    --border-radius: 12px;
+    --padding-start: 24px;
+    --padding-end: 24px;
+    height: 50px;
+    font-weight: 700;
+    font-size: 15px;
+    letter-spacing: 0.3px;
+    margin-top: 8px;
+    
+    ion-icon {
+      font-size: 22px;
+      margin-right: 6px;
+    }
+  }
+}
+
+/* ====== Lista de categorías ====== */
+.categories-list {
+  padding: 8px 0;
+  
+  ion-item {
+    --min-height: 64px;
+    --background: transparent;
+    --padding-start: 16px;
+    --inner-padding-end: 12px;
+    --highlight-height: 0;
+    --border-width: 0 0 1px 0;
+    --border-color: #e5e7eb;
+    margin-bottom: 0;
+    
+    &:last-child {
+      --border-width: 0;
+    }
+  }
+  
+  ion-label {
+    h3 {
+      font-weight: 700;
+      font-size: 16px;
+      color: var(--ion-text-color);
+      margin: 0;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+  }
+  
+  /* 🔥 BOTÓN ELIMINAR */
+  .delete-button {
+    --background: #fee2e2;
+    --background-hover: #fecaca;
+    --background-activated: #fca5a5;
+    --color: #dc2626;
+    --border-radius: 10px;
+    --padding-start: 16px;
+    --padding-end: 16px;
+    --box-shadow: 0 2px 8px rgba(220, 38, 38, .2);
+    height: 40px;
+    margin: 0;
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    
+    &:hover {
+      --box-shadow: 0 4px 12px rgba(220, 38, 38, .3);
+      transform: translateY(-1px);
+    }
+  }
+}
+
+/* ====== Estado vacío ====== */
+.empty-state {
+  padding: 60px 20px;
+  border-radius: 16px;
+  background: #fff;
+  text-align: center;
+  border: 2px dashed #e2e8f0;
+  margin: 0;
+  
+  .empty-icon {
+    font-size: 64px;
+    color: #cbd5e1;
+    margin-bottom: 16px;
+  }
+  
+  p {
+    font-size: 16px;
+    font-weight: 600;
+    color: #64748b;
+    margin: 8px 0;
+    
+    &.empty-hint {
+      font-size: 14px;
+      font-weight: 500;
+      color: #94a3b8;
+    }
+  }
+}
+
+/* ====== Modo oscuro ====== */
+:host-context(body.dark) {
+  ion-content {
+    --background: #0f172a;
+  }
+  
+  ion-header ion-toolbar {
+    --background: #1e293b;
+    --border-color: #334155;
+    
+    ion-title {
+      color: #f1f5f9;
+    }
+    
+    .close-btn {
+      color: #f1f5f9 !important;
+      --color: #f1f5f9 !important;
+    }
+  }
+  
+  .form-header,
+  .categories-header {
+    h3 {
+      color: #f1f5f9;
+    }
+    
+    ion-icon {
+      color: var(--ion-color-primary);
+    }
+  }
+  
+  .card-panel {
+    background: #1e293b;
+  }
+  
+  .form-card {
+    border-color: var(--ion-color-primary);
+    box-shadow: 0 10px 32px rgba(59, 130, 246, .25);
+    
+    .form-header {
+      border-bottom-color: #334155;
+    }
+    
+    ion-label {
+      color: #f1f5f9;
+    }
+    
+    ion-input {
+      border-color: #334155;
+      background: #0f172a;
+      color: #f1f5f9;
+      --placeholder-color: #64748b;
+      
+      &:focus {
+        border-color: var(--ion-color-primary);
+        box-shadow: 0 0 0 3px rgba(59,130,246,.25);
+      }
+    }
+  }
+  
+  .categories-list {
+    ion-item {
+      --border-color: #334155;
+      
+      ion-label h3 {
+        color: #f1f5f9;
+      }
+    }
+    
+    .delete-button {
+      --background: #7f1d1d;
+      --background-hover: #991b1b;
+      --background-activated: #b91c1c;
+      --color: #fca5a5;
+      --box-shadow: 0 2px 8px rgba(220, 38, 38, .3);
+      
+      &:hover {
+        --box-shadow: 0 4px 12px rgba(220, 38, 38, .4);
+      }
+    }
+  }
+  
+  .empty-state {
+    background: #1e293b;
+    border-color: #334155;
+    
+    .empty-icon {
+      color: #475569;
+    }
+    
+    p {
+      color: #94a3b8;
+      
+      &.empty-hint {
+        color: #64748b;
+      }
+    }
+  }
+}
+
+/* ====== Animaciones ====== */
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.categories-list ion-item {
+  animation: slideIn 0.3s ease-out backwards;
+  
+  @for $i from 1 through 10 {
+    &:nth-child(#{$i}) {
+      animation-delay: #{$i * 0.05}s;
+    }
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "name": "mibolsillo",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular-standalone"
+}

@@ -1,0 +1,142 @@
+<!-- src/app/tab2/tab2.page.html -->
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-title>Estadísticas</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <!-- Header colapsable -->
+  <ion-header collapse="condense">
+    <ion-toolbar>
+      <ion-title size="large">Estadísticas</ion-title>
+    </ion-toolbar>
+  </ion-header>
+
+  <div class="ion-padding">
+    <!-- Resumen general -->
+    <div class="summary-cards">
+      <ion-card class="summary-card">
+        <ion-card-content>
+          <div class="summary-icon success">
+            <ion-icon name="trending-up-outline"></ion-icon>
+          </div>
+          <p class="summary-label">Total Ingresos</p>
+          <h2 class="summary-value">{{ totalIncome | number:'1.2-2' }}</h2>
+        </ion-card-content>
+      </ion-card>
+
+      <ion-card class="summary-card">
+        <ion-card-content>
+          <div class="summary-icon danger">
+            <ion-icon name="trending-down-outline"></ion-icon>
+          </div>
+          <p class="summary-label">Total Gastos</p>
+          <h2 class="summary-value">{{ totalExpenses | number:'1.2-2' }}</h2>
+        </ion-card-content>
+      </ion-card>
+
+      <ion-card class="summary-card">
+        <ion-card-content>
+          <div class="summary-icon primary">
+            <ion-icon name="wallet-outline"></ion-icon>
+          </div>
+          <p class="summary-label">Balance</p>
+          <h2 class="summary-value" [class.positive]="balance >= 0" [class.negative]="balance < 0">
+            {{ balance | number:'1.2-2' }}
+          </h2>
+        </ion-card-content>
+      </ion-card>
+    </div>
+
+    <!-- Gastos por categoría del mes -->
+    <div class="chart-section">
+      <h3 class="section-title">Gastos por Categoría (Este Mes)</h3>
+      
+      <ion-card class="chart-card">
+        <ion-card-content>
+          <canvas #categoryChart></canvas>
+          
+          <div class="chart-legend" *ngIf="categoryData.length > 0">
+            <div class="legend-item" *ngFor="let item of categoryData; let i = index">
+              <span class="legend-color" [style.background-color]="chartColors[i % chartColors.length]"></span>
+              <span class="legend-label">{{ item.category }}</span>
+              <span class="legend-value">{{ item.amount | number:'1.2-2' }}</span>
+              <span class="legend-percent">({{ item.percentage | number:'1.0-0' }}%)</span>
+            </div>
+          </div>
+
+          <p class="empty-message" *ngIf="categoryData.length === 0">
+            No hay gastos registrados este mes
+          </p>
+        </ion-card-content>
+      </ion-card>
+    </div>
+
+    <!-- Evolución de ingresos y gastos -->
+    <div class="chart-section">
+      <h3 class="section-title">Evolución Últimos 6 Meses</h3>
+
+      <ion-card class="chart-card">
+        <ion-card-content>
+          <canvas #trendChart></canvas>
+
+          <p class="empty-message" *ngIf="monthlyData.length === 0">
+            No hay suficientes datos para mostrar la evolución
+          </p>
+        </ion-card-content>
+      </ion-card>
+    </div>
+
+    <!-- Comparación mensual (barras) -->
+    <div class="chart-section">
+      <h3 class="section-title">Comparación Mensual</h3>
+
+      <ion-card class="chart-card">
+        <ion-card-content>
+          <canvas #comparisonChart></canvas>
+
+          <p class="empty-message" *ngIf="monthlyData.length === 0">
+            No hay suficientes datos para mostrar la comparación
+          </p>
+        </ion-card-content>
+      </ion-card>
+    </div>
+
+    <!-- Estadísticas adicionales -->
+    <div class="stats-grid">
+      <ion-card class="stat-card">
+        <ion-card-content>
+          <ion-icon name="calendar-outline" class="stat-icon"></ion-icon>
+          <p class="stat-label">Promedio Diario</p>
+          <h3 class="stat-value">{{ averageDaily | number:'1.2-2' }}</h3>
+        </ion-card-content>
+      </ion-card>
+
+      <ion-card class="stat-card">
+        <ion-card-content>
+          <ion-icon name="apps-outline" class="stat-icon"></ion-icon>
+          <p class="stat-label">Categoría + Gastada</p>
+          <h3 class="stat-value">{{ topCategory || '—' }}</h3>
+        </ion-card-content>
+      </ion-card>
+
+      <ion-card class="stat-card">
+        <ion-card-content>
+          <ion-icon name="flash-outline" class="stat-icon"></ion-icon>
+          <p class="stat-label">Transacciones</p>
+          <h3 class="stat-value">{{ totalTransactions }}</h3>
+        </ion-card-content>
+      </ion-card>
+
+      <ion-card class="stat-card">
+        <ion-card-content>
+          <ion-icon name="trending-up-outline" class="stat-icon"></ion-icon>
+          <p class="stat-label">Mayor Gasto</p>
+          <h3 class="stat-value">{{ maxExpense | number:'1.2-2' }}</h3>
+        </ion-card-content>
+      </ion-card>
+    </div>
+
+  </div>
+</ion-content>

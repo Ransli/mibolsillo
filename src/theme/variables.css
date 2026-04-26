@@ -1,0 +1,92 @@
+/* src/theme/variables.css */
+:root {
+  /* ===== PALETA PRINCIPAL ===== */
+  --ion-color-primary: #2563eb;         /* Azul */
+  --ion-color-primary-rgb: 37, 99, 235;
+  --ion-color-primary-contrast: #ffffff;
+  --ion-color-primary-contrast-rgb: 255, 255, 255;
+  --ion-color-primary-tint: #3b82f6;    /* +tint (más claro) */
+  --ion-color-primary-shade: #1e40af;   /* +shade (más oscuro) */
+
+  --ion-color-secondary: #16a34a;       /* Verde */
+  --ion-color-secondary-rgb: 22, 163, 74;
+  --ion-color-secondary-contrast: #ffffff;
+  --ion-color-secondary-contrast-rgb: 255, 255, 255;
+  --ion-color-secondary-tint: #22c55e;
+  --ion-color-secondary-shade: #15803d;
+
+  --ion-color-tertiary: #f59e0b;        /* Ámbar */
+  --ion-color-tertiary-rgb: 245, 158, 11;
+  --ion-color-tertiary-contrast: #1f2937;
+  --ion-color-tertiary-contrast-rgb: 31, 41, 55;
+  --ion-color-tertiary-tint: #fbbf24;
+  --ion-color-tertiary-shade: #b45309;
+
+  /* Estados */
+  --ion-color-success: #16a34a;
+  --ion-color-success-rgb: 22, 163, 74;
+  --ion-color-success-contrast: #ffffff;
+  --ion-color-success-contrast-rgb: 255, 255, 255;
+  --ion-color-success-tint: #22c55e;
+  --ion-color-success-shade: #15803d;
+
+  --ion-color-warning: #f59e0b;
+  --ion-color-warning-rgb: 245, 158, 11;
+  --ion-color-warning-contrast: #1f2937;
+  --ion-color-warning-contrast-rgb: 31, 41, 55;
+  --ion-color-warning-tint: #fbbf24;
+  --ion-color-warning-shade: #b45309;
+
+  --ion-color-danger: #ef4444;
+  --ion-color-danger-rgb: 239, 68, 68;
+  --ion-color-danger-contrast: #ffffff;
+  --ion-color-danger-contrast-rgb: 255, 255, 255;
+  --ion-color-danger-tint: #f87171;
+  --ion-color-danger-shade: #b91c1c;
+
+  --ion-color-medium: #64748b;          /* Gris medio para bordes/labels */
+  --ion-color-medium-rgb: 100, 116, 139;
+  --ion-color-medium-contrast: #ffffff;
+  --ion-color-medium-contrast-rgb: 255, 255, 255;
+  --ion-color-medium-tint: #94a3b8;
+  --ion-color-medium-shade: #475569;
+
+  --ion-color-light: #f8fafc;
+  --ion-color-light-rgb: 248, 250, 252;
+  --ion-color-light-contrast: #1f2937;
+  --ion-color-light-contrast-rgb: 31, 41, 55;
+  --ion-color-light-tint: #ffffff;
+  --ion-color-light-shade: #e2e8f0;
+
+  --ion-color-dark: #0f172a;
+  --ion-color-dark-rgb: 15, 23, 42;
+  --ion-color-dark-contrast: #ffffff;
+  --ion-color-dark-contrast-rgb: 255, 255, 255;
+  --ion-color-dark-tint: #1f2937;
+  --ion-color-dark-shade: #0b1220;
+
+  /* ===== FONDOS / TEXTO ===== */
+  --ion-background-color: #f5f6fa;      /* fondo claro suave */
+  --ion-text-color: #1f2937;            /* texto principal */
+
+  /* ===== COMPONENTES BASE ===== */
+  --ion-toolbar-background: #ffffff;
+  --ion-toolbar-color: var(--ion-text-color);
+
+  --ion-tab-bar-background: #ffffff;
+  --ion-tab-bar-color: var(--ion-color-medium);
+  --ion-tab-bar-color-selected: var(--ion-color-primary);
+
+  --ion-card-background: #ffffff;
+
+  /* Segment (pestañas internas) */
+  --ion-segment-indicator-color: var(--ion-color-primary);
+  --ion-segment-indicator-height: 2px;
+
+  /* ===== TOKENS PROPIOS ===== */
+  --panel: #ffffff;  /* tarjetas/blancos */
+  --muted: #6b7280;  /* gris medio para textos secundarios */
+}
+
+/* (Opcional) Forzar esquema claro del navegador para coherencia visual */
+:root { color-scheme: light; }

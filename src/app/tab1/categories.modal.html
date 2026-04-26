@@ -1,0 +1,86 @@
+<ion-header translucent="true">
+  <ion-toolbar>
+    <ion-title>Categorías</ion-title>
+    <ion-buttons slot="end">
+      <ion-button fill="clear" (click)="close()" class="close-btn">
+        Cerrar
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+
+  <!-- 🔥 FORMULARIO PRIMERO - Nueva categoría -->
+  <form [formGroup]="form" (ngSubmit)="add()">
+    <ion-list class="card-panel form-card">
+      <div class="form-header">
+        <ion-icon name="add-circle-outline"></ion-icon>
+        <h3>Nueva Categoría</h3>
+      </div>
+
+      <ion-item lines="none">
+        <ion-label position="stacked">Nombre</ion-label>
+        <ion-input
+          formControlName="name"
+          placeholder="Ej.: Supermercado">
+        </ion-input>
+      </ion-item>
+
+      <ion-item lines="none">
+        <ion-label position="stacked">Emoji</ion-label>
+        <ion-input
+          formControlName="emoji"
+          placeholder="Ej.: 🛒">
+        </ion-input>
+      </ion-item>
+
+      <ion-button
+        type="submit"
+        expand="block"
+        color="primary"
+        [disabled]="form.invalid || saving"
+        class="add-button">
+        <ion-icon name="checkmark-circle-outline" slot="start"></ion-icon>
+        {{ saving ? 'Agregando...' : 'Agregar Categoría' }}
+      </ion-button>
+    </ion-list>
+  </form>
+
+  <div class="spacer-20"></div>
+
+  <!-- 🔥 LISTA DE CATEGORÍAS DESPUÉS -->
+  <div class="categories-header">
+    <ion-icon name="list-outline"></ion-icon>
+    <h3>Mis Categorías</h3>
+  </div>
+
+  <ion-list class="card-panel categories-list" *ngIf="(categories$ | async) as cats; else emptyCats">
+    <ion-item *ngFor="let c of cats" lines="none">
+      <ion-label>
+        <h3>{{ c.emoji }} {{ c.name }}</h3>
+      </ion-label>
+      
+      <!-- 🔥 BOTÓN ELIMINAR -->
+      <ion-button 
+        slot="end" 
+        color="danger"
+        class="delete-button"
+        (click)="deleteCategory(c.id!, c.name)">
+        Eliminar
+      </ion-button>
+    </ion-item>
+  </ion-list>
+
+  <ng-template #emptyCats>
+    <div class="empty-state">
+      <ion-icon name="albums-outline" class="empty-icon"></ion-icon>
+      <p>Aún no hay categorías</p>
+      <p class="empty-hint">¡Crea tu primera categoría arriba!</p>
+    </div>
+  </ng-template>
+
+  <!-- Espaciador final -->
+  <div style="height: 40px;"></div>
+
+</ion-content>

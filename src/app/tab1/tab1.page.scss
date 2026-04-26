@@ -1,0 +1,674 @@
+/* src/app/tab1/tab1.page.scss */
+
+/* ===== Content sin restricciones de altura ===== */
+ion-content {
+  --overflow: auto;
+}
+
+/* ===== Encabezado ===== */
+.greeting {
+  margin: 20px 0 14px;
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+/* ===== KPIs ===== */
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 20px;
+
+  .kpi {
+    .ion-text-wrap { 
+      overflow: hidden; 
+    }
+    
+    h3 {
+      margin: 0 0 8px;
+      font-size: 14px;
+      font-weight: 600;
+      color: #64748b;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      line-height: 1.4;
+    }
+  }
+
+  .kpi-value {
+    font-size: clamp(20px, 3vw, 28px);
+    font-weight: 800;
+    margin-top: 6px;
+    color: var(--ion-text-color);
+    line-height: 1.2;
+  }
+
+  .kpi-value.kpi-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 84px;
+    padding: 8px 12px;
+    border: 2px solid var(--ion-color-primary);
+    border-radius: 12px;
+    font-weight: 800;
+    color: var(--ion-color-primary);
+    background: #fff;
+  }
+}
+
+.card.kpi {
+  margin: 0;
+  border-radius: 16px;
+  box-shadow: 0 6px 18px rgba(31,41,55,.08);
+  
+  ion-card-content {
+    padding: 16px;
+  }
+}
+
+/* ===== Acciones ===== */
+.actions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-start;
+  margin: 20px 0;
+
+  ion-button {
+    flex: 1;
+    max-width: 220px;
+    font-weight: 700;
+    line-height: 1.3;
+  }
+}
+
+/* ===== Selector de Período ===== */
+.period-selector {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  border-radius: 16px;
+  padding: 12px 20px;
+  margin: 16px 0;
+  box-shadow: 0 4px 12px rgba(31, 41, 55, 0.06);
+
+  .period-label {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--ion-text-color);
+    min-width: 160px;
+    text-align: center;
+    text-transform: capitalize;
+  }
+
+  ion-button {
+    --padding-start: 8px;
+    --padding-end: 8px;
+    --border-radius: 10px;
+    min-width: 40px;
+    height: 40px;
+
+    ion-icon {
+      font-size: 22px;
+    }
+
+    &[disabled] {
+      opacity: 0.3;
+    }
+  }
+}
+
+/* ===== Filtros ===== */
+.filters-section {
+  margin: 24px 0;
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--ion-text-color);
+  margin-bottom: 12px;
+  
+  ion-icon {
+    font-size: 20px;
+    color: var(--ion-color-primary);
+  }
+}
+
+.filters-card {
+  margin: 0;
+  border-radius: 16px;
+  box-shadow: 0 6px 18px rgba(31,41,55,.08);
+
+  ion-card-content {
+    padding: 16px;
+  }
+}
+
+.filter-group {
+  margin-bottom: 16px;
+
+  &:last-of-type {
+    margin-bottom: 12px;
+  }
+
+  ion-label {
+    display: block;
+    margin-bottom: 8px;
+    
+    h4 {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--ion-text-color);
+      margin: 0;
+      line-height: 1.4;
+    }
+  }
+
+  /* 🔥 SEGMENT MEJORADO CON ANIMACIÓN FLUIDA Y RASTRO */
+  ion-segment.modern-segment {
+    --background: #f1f5f9;
+    border-radius: 12px;
+    padding: 4px;
+    position: relative;
+    display: flex;
+    gap: 0;
+    overflow: visible;
+    
+    /* Pseudo-elemento para el efecto de fondo deslizante */
+    &::before {
+      content: '';
+      position: absolute;
+      height: calc(100% - 8px);
+      width: calc(25% - 4px);
+      background: linear-gradient(135deg, var(--ion-color-primary) 0%, var(--ion-color-primary-shade) 100%);
+      border-radius: 10px;
+      top: 4px;
+      left: 4px;
+      transition: left 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+      box-shadow: 
+        0 2px 8px rgba(59, 130, 246, 0.3),
+        0 1px 3px rgba(59, 130, 246, 0.2);
+      z-index: 0;
+      will-change: left;
+    }
+    
+    /* Posiciones del indicador según el botón seleccionado */
+    &:has(ion-segment-button[value="all"].segment-button-checked)::before {
+      left: 4px;
+    }
+    
+    &:has(ion-segment-button[value="today"].segment-button-checked)::before {
+      left: calc(25% + 2px);
+    }
+    
+    &:has(ion-segment-button[value="week"].segment-button-checked)::before {
+      left: calc(50%);
+    }
+    
+    &:has(ion-segment-button[value="month"].segment-button-checked)::before {
+      left: calc(75% - 2px);
+    }
+  }
+
+  ion-segment-button {
+    --indicator-height: 0;
+    --indicator-box-shadow: none;
+    --indicator-color: transparent;
+    --color: #64748b;
+    --color-checked: #ffffff;
+    --background: transparent;
+    --background-checked: transparent;
+    
+    font-weight: 600;
+    font-size: 13px;
+    min-height: 40px;
+    border-radius: 10px;
+    position: relative;
+    z-index: 1;
+    flex: 1;
+    transition: color 0.25s ease;
+    
+    /* Efecto hover */
+    &:hover:not(.segment-button-checked) {
+      --color: #475569;
+    }
+    
+    /* Estado seleccionado - solo cambio de color */
+    &.segment-button-checked {
+      color: #ffffff !important;
+      font-weight: 700;
+    }
+  }
+
+  ion-select {
+    width: 100%;
+    --padding-start: 12px;
+    --padding-end: 12px;
+    --padding-top: 8px;
+    --padding-bottom: 8px;
+    border: 2px solid #e2e8f0;
+    border-radius: 10px;
+    min-height: 42px;
+    font-weight: 600;
+    transition: all 0.2s ease;
+    
+    &:hover {
+      border-color: #cbd5e1;
+    }
+    
+    /* Reducir espaciado interno del popover */
+    &::part(container) {
+      padding: 0;
+    }
+  }
+  
+  /* 🔥 Reducir espacios en las opciones del select */
+  ion-select-option {
+    --padding-start: 12px;
+    --padding-end: 12px;
+    --padding-top: 8px;
+    --padding-bottom: 8px;
+    min-height: 40px;
+  }
+  
+  /* Clase específica para selects compactos */
+  ion-select.compact-select {
+    ion-select-option {
+      font-size: 14px;
+      line-height: 1.3;
+    }
+  }
+}
+
+/* ===== Lista de Transacciones - MEJORADA ===== */
+.list-title {
+  margin: 24px 0 12px;
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--ion-text-color);
+  line-height: 1.3;
+}
+
+.empty-state {
+  padding: 60px 20px;
+  text-align: center;
+  
+  .empty-icon {
+    font-size: 64px;
+    color: #cbd5e1;
+    margin-bottom: 16px;
+  }
+  
+  .muted {
+    color: #64748b;
+    font-size: 16px;
+    line-height: 1.5;
+  }
+}
+
+.tx-list {
+  border-radius: 16px;
+  overflow: visible;
+  background: #fff;
+  box-shadow: 0 10px 24px rgba(31,41,55,.06);
+  margin-bottom: 20px;
+
+  ion-item {
+    --min-height: 68px;
+    --padding-start: 16px;
+    --inner-padding-end: 16px;
+    --padding-top: 10px;
+    --padding-bottom: 10px;
+    --border-width: 0 0 1px 0;
+    --border-color: #e5e7eb;
+    --border-style: solid;
+    margin-bottom: 0;
+    
+    &:last-child {
+      --border-width: 0;
+    }
+  }
+
+  ion-label {
+    margin-top: 2px;
+    margin-bottom: 2px;
+    
+    h3 {
+      font-weight: 700;
+      font-size: 15px;
+      margin-bottom: 6px;
+      color: var(--ion-text-color);
+      line-height: 1.4;
+    }
+    
+    /* 🔥 DETALLES DE TRANSACCIÓN MEJORADOS */
+    .tx-details {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 6px;
+    }
+    
+    .payment-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 4px 10px;
+      border-radius: 6px;
+      line-height: 1.2;
+      
+      ion-icon {
+        font-size: 13px;
+      }
+      
+      &.card {
+        background: #eff6ff;
+        color: #1e40af;
+      }
+      
+      &.cash {
+        background: #f0fdf4;
+        color: #15803d;
+      }
+    }
+    
+    .tx-note {
+      font-size: 12px;
+      color: #64748b;
+      font-style: italic;
+      max-width: 180px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    
+    p.tx-date {
+      font-size: 12px;
+      color: #94a3b8;
+      line-height: 1.4;
+      margin: 0;
+    }
+  }
+
+  ion-badge {
+    font-weight: 700;
+    font-size: 15px;
+    letter-spacing: .3px;
+    border-radius: 10px;
+    padding: 8px 14px;
+    line-height: 1.2;
+    align-self: center;
+
+    &.income {
+      background: #ecfdf5;
+      color: #0f766e;
+    }
+    
+    &.expense {
+      background: #fef2f2;
+      color: #b91c1c;
+    }
+  }
+}
+
+/* ===== Modo oscuro ===== */
+:host-context(body.dark) {
+  .period-selector {
+    background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+
+    .period-label {
+      color: #f1f5f9;
+    }
+
+    ion-button {
+      --color: #94a3b8;
+
+      &:hover {
+        --color: #f1f5f9;
+      }
+    }
+  }
+
+  .greeting {
+    color: #f1f5f9;
+  }
+  
+  .card.kpi {
+    background: #1e293b;
+    
+    ion-card-content {
+      h3 {
+        color: #94a3b8;
+      }
+      
+      .kpi-value {
+        color: #f1f5f9;
+      }
+    }
+  }
+  
+  .kpi-value.kpi-badge {
+    background: #0f172a;
+    border-color: var(--ion-color-primary);
+    color: var(--ion-color-primary);
+  }
+  
+  .filters-card {
+    background: #1e293b;
+    
+    ion-card-content {
+      ion-label h4 {
+        color: #f1f5f9;
+      }
+    }
+  }
+  
+  .filter-group {
+    /* 🔥 SEGMENT EN MODO OSCURO */
+    ion-segment.modern-segment {
+      --background: #0f172a;
+      
+      &::before {
+        background: linear-gradient(135deg, var(--ion-color-primary) 0%, var(--ion-color-primary-shade) 100%);
+        box-shadow: 
+          0 2px 10px rgba(59, 130, 246, 0.5),
+          0 1px 4px rgba(59, 130, 246, 0.3);
+      }
+    }
+    
+    ion-segment-button {
+      --color: #94a3b8;
+      --color-checked: #ffffff;
+      
+      &:hover:not(.segment-button-checked) {
+        --color: #cbd5e1;
+      }
+      
+      &.segment-button-checked {
+        color: #ffffff !important;
+      }
+    }
+    
+    ion-select {
+      --background: #0f172a;
+      --color: #f1f5f9;
+      border-color: #334155;
+      
+      &:hover {
+        border-color: #475569;
+      }
+    }
+  }
+  
+  .list-title {
+    color: #f1f5f9;
+  }
+  
+  .empty-state {
+    .empty-icon {
+      color: #475569;
+    }
+    
+    .muted {
+      color: #94a3b8;
+    }
+  }
+  
+  .tx-list {
+    background: #1e293b;
+    
+    ion-item {
+      --background: #1e293b;
+      --border-color: #334155;
+      --color: #f1f5f9;
+      
+      ion-label {
+        h3 {
+          color: #f1f5f9 !important;
+        }
+        
+        p.tx-date {
+          color: #94a3b8 !important;
+        }
+        
+        .payment-badge {
+          &.card {
+            background: #1e3a8a;
+            color: #93c5fd;
+          }
+          
+          &.cash {
+            background: #14532d;
+            color: #86efac;
+          }
+        }
+        
+        .tx-note {
+          color: #94a3b8;
+        }
+      }
+      
+      ion-badge {
+        &.income {
+          background: #064e3b;
+          color: #6ee7b7;
+        }
+        
+        &.expense {
+          background: #7f1d1d;
+          color: #fca5a5;
+        }
+      }
+    }
+  }
+  
+  .actions {
+    ion-button[fill="outline"] {
+      --color: #f1f5f9;
+      --border-color: #334155;
+      --background: #1e293b;
+    }
+  }
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 820px) {
+  .kpi-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 520px) {
+  .kpi-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .actions {
+    flex-direction: column;
+    
+    ion-button {
+      max-width: none;
+    }
+  }
+  
+  .filter-group {
+    ion-segment-button {
+      font-size: 11px;
+      min-height: 36px;
+      padding: 0 8px;
+    }
+  }
+  
+  .tx-list {
+    ion-label {
+      .tx-note {
+        max-width: 120px;
+      }
+    }
+  }
+}
+
+/* ===== Animaciones ===== */
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.tx-list ion-item {
+  animation: slideIn 0.3s ease-out backwards;
+  
+  @for $i from 1 through 10 {
+    &:nth-child(#{$i}) {
+      animation-delay: #{$i * 0.05}s;
+    }
+  }
+}
+
+/* ===== 🔥 Estilos para reducir espaciado en popovers de select ===== */
+ion-popover {
+  &.select-popover {
+    --width: auto;
+    --max-width: 90%;
+    
+    ion-list {
+      padding: 4px 0;
+      margin: 0;
+    }
+    
+    ion-item {
+      --min-height: 40px;
+      --padding-start: 12px;
+      --padding-end: 12px;
+      --inner-padding-end: 12px;
+      font-size: 14px;
+      
+      ion-label {
+        margin: 8px 0;
+      }
+    }
+    
+    ion-radio-group {
+      ion-item {
+        --min-height: 40px;
+        margin: 0;
+      }
+    }
+  }
+}

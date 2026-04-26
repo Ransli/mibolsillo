@@ -1,0 +1,220 @@
+<!-- src/app/tab3/tab3.page.html -->
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-title>Tarjetas</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <!-- Header colapsable -->
+  <ion-header collapse="condense">
+    <ion-toolbar>
+      <ion-title size="large">Tarjetas</ion-title>
+    </ion-toolbar>
+  </ion-header>
+
+  <div class="ion-padding">
+    <!-- Título de sección -->
+    <h2 class="section-title">GESTIÓN DE TARJETAS</h2>
+
+    <!-- Formulario para agregar tarjeta -->
+    <ion-card class="form-card">
+      <ion-card-content>
+        <form [formGroup]="cardForm" (ngSubmit)="addCard()">
+          <div class="form-grid">
+            <div class="form-field">
+              <ion-label class="field-label">Nombre de la tarjeta</ion-label>
+              <ion-input
+                formControlName="name"
+                placeholder="Ej. Visa personal"
+                class="custom-input">
+              </ion-input>
+            </div>
+
+            <div class="form-field">
+              <ion-label class="field-label">Límite de la tarjeta</ion-label>
+              <ion-input
+                type="text"
+                inputmode="numeric"
+                [value]="formattedLimit"
+                (ionInput)="onLimitInput($event)"
+                placeholder="0"
+                class="custom-input">
+              </ion-input>
+            </div>
+
+            <div class="form-field">
+              <ion-label class="field-label">Fecha de corte</ion-label>
+              <ion-input
+                formControlName="cutoffDate"
+                type="date"
+                class="custom-input">
+              </ion-input>
+            </div>
+
+            <div class="form-field">
+              <ion-label class="field-label">Fecha de pago</ion-label>
+              <ion-input
+                formControlName="paymentDate"
+                type="date"
+                class="custom-input">
+              </ion-input>
+            </div>
+          </div>
+
+          <ion-button
+            expand="block"
+            type="submit"
+            [disabled]="cardForm.invalid || saving"
+            class="add-button">
+            {{ saving ? 'Agregando...' : 'Agregar tarjeta' }}
+          </ion-button>
+        </form>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Lista de tarjetas tipo plástico -->
+    <div class="cards-list" *ngIf="cards$ | async as cards">
+      <div class="credit-card" *ngFor="let card of cards; let i = index" 
+           [style.background]="getCardGradient(i)"
+           (click)="selectCard(card)">
+        
+        <!-- Chip de la tarjeta -->
+        <div class="card-chip">
+          <div class="chip-line"></div>
+          <div class="chip-line"></div>
+          <div class="chip-line"></div>
+        </div>
+
+        <!-- Número de tarjeta -->
+        <div class="card-number">
+          <span class="number-group">0000</span>
+          <span class="number-group">0000</span>
+          <span class="number-group">0000</span>
+          <span class="number-group">0000</span>
+        </div>
+
+        <!-- Información de la tarjeta -->
+        <div class="card-bottom">
+          <div class="card-info-section">
+            <div class="info-group">
+              <span class="info-label">NOMBRE</span>
+              <span class="info-value">{{ card.name }}</span>
+            </div>
+            <div class="info-group">
+              <span class="info-label">CORTE</span>
+              <span class="info-value">{{ formatCardDate(card.cutoffDate) }}</span>
+            </div>
+          </div>
+          <div class="card-info-section">
+            <div class="info-group">
+              <span class="info-label">LÍMITE</span>
+              <span class="info-value">${{ card.limit | number:'1.2-2' }}</span>
+            </div>
+            <div class="info-group">
+              <span class="info-label">PAGO</span>
+              <span class="info-value">{{ formatCardDate(card.paymentDate) }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Estado de la tarjeta -->
+        <div class="card-status">
+          <div class="status-bar">
+            <div class="status-consumed" [style.width.%]="getUsagePercentage(card)"></div>
+          </div>
+          <div class="status-info">
+            <span class="consumed">${{ getCardSpent(card.id) | number:'1.2-2' }} usado</span>
+            <span class="available">${{ (card.limit - getCardSpent(card.id)) | number:'1.2-2' }} disponible</span>
+          </div>
+        </div>
+
+        <!-- 🔥 Botón eliminar CON ICONO -->
+        <ion-button
+          fill="clear"
+          size="small"
+          class="delete-card-btn"
+          (click)="deleteCard(card, $event)">
+          <ion-icon slot="icon-only" name="trash-outline"></ion-icon>
+        </ion-button>
+
+        <!-- Logo/Brand -->
+        <div class="card-brand">
+          <ion-icon name="card"></ion-icon>
+        </div>
+      </div>
+
+      <div class="empty-state" *ngIf="cards.length === 0">
+        <ion-icon name="card-outline" class="empty-icon"></ion-icon>
+        <p>No tienes tarjetas registradas</p>
+        <p class="empty-hint">Agrega tu primera tarjeta arriba</p>
+      </div>
+    </div>
+
+    <!-- Estado de tarjeta seleccionada -->
+    <div class="selected-card-section" *ngIf="selectedCard">
+      <h2 class="section-title">ESTADO DE TARJETA SELECCIONADA</h2>
+
+      <!-- Selector de tarjeta -->
+      <ion-card class="selector-card">
+        <ion-card-content>
+          <ion-select
+            [(ngModel)]="selectedCard"
+            (ionChange)="onCardChange()"
+            interface="popover"
+            placeholder="Selecciona una tarjeta">
+            <ion-select-option *ngFor="let card of cards$ | async" [value]="card">
+              {{ card.name }}
+            </ion-select-option>
+          </ion-select>
+
+          <ion-button expand="block" (click)="viewCardStatement()" class="view-statement-btn">
+            Ver estado
+          </ion-button>
+        </ion-card-content>
+      </ion-card>
+
+      <!-- Resumen mensual -->
+      <ion-card class="summary-card">
+        <ion-card-content>
+          <div class="summary-header">
+            <div class="summary-icon">
+              <span class="icon-text">CC</span>
+            </div>
+            <div class="summary-info">
+              <h3>Resumen mensual</h3>
+              <p class="limit-text">Límite: ${{ selectedCard.limit | number:'1.2-2' }}</p>
+            </div>
+          </div>
+          <div class="summary-amounts">
+            <span class="used-amount">${{ getCardSpent(selectedCard.id) | number:'1.2-2' }} usado</span>
+            <span class="separator">•</span>
+            <span class="available-amount">${{ (selectedCard.limit - getCardSpent(selectedCard.id)) | number:'1.2-2' }} disp.</span>
+          </div>
+        </ion-card-content>
+      </ion-card>
+
+      <!-- Transacciones de la tarjeta -->
+      <div class="transactions-list" *ngIf="selectedCardTransactions.length > 0">
+        <div class="transaction-item" *ngFor="let tx of selectedCardTransactions">
+          <div class="tx-badge">
+            <span class="badge-text">OUT</span>
+          </div>
+          <div class="tx-info">
+            <h4 class="tx-category">{{ tx.category }} · <ion-icon name="card"></ion-icon> {{ selectedCard?.name }}</h4>
+            <p class="tx-date">{{ tx.createdAt?.toDate() | date:'d/M/yyyy' }}</p>
+          </div>
+          <div class="tx-amount">
+            -${{ tx.amount | number:'1.2-2' }}
+          </div>
+        </div>
+      </div>
+
+      <div class="empty-state" *ngIf="selectedCardTransactions.length === 0">
+        <ion-icon name="receipt-outline" class="empty-icon"></ion-icon>
+        <p>No hay transacciones con esta tarjeta</p>
+      </div>
+    </div>
+
+  </div>
+</ion-content>

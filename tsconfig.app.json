@@ -1,0 +1,23 @@
+
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "outDir": "./out-tsc/app",
+    "types": [],
+    
+    // 👇 Agregamos estas claves
+    "target": "ES2022",
+    "lib": ["ES2022", "DOM"],
+    "module": "ES2020",
+    "moduleResolution": "Node",
+    "experimentalDecorators": true,
+    "useDefineForClassFields": false
+  },
+  "files": [
+    "src/main.ts",
+    "src/polyfills.ts"
+  ],
+  "include": [
+    "src/**/*.d.ts"
+  ]
+}

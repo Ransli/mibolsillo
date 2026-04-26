@@ -1,0 +1,186 @@
+<!-- src/app/tab1/tab1.page.html -->
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-title>Inicio</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <!-- Header colapsable -->
+  <ion-header collapse="condense">
+    <ion-toolbar>
+      <ion-title size="large">Inicio</ion-title>
+    </ion-toolbar>
+  </ion-header>
+
+  <div class="ion-padding">
+    <!-- Saludo -->
+    <h2 class="greeting">Hola, {{ (user$ | async)?.displayName || '—' }}</h2>
+
+    <!-- KPIs -->
+    <div class="kpi-grid">
+      <ion-card class="card kpi">
+        <ion-card-content>
+          <h3>Ingresos</h3>
+          <div class="kpi-value">{{ ((totals$ | async)?.in ?? 0) | number:'1.2-2' }}</div>
+        </ion-card-content>
+      </ion-card>
+
+      <ion-card class="card kpi">
+        <ion-card-content>
+          <h3>Gastos</h3>
+          <div class="kpi-value">{{ ((totals$ | async)?.out ?? 0) | number:'1.2-2' }}</div>
+        </ion-card-content>
+      </ion-card>
+
+      <ion-card class="card kpi">
+        <ion-card-content>
+          <h3>Saldo</h3>
+          <div class="kpi-value kpi-badge">{{ ((totals$ | async)?.balance ?? 0) | number:'1.2-2' }}</div>
+        </ion-card-content>
+      </ion-card>
+    </div>
+
+    <!-- Acciones -->
+    <div class="actions ion-margin-vertical">
+      <ion-button fill="outline" (click)="openCategories()">CATEGORÍAS</ion-button>
+      <ion-button color="primary" (click)="openNew()">NUEVA TRANSACCIÓN</ion-button>
+    </div>
+
+    <!-- Selector de Período -->
+    <div class="period-selector">
+      <ion-button fill="clear" size="small" (click)="previousMonth()">
+        <ion-icon name="chevron-back"></ion-icon>
+      </ion-button>
+      <span class="period-label">{{ selectedMonthLabel }}</span>
+      <ion-button fill="clear" size="small" (click)="nextMonth()" [disabled]="isCurrentMonth">
+        <ion-icon name="chevron-forward"></ion-icon>
+      </ion-button>
+    </div>
+
+    <!-- Filtros -->
+    <div class="filters-section">
+      <h3 class="section-header">
+        <ion-icon name="filter-outline"></ion-icon>
+        Filtros
+      </h3>
+
+      <ion-card class="filters-card">
+        <ion-card-content>
+          <!-- Filtro por Fecha -->
+          <div class="filter-group">
+            <ion-label>
+              <h4>Por Fecha</h4>
+            </ion-label>
+            <ion-segment
+              [value]="dateFilter"
+              (ionChange)="applyFilters()"
+              class="modern-segment">
+              <ion-segment-button value="all">TODO</ion-segment-button>
+              <ion-segment-button value="today">HOY</ion-segment-button>
+              <ion-segment-button value="week">SEMANA</ion-segment-button>
+              <ion-segment-button value="month">MES</ion-segment-button>
+            </ion-segment>
+          </div>
+
+          <!-- Filtro por Categoría -->
+          <div class="filter-group">
+            <ion-label>
+              <h4>Por Categoría</h4>
+            </ion-label>
+            <ion-select 
+              [(ngModel)]="categoryFilter" 
+              (ionChange)="applyFilters()" 
+              placeholder="Todas las categorías"
+              interface="popover"
+              class="compact-select">
+              <ion-select-option value="all">Todas</ion-select-option>
+              <ion-select-option *ngFor="let c of (categories$ | async)" [value]="c.name">
+                {{ c.emoji }} {{ c.name }}
+              </ion-select-option>
+            </ion-select>
+          </div>
+
+          <!-- Filtro por Tarjeta -->
+          <div class="filter-group">
+            <ion-label>
+              <h4>Por Tarjeta</h4>
+            </ion-label>
+            <ion-select 
+              [(ngModel)]="cardFilter" 
+              (ionChange)="applyFilters()" 
+              placeholder="Todas las tarjetas"
+              interface="popover"
+              class="compact-select">
+              <ion-select-option value="all">Todas</ion-select-option>
+              <ion-select-option value="cash">Efectivo</ion-select-option>
+              <ion-select-option *ngFor="let card of (cards$ | async)" [value]="card.id">
+                {{ card.name }} - **** {{ card.lastFourDigits }}
+              </ion-select-option>
+            </ion-select>
+          </div>
+
+          <!-- Botón limpiar filtros -->
+          <ion-button 
+            expand="block" 
+            fill="outline" 
+            size="small"
+            (click)="clearFilters()">
+            <ion-icon name="close-circle-outline" slot="start"></ion-icon>
+            Limpiar Filtros
+          </ion-button>
+        </ion-card-content>
+      </ion-card>
+    </div>
+
+    <!-- Últimas transacciones - MEJORADO -->
+    <h3 class="list-title">Últimas transacciones</h3>
+
+    <ng-container *ngIf="(filteredTx$ | async) as txs">
+      <ion-list class="tx-list" *ngIf="txs.length > 0; else emptyState" lines="none">
+        <ion-item *ngFor="let t of txs; trackBy: trackByTxId">
+          <ion-label class="ion-text-wrap">
+            <h3>{{ t.type === 'in' ? 'Ingreso' : 'Gasto' }} • {{ t.category || '—' }}</h3>
+            
+            <!-- 🔥 Información de pago con nombre de tarjeta y nota -->
+            <div class="tx-details">
+              <span *ngIf="t.paymentMethod === 'card'" class="payment-badge card">
+                <ion-icon name="card-outline"></ion-icon> 
+                {{ getCardName(t.cardId) }}
+              </span>
+              <span *ngIf="t.paymentMethod === 'cash'" class="payment-badge cash">
+                <ion-icon name="cash-outline"></ion-icon> 
+                Efectivo
+              </span>
+              
+              <!-- Descripción/nota si existe -->
+              <span *ngIf="t.note" class="tx-note">
+                {{ t.note }}
+              </span>
+            </div>
+            
+            <!-- 🔥 Fecha visible -->
+            <p class="tx-date">
+              {{ t.createdAt?.toDate ? (t.createdAt.toDate() | date:'dd/MM/yyyy, HH:mm') : (t.createdAt | date:'dd/MM/yyyy, HH:mm') }}
+            </p>
+          </ion-label>
+
+          <ion-badge [ngClass]="t.type === 'in' ? 'income' : 'expense'" slot="end">
+            {{ t.amount | number:'1.2-2' }}
+          </ion-badge>
+        </ion-item>
+      </ion-list>
+
+      <ng-template #emptyState>
+        <div class="empty-state">
+          <ion-icon name="receipt-outline" class="empty-icon"></ion-icon>
+          <p class="muted">No hay transacciones que coincidan con los filtros.</p>
+        </div>
+      </ng-template>
+    </ng-container>
+    
+    <!-- Espaciador para evitar que el tab bar tape contenido -->
+    <div style="height: 80px;"></div>
+  </div>
+
+</ion-content>

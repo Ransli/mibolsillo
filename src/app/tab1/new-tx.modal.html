@@ -1,0 +1,128 @@
+<ion-content class="ion-padding">
+  <ion-header collapse="condense" class="ion-no-border">
+    <ion-toolbar>
+      <ion-title>Nueva transacción</ion-title>
+      <ion-buttons slot="end">
+        <ion-button fill="clear" (click)="close()">Cerrar</ion-button>
+      </ion-buttons>
+    </ion-toolbar>
+  </ion-header>
+
+  <form [formGroup]="form">
+    
+    <!-- Tabs gasto / ingreso -->
+    <ion-segment [value]="form.value.type" (ionChange)="onTypeChange($event)" class="ion-margin-top">
+      <ion-segment-button value="out">GASTO</ion-segment-button>
+      <ion-segment-button value="in">INGRESO</ion-segment-button>
+    </ion-segment>
+
+    <ion-list lines="full" class="ion-margin-top">
+
+      <!-- 🔥 Monto con formato de moneda -->
+      <ion-item>
+        <ion-label position="stacked">Monto</ion-label>
+        <div class="amount-input-wrapper">
+          <span class="currency-symbol">$</span>
+          <input
+            type="text"
+            inputmode="decimal"
+            class="amount-input"
+            [value]="formattedAmount"
+            (input)="onAmountInput($event)"
+            placeholder="0.00"
+          />
+        </div>
+      </ion-item>
+
+      <!-- Categoría (solo cuando es gasto) -->
+      <ng-container *ngIf="form.value.type === 'out'">
+        <ion-item>
+          <ion-label position="stacked">Categoría</ion-label>
+          <ion-select 
+            placeholder="Selecciona una" 
+            formControlName="category"
+            interface="action-sheet"
+            [interfaceOptions]="{
+              header: 'Selecciona una categoría',
+              cssClass: 'custom-action-sheet'
+            }">
+            <ion-select-option *ngFor="let c of (categories$ | async)" [value]="c.name">
+              {{ c.emoji }} {{ c.name }}
+            </ion-select-option>
+          </ion-select>
+        </ion-item>
+      </ng-container>
+
+      <!-- Nota -->
+      <ion-item>
+        <ion-label position="stacked">Nota (opcional)</ion-label>
+        <ion-textarea 
+          formControlName="note" 
+          auto-grow="true" 
+          [rows]="3"
+          placeholder="Escribe una nota">
+        </ion-textarea>
+      </ion-item>
+
+      <!-- Método de pago -->
+      <ion-item>
+        <ion-label position="stacked">Método</ion-label>
+        <ion-segment [value]="form.value.paymentMethod" (ionChange)="onPaymentChange($event)">
+          <ion-segment-button value="cash">EFECTIVO</ion-segment-button>
+          <ion-segment-button value="card">TARJETA</ion-segment-button>
+        </ion-segment>
+      </ion-item>
+
+      <!-- Selector de Tarjeta (solo si paymentMethod = card) -->
+      <ng-container *ngIf="form.value.paymentMethod === 'card'">
+        <ion-item>
+          <ion-label position="stacked">Seleccionar Tarjeta</ion-label>
+          <ion-select 
+            placeholder="Elige una tarjeta" 
+            formControlName="cardId"
+            interface="action-sheet"
+            [interfaceOptions]="{
+              header: 'Selecciona una tarjeta',
+              cssClass: 'custom-action-sheet'
+            }">
+            <ion-select-option *ngFor="let card of (cards$ | async)" [value]="card.id">
+              {{ card.name }} - **** {{ card.lastFourDigits }}
+            </ion-select-option>
+          </ion-select>
+        </ion-item>
+      </ng-container>
+
+      <!-- 🔥 Fecha con input nativo tipo date -->
+      <ion-item>
+        <ion-label position="stacked">Fecha</ion-label>
+        <input 
+          type="date" 
+          class="date-input"
+          [value]="dateValue"
+          (change)="onDateChange($event)"
+        />
+      </ion-item>
+
+    </ion-list>
+
+  </form>
+
+  <!-- footer de acciones -->
+  <div class="actions-fixed">
+    <ion-button fill="outline" (click)="close()">Cancelar</ion-button>
+    <ion-button color="primary" [disabled]="!canSave" (click)="save()">Guardar</ion-button>
+  </div>
+
+  <!-- Debug info (comentar o eliminar en producción) -->
+  <!--<div class="ion-padding debug-info">
+    <strong>Debug:</strong> 
+    Type: {{ form.value.type }} | 
+    Amount: {{ form.value.amount }} | 
+    Category: {{ form.value.category }} | 
+    Method: {{ form.value.paymentMethod }} |
+    CanSave: {{ canSave }}
+  </div>-->
+
+  <!-- espacio para que el footer no tape contenido -->
+  <div style="height: 80px;"></div>
+</ion-content>
