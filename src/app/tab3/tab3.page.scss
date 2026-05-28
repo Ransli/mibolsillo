@@ -99,18 +99,19 @@
   position: relative; // contexto de apilamiento para z-index
 }
 
-// Contenedor centrado de la tarjeta (igual al diseño: display flex + justify center)
+// Contenedor centrado — ancho completo (el panel asoma por los lados)
 .plastic-card-wrap {
   display: flex;
   justify-content: center;
   position: relative;
-  z-index: 2;         // la tarjeta queda ENCIMA del panel
+  z-index: 2;
 }
 
 .plastic-card {
   border-radius: 18px; padding: 18px; position: relative; overflow: hidden;
   box-shadow: 0 16px 40px rgba(0,0,0,0.55); color: #fff; cursor: pointer;
-  width: 100%;
+  // ← Más estrecha que el panel: deja ~14px visibles a cada lado
+  width: calc(100% - 28px);
   min-height: 186px; display: flex; flex-direction: column; justify-content: space-between;
 
   &__shine {
@@ -155,11 +156,12 @@
 .card-panel {
   background: var(--mf-surface);
   border: 1px solid var(--mf-border);
-  border-radius: 16px;
+  // Radio completo: los bordes del panel se ven a los lados de la tarjeta
+  border-radius: 18px;
   padding: 16px;
-  // Clave del efecto: el panel sube 22px para quedar detrás de la tarjeta
-  margin-top: -22px;
-  padding-top: 38px;
+  // Panel sube 24px → queda escondido detrás de la tarjeta en su parte superior
+  margin-top: -24px;
+  padding-top: 40px;
   position: relative;
   z-index: 1;         // por debajo de la tarjeta
 
