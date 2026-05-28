@@ -3,9 +3,10 @@
 import { Component, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, FormsModule, Validators } from '@angular/forms';
-import { IonContent, AlertController, ToastController } from '@ionic/angular/standalone';
+import { IonContent, AlertController, ToastController, ModalController } from '@ionic/angular/standalone';
 import { WalletService, Loan } from '../core/wallet.service';
 import { NotificationService } from '../core/notification.service';
+import { CardDetailModal } from './card-detail.modal';
 import { Observable } from 'rxjs';
 
 interface Card {
@@ -67,7 +68,8 @@ export class Tab3Page implements OnDestroy {
     private wallet: WalletService,
     private notifications: NotificationService,
     private alertCtrl: AlertController,
-    private toastCtrl: ToastController
+    private toastCtrl: ToastController,
+    private modalCtrl: ModalController,
   ) {
     this.cardForm = this.fb.group({
       name:        ['', [Validators.required, Validators.minLength(2)]],
@@ -210,6 +212,14 @@ export class Tab3Page implements OnDestroy {
   selectCard(card: Card): void {
     this.selectedCard = this.selectedCard?.id === card.id ? undefined : card;
     if (this.selectedCard) this.selectedCardTransactions = this.getCardPeriodTransactions(card);
+  }
+
+  async openCardDetail(card: Card, cardIndex: number): Promise<void> {
+    const modal = await this.modalCtrl.create({
+      component: CardDetailModal,
+      componentProps: { card, cardIndex },
+    });
+    await modal.present();
   }
 
   onLimitInput(ev: any): void {

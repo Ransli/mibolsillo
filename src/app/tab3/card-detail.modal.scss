@@ -1,0 +1,562 @@
+// card-detail.modal.scss — Modal Detalle de Tarjeta
+
+:host {
+  --cd-bg:        #0f1923;
+  --cd-surface:   #1e2e3e;
+  --cd-border:    #2a3a4a;
+  --cd-text:      #ffffff;
+  --cd-text2:     #8a9ab0;
+  --cd-teal:      #00c4b4;
+  --cd-orange:    #f5a623;
+  --cd-green:     #10b981;
+  --cd-amber:     #f59e0b;
+  --cd-red:       #ef4444;
+  --cd-radius:    16px;
+  --cd-radius-sm: 8px;
+}
+
+ion-content.cd-content {
+  --background: var(--cd-bg);
+}
+
+// ── HEADER ───────────────────────────────────────────────────────────────────
+.cd-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 16px 12px;
+  background: linear-gradient(135deg, #1b3f6e 0%, #0a8a80 100%);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.cd-back {
+  background: rgba(255,255,255,0.12);
+  border: none;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 0.15s;
+
+  &:active { background: rgba(255,255,255,0.22); }
+}
+
+.cd-header-center {
+  flex: 1;
+  text-align: center;
+}
+
+.cd-header-sub {
+  font-size: 10px;
+  letter-spacing: 0.8px;
+  color: rgba(255,255,255,0.7);
+  text-transform: uppercase;
+  margin-bottom: 2px;
+}
+
+.cd-header-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: 0.2px;
+}
+
+.cd-header-right {
+  flex-shrink: 0;
+  width: 36px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.cd-info-badge {
+  width: 26px;
+  height: 26px;
+  background: var(--cd-orange);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 700;
+  color: #fff;
+}
+
+// ── PLASTIC CARD ─────────────────────────────────────────────────────────────
+.cd-card-section {
+  padding: 20px 16px 8px;
+}
+
+.cd-plastic {
+  border-radius: 18px;
+  min-height: 180px;
+  padding: 20px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 12px 40px rgba(0,0,0,0.5);
+}
+
+.cd-plastic__shine {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,0.08) 0%, transparent 60%);
+  border-radius: 18px;
+  pointer-events: none;
+}
+
+.cd-plastic__top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 18px;
+}
+
+.cd-plastic__name {
+  font-size: 14px;
+  font-weight: 700;
+  color: rgba(255,255,255,0.95);
+  letter-spacing: 0.5px;
+}
+
+.cd-plastic__type {
+  font-size: 10px;
+  color: rgba(255,255,255,0.6);
+  letter-spacing: 1px;
+  margin-top: 2px;
+}
+
+.cd-chip {
+  width: 36px;
+  height: 28px;
+  background: linear-gradient(135deg, #d4af37 0%, #f5d778 50%, #b8960c 100%);
+  border-radius: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cd-chip-inner {
+  width: 22px;
+  height: 16px;
+  border: 1.5px solid rgba(180,140,0,0.6);
+  border-radius: 3px;
+}
+
+.cd-plastic__number {
+  font-size: 15px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.85);
+  letter-spacing: 3px;
+  margin-bottom: 18px;
+  font-family: 'Courier New', monospace;
+}
+
+.cd-plastic__footer {
+  display: flex;
+  align-items: flex-end;
+  gap: 16px;
+}
+
+.cd-plastic__lbl {
+  font-size: 9px;
+  color: rgba(255,255,255,0.5);
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  margin-bottom: 2px;
+}
+
+.cd-plastic__val {
+  font-size: 11px;
+  color: rgba(255,255,255,0.9);
+  font-weight: 600;
+}
+
+.cd-brand {
+  margin-left: auto;
+  font-size: 14px;
+  font-weight: 800;
+  color: rgba(255,255,255,0.8);
+  letter-spacing: 1px;
+  font-style: italic;
+}
+
+// Usage bar
+.cd-usage-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 14px;
+  margin-bottom: 6px;
+  font-size: 12px;
+  color: var(--cd-text2);
+
+  strong { color: var(--cd-text); }
+}
+
+.cd-usage-pct {
+  font-weight: 700;
+  font-size: 13px;
+}
+
+.cd-usage-track {
+  height: 5px;
+  background: rgba(255,255,255,0.08);
+  border-radius: 3px;
+  overflow: hidden;
+  margin-bottom: 4px;
+}
+
+.cd-usage-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.4s ease;
+}
+
+// ── TAB BAR ──────────────────────────────────────────────────────────────────
+.cd-tabs {
+  display: flex;
+  gap: 4px;
+  background: var(--cd-surface);
+  border-radius: 24px;
+  padding: 4px;
+  margin: 16px 16px 0;
+}
+
+.cd-tab {
+  flex: 1;
+  border: none;
+  background: transparent;
+  color: var(--cd-text2);
+  font-size: 13px;
+  font-weight: 500;
+  padding: 8px 0;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &.active {
+    background: rgba(255,255,255,0.12);
+    color: var(--cd-text);
+    font-weight: 700;
+  }
+}
+
+// ── BODY (shared container) ───────────────────────────────────────────────────
+.cd-body {
+  padding: 0 0 16px;
+}
+
+// ── TAB DETALLES ─────────────────────────────────────────────────────────────
+.cd-detail-list {
+  margin: 16px;
+  background: var(--cd-surface);
+  border-radius: var(--cd-radius);
+  overflow: hidden;
+  border: 1px solid var(--cd-border);
+}
+
+.cd-detail-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--cd-border);
+
+  &:last-child { border-bottom: none; }
+}
+
+.cd-detail-lbl {
+  font-size: 13px;
+  color: var(--cd-text2);
+}
+
+.cd-detail-val {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--cd-text);
+}
+
+.cd-val-teal { color: var(--cd-teal); }
+
+// Status chip
+.cd-status-chip {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 12px;
+  background: rgba(16,185,129,0.15);
+  color: var(--cd-green);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+
+  &.ok   { background: rgba(16,185,129,0.15); color: var(--cd-green); }
+  &.warn { background: rgba(239,68,68,0.15);  color: var(--cd-red);   }
+}
+
+// Cashback special row
+.cd-cashback-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 4px 16px 16px;
+  background: var(--cd-surface);
+  border: 1px solid var(--cd-border);
+  border-radius: var(--cd-radius-sm);
+  padding: 14px 16px;
+  cursor: pointer;
+  transition: opacity 0.15s;
+
+  &:active { opacity: 0.75; }
+}
+
+.cd-cashback-icon { font-size: 20px; }
+
+.cd-cashback-lbl {
+  flex: 1;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--cd-text);
+}
+
+.cd-cashback-arrow { color: var(--cd-orange); }
+
+// ── TAB ESTADOS ──────────────────────────────────────────────────────────────
+
+// Period navigator
+.cd-period-nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  padding: 16px;
+}
+
+.cd-period-btn {
+  width: 32px;
+  height: 32px;
+  background: var(--cd-surface);
+  border: 1px solid var(--cd-border);
+  border-radius: 50%;
+  color: var(--cd-text);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.15s;
+
+  &:active { background: rgba(255,255,255,0.1); }
+  &:disabled { opacity: 0.35; cursor: default; }
+}
+
+.cd-period-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--cd-text);
+  min-width: 140px;
+  text-align: center;
+}
+
+// "Ver últimos estados" button
+.cd-states-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0 16px 16px;
+  background: var(--cd-surface);
+  border: 1px solid var(--cd-border);
+  border-radius: var(--cd-radius-sm);
+  padding: 14px 16px;
+  cursor: pointer;
+  transition: opacity 0.15s;
+
+  &:active { opacity: 0.75; }
+}
+
+.cd-states-btn-lbl {
+  flex: 1;
+  font-size: 13px;
+  color: var(--cd-text);
+}
+
+.cd-arrow-orange { color: var(--cd-orange); }
+
+// Period summary
+.cd-period-summary {
+  display: flex;
+  align-items: stretch;
+  margin: 0 16px 16px;
+  background: var(--cd-surface);
+  border: 1px solid var(--cd-border);
+  border-radius: var(--cd-radius-sm);
+  overflow: hidden;
+}
+
+.cd-ps-item {
+  flex: 1;
+  padding: 14px 12px;
+  text-align: center;
+}
+
+.cd-ps-lbl {
+  font-size: 10px;
+  color: var(--cd-text2);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 4px;
+}
+
+.cd-ps-val {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--cd-text);
+}
+
+.cd-ps-sep {
+  width: 1px;
+  background: var(--cd-border);
+  margin: 10px 0;
+}
+
+// TX section header
+.cd-tx-header {
+  font-size: 11px;
+  color: var(--cd-teal);
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  padding: 4px 16px 10px;
+  font-weight: 600;
+}
+
+// Loading
+.cd-loading {
+  display: flex;
+  justify-content: center;
+  padding: 40px 0;
+}
+
+.cd-spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid var(--cd-border);
+  border-top-color: var(--cd-teal);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+// TX list
+.cd-tx-list {
+  margin: 0 16px;
+  background: var(--cd-surface);
+  border: 1px solid var(--cd-border);
+  border-radius: var(--cd-radius);
+  overflow: hidden;
+}
+
+.cd-tx-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 13px 16px;
+  border-bottom: 1px solid var(--cd-border);
+  cursor: pointer;
+  transition: opacity 0.15s;
+
+  &.last   { border-bottom: none; }
+  &:active { opacity: 0.7; }
+}
+
+.cd-tx-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+  min-width: 0;
+}
+
+.cd-tx-emoji {
+  font-size: 22px;
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  background: rgba(255,255,255,0.05);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cd-tx-info { flex: 1; min-width: 0; }
+
+.cd-tx-merchant {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--cd-text);
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cd-tx-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 2px;
+}
+
+.cd-tx-date {
+  font-size: 11px;
+  color: var(--cd-text2);
+}
+
+.cd-transit-chip {
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 10px;
+  background: rgba(245,166,35,0.15);
+  color: var(--cd-orange);
+  letter-spacing: 0.3px;
+}
+
+.cd-tx-right {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.cd-tx-amount {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--cd-text);
+}
+
+// Empty state
+.cd-empty {
+  text-align: center;
+  padding: 48px 24px;
+}
+
+.cd-empty-icon { font-size: 48px; margin-bottom: 12px; }
+
+.cd-empty-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--cd-text);
+  margin-bottom: 6px;
+}
+
+.cd-empty-sub {
+  font-size: 13px;
+  color: var(--cd-text2);
+}

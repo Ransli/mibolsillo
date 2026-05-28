@@ -1,0 +1,225 @@
+<!-- card-detail.modal.html — Detalle de Tarjeta de Crédito -->
+<ion-content class="cd-content" [fullscreen]="true">
+
+  <!-- ── HEADER ── -->
+  <div class="cd-header">
+    <button class="cd-back" (click)="dismiss()">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+        <polyline points="15 18 9 12 15 6"/>
+      </svg>
+    </button>
+    <div class="cd-header-center">
+      <div class="cd-header-sub">CONSULTA DE TARJETA DE CRÉDITO</div>
+      <div class="cd-header-title">{{ card.name }}</div>
+    </div>
+    <div class="cd-header-right">
+      <div class="cd-info-badge">ℹ</div>
+    </div>
+  </div>
+
+  <!-- ── TARJETA PLÁSTICA ── -->
+  <div class="cd-card-section">
+    <div class="cd-plastic" [style.background]="gradient">
+      <div class="cd-plastic__shine"></div>
+
+      <!-- Top row -->
+      <div class="cd-plastic__top">
+        <div>
+          <div class="cd-plastic__name">{{ card.name }}</div>
+          <div class="cd-plastic__type">CRÉDITO</div>
+        </div>
+        <div class="cd-chip"><div class="cd-chip-inner"></div></div>
+      </div>
+
+      <!-- Card number -->
+      <div class="cd-plastic__number">•••• •••• •••• {{ card.lastFourDigits || '****' }}</div>
+
+      <!-- Bottom row -->
+      <div class="cd-plastic__footer">
+        <div>
+          <div class="cd-plastic__lbl">TITULAR</div>
+          <div class="cd-plastic__val">MiBolsillo</div>
+        </div>
+        <div>
+          <div class="cd-plastic__lbl">CORTE</div>
+          <div class="cd-plastic__val">{{ fmtCardDate(card.cutoffDate) }}</div>
+        </div>
+        <div>
+          <div class="cd-plastic__lbl">PAGO</div>
+          <div class="cd-plastic__val">{{ fmtCardDate(card.paymentDate) }}</div>
+        </div>
+        <div class="cd-brand">{{ cardIndex % 2 === 0 ? 'VISA' : 'MC' }}</div>
+      </div>
+    </div>
+
+    <!-- Usage bar bajo la tarjeta -->
+    <div class="cd-usage-row">
+      <span class="cd-usage-lbl">Usado: <strong>{{ fmtAmount(periodSpent) }}</strong> de <strong>{{ fmtAmount(card.limit) }}</strong></span>
+      <span class="cd-usage-pct" [style.color]="usageColor">{{ usagePct | number:'1.0-0' }}%</span>
+    </div>
+    <div class="cd-usage-track">
+      <div class="cd-usage-fill" [style.width.%]="usagePct" [style.background]="usageColor"></div>
+    </div>
+  </div>
+
+  <!-- ── TAB BAR ── -->
+  <div class="cd-tabs">
+    <button class="cd-tab" [class.active]="activeTab==='details'" (click)="activeTab='details'">
+      Detalles
+    </button>
+    <button class="cd-tab" [class.active]="activeTab==='states'" (click)="activeTab='states'">
+      Estados
+    </button>
+  </div>
+
+  <!-- ══════════════ TAB: DETALLES ══════════════ -->
+  <div class="cd-body" *ngIf="activeTab === 'details'">
+
+    <div class="cd-detail-list">
+
+      <div class="cd-detail-row">
+        <span class="cd-detail-lbl">Estado</span>
+        <span class="cd-detail-val">
+          <span class="cd-status-chip" [class.ok]="daysUntilPayment > 5" [class.warn]="daysUntilPayment <= 5">
+            {{ daysUntilPayment > 0 ? 'Activa' : 'Vencida' }}
+          </span>
+        </span>
+      </div>
+
+      <div class="cd-detail-row">
+        <span class="cd-detail-lbl">Límite aprobado</span>
+        <span class="cd-detail-val">RD${{ fmtAmount(card.limit) }}</span>
+      </div>
+
+      <div class="cd-detail-row">
+        <span class="cd-detail-lbl">Balance a la fecha</span>
+        <span class="cd-detail-val cd-val-teal">RD${{ fmtAmount(periodSpent) }}</span>
+      </div>
+
+      <div class="cd-detail-row">
+        <span class="cd-detail-lbl">Disponible</span>
+        <span class="cd-detail-val cd-val-teal">RD${{ fmtAmount(available) }}</span>
+      </div>
+
+      <div class="cd-detail-row">
+        <span class="cd-detail-lbl">Fecha de corte</span>
+        <span class="cd-detail-val">{{ fmtCardDate(card.cutoffDate) }}</span>
+      </div>
+
+      <div class="cd-detail-row">
+        <span class="cd-detail-lbl">Balance al corte</span>
+        <span class="cd-detail-val">RD${{ fmtAmount(0) }}</span>
+      </div>
+
+      <div class="cd-detail-row">
+        <span class="cd-detail-lbl">Pago mínimo</span>
+        <span class="cd-detail-val">RD${{ fmtAmount(periodSpent * 0.05) }}</span>
+      </div>
+
+      <div class="cd-detail-row">
+        <span class="cd-detail-lbl">Fecha venc. de pago</span>
+        <span class="cd-detail-val">{{ fmtCardDate(card.paymentDate) }}</span>
+      </div>
+
+      <!-- Días hasta vencimiento -->
+      <div class="cd-detail-row" *ngIf="daysUntilPayment < 999">
+        <span class="cd-detail-lbl">Días para pagar</span>
+        <span class="cd-detail-val" [style.color]="daysUntilPayment <= 5 ? 'var(--mf-red)' : 'var(--mf-amber)'">
+          {{ daysUntilPayment > 0 ? daysUntilPayment + ' días' : 'Vencido' }}
+        </span>
+      </div>
+
+    </div>
+
+    <!-- Fila especial Cashback -->
+    <div class="cd-cashback-row">
+      <span class="cd-cashback-icon">🪙</span>
+      <span class="cd-cashback-lbl">Cashback generado</span>
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" class="cd-cashback-arrow"><polyline points="9 18 15 12 9 6"/></svg>
+    </div>
+
+  </div>
+
+  <!-- ══════════════ TAB: ESTADOS ══════════════ -->
+  <div class="cd-body" *ngIf="activeTab === 'states'">
+
+    <!-- Navegador de período -->
+    <div class="cd-period-nav">
+      <button class="cd-period-btn" (click)="prevPeriod()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>
+      </button>
+      <span class="cd-period-label">{{ periodLabel }}</span>
+      <button class="cd-period-btn" (click)="nextPeriod()" [disabled]="isCurrentPeriod">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+      </button>
+    </div>
+
+    <!-- Botón "Ver últimos estados" -->
+    <div class="cd-states-btn">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="color:var(--mf-text2)">
+        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>
+      </svg>
+      <span class="cd-states-btn-lbl">Ver últimos estados de cuenta</span>
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" class="cd-arrow-orange"><polyline points="9 18 15 12 9 6"/></svg>
+    </div>
+
+    <!-- Resumen del período -->
+    <div class="cd-period-summary">
+      <div class="cd-ps-item">
+        <div class="cd-ps-lbl">Total gastado</div>
+        <div class="cd-ps-val cd-val-teal">RD${{ fmtAmount(periodSpent) }}</div>
+      </div>
+      <div class="cd-ps-sep"></div>
+      <div class="cd-ps-item">
+        <div class="cd-ps-lbl">Transacciones</div>
+        <div class="cd-ps-val">{{ periodTx.length }}</div>
+      </div>
+      <div class="cd-ps-sep"></div>
+      <div class="cd-ps-item">
+        <div class="cd-ps-lbl">Disponible</div>
+        <div class="cd-ps-val cd-val-teal">RD${{ fmtAmount(available) }}</div>
+      </div>
+    </div>
+
+    <!-- Header sección transacciones -->
+    <div class="cd-tx-header">TRANS. DESPUÉS DEL CORTE:</div>
+
+    <!-- Loading -->
+    <div class="cd-loading" *ngIf="loading">
+      <div class="cd-spinner"></div>
+    </div>
+
+    <!-- Lista de transacciones -->
+    <ng-container *ngIf="!loading">
+      <div class="cd-tx-list" *ngIf="periodTx.length > 0; else noTx">
+        <div class="cd-tx-item" *ngFor="let tx of periodTx; let last=last" [class.last]="last">
+          <div class="cd-tx-left">
+            <div class="cd-tx-emoji">{{ catEmoji(tx.category) }}</div>
+            <div class="cd-tx-info">
+              <div class="cd-tx-merchant">{{ merchantName(tx) }}</div>
+              <div class="cd-tx-meta">
+                <span class="cd-tx-date">{{ fmtDate(tx.createdAt) }}</span>
+                <span class="cd-transit-chip" *ngIf="isInTransit(tx)">En tránsito</span>
+              </div>
+            </div>
+          </div>
+          <div class="cd-tx-right">
+            <span class="cd-tx-amount">RD${{ fmtAmount(tx.amount) }}</span>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" class="cd-arrow-orange"><polyline points="9 18 15 12 9 6"/></svg>
+          </div>
+        </div>
+      </div>
+
+      <ng-template #noTx>
+        <div class="cd-empty">
+          <div class="cd-empty-icon">📭</div>
+          <div class="cd-empty-title">Sin movimientos</div>
+          <div class="cd-empty-sub">No hay transacciones en este período de corte</div>
+        </div>
+      </ng-template>
+    </ng-container>
+
+  </div>
+
+  <div style="height: 48px"></div>
+</ion-content>
