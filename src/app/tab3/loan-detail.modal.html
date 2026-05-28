@@ -1,23 +1,36 @@
-<!-- loan-detail.modal.html -->
-<div class="ld-page">
+<!-- loan-detail.modal.html — ion-content como raíz (mismo patrón que card-detail) -->
+<ion-content class="ld-content" [fullscreen]="true">
 
-  <!-- ── HEADER fijo ── -->
-  <div class="ld-header">
-    <button class="ld-back" (click)="dismiss()">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
-        <polyline points="15 18 9 12 15 6"/>
-      </svg>
-    </button>
-    <div class="ld-header-center">
-      <div class="ld-header-sub">DETALLE DE PRÉSTAMO</div>
-      <div class="ld-header-title">{{ loan.name }}</div>
+  <!-- ── STICKY TOP: header + tabs ── -->
+  <div class="ld-sticky-top">
+
+    <div class="ld-header">
+      <button class="ld-back" (click)="dismiss()">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+          <polyline points="15 18 9 12 15 6"/>
+        </svg>
+      </button>
+      <div class="ld-header-center">
+        <div class="ld-header-sub">DETALLE DE PRÉSTAMO</div>
+        <div class="ld-header-title">{{ loan.name }}</div>
+      </div>
+      <div class="ld-header-badge" [style.background]="loanColor + '33'" [style.color]="loanColor">
+        {{ loan.loanType }}
+      </div>
     </div>
-    <div class="ld-header-badge" [style.background]="loanColor + '33'" [style.color]="loanColor">
-      {{ loan.loanType }}
+
+    <div class="ld-tabs">
+      <button class="ld-tab" [class.active]="activeTab==='details'" (click)="activeTab='details'">
+        Detalles
+      </button>
+      <button class="ld-tab" [class.active]="activeTab==='payments'" (click)="activeTab='payments'">
+        Pagos
+      </button>
     </div>
+
   </div>
 
-  <!-- ── HERO fijo ── -->
+  <!-- ── HERO (scrollea con el contenido) ── -->
   <div class="ld-hero">
     <div class="ld-donut-wrap">
       <svg width="100" height="100" viewBox="0 0 130 130">
@@ -43,186 +56,168 @@
     </div>
   </div>
 
-  <!-- ── TAB BAR fijo ── -->
-  <div class="ld-tabs">
-    <button class="ld-tab" [class.active]="activeTab==='details'" (click)="activeTab='details'">
-      Detalles
-    </button>
-    <button class="ld-tab" [class.active]="activeTab==='payments'" (click)="activeTab='payments'">
-      Pagos
-    </button>
-  </div>
+  <!-- ══════════ TAB: DETALLES ══════════ -->
+  <div *ngIf="activeTab === 'details'">
 
-  <!-- ── CONTENIDO scrollable con ion-content ── -->
-  <ion-content class="ld-ion-scroll">
-
-    <!-- ══ TAB DETALLES ══ -->
-    <div class="ld-tab-body" *ngIf="activeTab === 'details'">
-
-      <div class="ld-detail-list">
-        <div class="ld-row">
-          <span class="ld-lbl">Monto original</span>
-          <span class="ld-val">RD${{ fmt(loan.originalAmount) }}</span>
-        </div>
-        <div class="ld-row">
-          <span class="ld-lbl">Saldo pendiente</span>
-          <span class="ld-val ld-amber">RD${{ fmt(loan.balance) }}</span>
-        </div>
-        <div class="ld-row">
-          <span class="ld-lbl">Capital pagado</span>
-          <span class="ld-val ld-green">RD${{ fmt(loan.originalAmount - loan.balance) }}</span>
-        </div>
-        <div class="ld-row">
-          <span class="ld-lbl">Tasa anual</span>
-          <span class="ld-val">{{ loan.interestRate }}%</span>
-        </div>
-        <div class="ld-row">
-          <span class="ld-lbl">Interés este mes</span>
-          <span class="ld-val ld-amber">RD${{ fmt(monthlyInterest) }}</span>
-        </div>
-        <div class="ld-row">
-          <span class="ld-lbl">Cuota mensual</span>
-          <span class="ld-val">RD${{ fmt(loan.monthlyPayment) }}</span>
-        </div>
-        <div class="ld-row">
-          <span class="ld-lbl">Plazo total</span>
-          <span class="ld-val">{{ loan.termMonths }} meses</span>
-        </div>
-        <div class="ld-row">
-          <span class="ld-lbl">Pagos realizados</span>
-          <span class="ld-val">{{ loan.paidMonths }} de {{ loan.termMonths }}</span>
-        </div>
-        <div class="ld-row">
-          <span class="ld-lbl">Meses restantes</span>
-          <span class="ld-val">{{ loan.termMonths - loan.paidMonths }}</span>
-        </div>
-        <div class="ld-row">
-          <span class="ld-lbl">Próximo pago</span>
-          <span class="ld-val">{{ fmtDate(loan.nextPaymentDate) }}</span>
-        </div>
-        <div class="ld-row" *ngIf="loan.notes">
-          <span class="ld-lbl">Notas</span>
-          <span class="ld-val ld-muted">{{ loan.notes }}</span>
-        </div>
+    <div class="ld-detail-list">
+      <div class="ld-row">
+        <span class="ld-lbl">Monto original</span>
+        <span class="ld-val">RD${{ fmt(loan.originalAmount) }}</span>
       </div>
-
-      <div style="height:40px"></div>
+      <div class="ld-row">
+        <span class="ld-lbl">Saldo pendiente</span>
+        <span class="ld-val ld-amber">RD${{ fmt(loan.balance) }}</span>
+      </div>
+      <div class="ld-row">
+        <span class="ld-lbl">Capital pagado</span>
+        <span class="ld-val ld-green">RD${{ fmt(loan.originalAmount - loan.balance) }}</span>
+      </div>
+      <div class="ld-row">
+        <span class="ld-lbl">Tasa anual</span>
+        <span class="ld-val">{{ loan.interestRate }}%</span>
+      </div>
+      <div class="ld-row">
+        <span class="ld-lbl">Interés este mes</span>
+        <span class="ld-val ld-amber">RD${{ fmt(monthlyInterest) }}</span>
+      </div>
+      <div class="ld-row">
+        <span class="ld-lbl">Cuota mensual</span>
+        <span class="ld-val">RD${{ fmt(loan.monthlyPayment) }}</span>
+      </div>
+      <div class="ld-row">
+        <span class="ld-lbl">Plazo total</span>
+        <span class="ld-val">{{ loan.termMonths }} meses</span>
+      </div>
+      <div class="ld-row">
+        <span class="ld-lbl">Pagos realizados</span>
+        <span class="ld-val">{{ loan.paidMonths }} de {{ loan.termMonths }}</span>
+      </div>
+      <div class="ld-row">
+        <span class="ld-lbl">Meses restantes</span>
+        <span class="ld-val">{{ loan.termMonths - loan.paidMonths }}</span>
+      </div>
+      <div class="ld-row">
+        <span class="ld-lbl">Próximo pago</span>
+        <span class="ld-val">{{ fmtDate(loan.nextPaymentDate) }}</span>
+      </div>
+      <div class="ld-row" *ngIf="loan.notes">
+        <span class="ld-lbl">Notas</span>
+        <span class="ld-val ld-muted">{{ loan.notes }}</span>
+      </div>
     </div>
 
-    <!-- ══ TAB PAGOS ══ -->
-    <div class="ld-tab-body" *ngIf="activeTab === 'payments'">
+    <div style="height:48px"></div>
+  </div>
 
-      <!-- Proyección -->
-      <div class="ld-section-title">PROYECCIÓN PRÓXIMOS MESES</div>
-      <div class="ld-proj-table">
-        <div class="ld-proj-header">
-          <span>Mes</span><span>Capital</span><span>Interés</span><span>Saldo</span>
-        </div>
-        <div class="ld-proj-row" *ngFor="let p of projection; let last=last" [class.last]="last">
-          <span class="ld-proj-month">{{ p.month }}</span>
-          <span class="ld-green">{{ fmt(p.capital) }}</span>
-          <span class="ld-amber">{{ fmt(p.interest) }}</span>
-          <span class="ld-muted">{{ fmt(p.balance) }}</span>
+  <!-- ══════════ TAB: PAGOS ══════════ -->
+  <div *ngIf="activeTab === 'payments'">
+
+    <div class="ld-section-title">PROYECCIÓN PRÓXIMOS MESES</div>
+    <div class="ld-proj-table">
+      <div class="ld-proj-header">
+        <span>Mes</span><span>Capital</span><span>Interés</span><span>Saldo</span>
+      </div>
+      <div class="ld-proj-row" *ngFor="let p of projectionRows; let last=last; trackBy: trackByMonth" [class.last]="last">
+        <span class="ld-proj-month">{{ p.month }}</span>
+        <span class="ld-green">{{ fmt(p.capital) }}</span>
+        <span class="ld-amber">{{ fmt(p.interest) }}</span>
+        <span class="ld-muted">{{ fmt(p.balance) }}</span>
+      </div>
+    </div>
+
+    <div class="ld-section-title">HISTORIAL DE PAGOS</div>
+
+    <div class="ld-loading" *ngIf="loading">
+      <div class="ld-spinner"></div>
+    </div>
+
+    <ng-container *ngIf="!loading">
+      <div class="ld-pay-list" *ngIf="paymentHistory.length > 0; else noPay">
+        <div class="ld-pay-item" *ngFor="let tx of paymentHistory; let last=last; trackBy: trackByTxId" [class.last]="last">
+          <div class="ld-pay-icon">💳</div>
+          <div class="ld-pay-info">
+            <div class="ld-pay-title-line">Pago registrado</div>
+            <div class="ld-pay-note">{{ tx.note }}</div>
+            <div class="ld-pay-date">{{ fmtShort(tx.createdAt) }}</div>
+          </div>
+          <div class="ld-pay-amount">−RD${{ fmt(tx.amount) }}</div>
         </div>
       </div>
-
-      <!-- Historial de pagos -->
-      <div class="ld-section-title">HISTORIAL DE PAGOS</div>
-
-      <div class="ld-loading" *ngIf="loading">
-        <div class="ld-spinner"></div>
-      </div>
-
-      <ng-container *ngIf="!loading">
-        <div class="ld-pay-list" *ngIf="paymentHistory.length > 0; else noPay">
-          <div class="ld-pay-item" *ngFor="let tx of paymentHistory; let last=last" [class.last]="last">
-            <div class="ld-pay-icon">💳</div>
-            <div class="ld-pay-info">
-              <div class="ld-pay-title-line">Pago registrado</div>
-              <div class="ld-pay-note">{{ tx.note }}</div>
-              <div class="ld-pay-date">{{ fmtShort(tx.createdAt) }}</div>
-            </div>
-            <div class="ld-pay-amount">−RD${{ fmt(tx.amount) }}</div>
-          </div>
+      <ng-template #noPay>
+        <div class="ld-no-pay">
+          <div class="ld-no-pay-icon">📋</div>
+          <div>Sin pagos registrados aún</div>
         </div>
-        <ng-template #noPay>
-          <div class="ld-no-pay">
-            <div class="ld-no-pay-icon">📋</div>
-            <div>Sin pagos registrados aún</div>
-          </div>
-        </ng-template>
-      </ng-container>
+      </ng-template>
+    </ng-container>
 
-      <!-- Botón registrar pago -->
-      <div class="ld-cta" *ngIf="!showPayForm">
-        <button class="ld-cta-btn" (click)="openPayForm()">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
-            <rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/>
-          </svg>
-          Registrar pago de cuota
+    <!-- CTA -->
+    <div class="ld-cta" *ngIf="!showPayForm">
+      <button class="ld-cta-btn" (click)="openPayForm()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+          <rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/>
+        </svg>
+        Registrar pago de cuota
+      </button>
+    </div>
+
+    <!-- Formulario de pago -->
+    <div class="ld-pay-form" *ngIf="showPayForm">
+      <div class="ld-pf-title">Registrar pago</div>
+
+      <div class="ld-pf-chips">
+        <button class="ld-pf-chip" (click)="payRaw = loan.monthlyPayment.toString()">
+          Cuota exacta · RD${{ fmt(loan.monthlyPayment) }}
         </button>
       </div>
 
-      <!-- Formulario de pago inline -->
-      <div class="ld-pay-form" *ngIf="showPayForm">
-        <div class="ld-pf-title">Registrar pago</div>
+      <div class="ld-pf-input-wrap">
+        <span class="ld-pf-curr">RD$</span>
+        <input
+          class="ld-pf-input"
+          type="number"
+          inputmode="decimal"
+          placeholder="0.00"
+          [(ngModel)]="payRaw"
+        />
+      </div>
 
-        <div class="ld-pf-chips">
-          <button class="ld-pf-chip" (click)="payRaw = loan.monthlyPayment.toString()">
-            Cuota exacta · RD${{ fmt(loan.monthlyPayment) }}
-          </button>
+      <div class="ld-breakdown" *ngIf="payAmount > 0">
+        <div class="ld-bd-title">Desglose del pago</div>
+        <div class="ld-bd-row">
+          <span>💰 Capital amortizado</span>
+          <span class="ld-green">+RD${{ fmt(capitalPaid) }}</span>
         </div>
-
-        <div class="ld-pf-input-wrap">
-          <span class="ld-pf-curr">RD$</span>
-          <input
-            class="ld-pf-input"
-            type="number"
-            inputmode="decimal"
-            placeholder="0.00"
-            [(ngModel)]="payRaw"
-          />
+        <div class="ld-bd-row">
+          <span>📈 Interés mensual</span>
+          <span class="ld-amber">RD${{ fmt(monthlyInterest) }}</span>
         </div>
-
-        <!-- Desglose -->
-        <div class="ld-breakdown" *ngIf="payAmount > 0">
-          <div class="ld-bd-title">Desglose del pago</div>
-          <div class="ld-bd-row">
-            <span>💰 Capital amortizado</span>
-            <span class="ld-green">+RD${{ fmt(capitalPaid) }}</span>
-          </div>
-          <div class="ld-bd-row">
-            <span>📈 Interés mensual</span>
-            <span class="ld-amber">RD${{ fmt(monthlyInterest) }}</span>
-          </div>
-          <div class="ld-bd-row ld-bd-abono" *ngIf="extraAbono > 0">
-            <span>🎯 Abono extra al capital</span>
-            <span class="ld-teal">+RD${{ fmt(extraAbono) }}</span>
-          </div>
-          <div class="ld-bd-warn" *ngIf="shortfall > 0">
-            ⚠️ Falta RD${{ fmt(shortfall) }} para cubrir la cuota
-          </div>
-          <div class="ld-bd-sep"></div>
-          <div class="ld-bd-row ld-bd-result">
-            <span>Nuevo saldo</span>
-            <span class="ld-teal">RD${{ fmt(newBalance) }}</span>
-          </div>
+        <div class="ld-bd-row ld-bd-abono" *ngIf="extraAbono > 0">
+          <span>🎯 Abono extra al capital</span>
+          <span class="ld-teal">+RD${{ fmt(extraAbono) }}</span>
         </div>
-
-        <div class="ld-pf-actions">
-          <button class="ld-pf-confirm" [disabled]="!canPay" (click)="processPayment()">
-            <span *ngIf="!processing">Confirmar · RD${{ fmt(payAmount) }}</span>
-            <span *ngIf="processing" class="ld-spinner-row">
-              <span class="ld-spinner-sm"></span> Procesando…
-            </span>
-          </button>
-          <button class="ld-pf-cancel" (click)="showPayForm=false; payRaw=''">Cancelar</button>
+        <div class="ld-bd-warn" *ngIf="shortfall > 0">
+          ⚠️ Falta RD${{ fmt(shortfall) }} para cubrir la cuota
+        </div>
+        <div class="ld-bd-sep"></div>
+        <div class="ld-bd-row ld-bd-result">
+          <span>Nuevo saldo</span>
+          <span class="ld-teal">RD${{ fmt(newBalance) }}</span>
         </div>
       </div>
 
-      <div style="height:48px"></div>
+      <div class="ld-pf-actions">
+        <button class="ld-pf-confirm" [disabled]="!canPay" (click)="processPayment()">
+          <span *ngIf="!processing">Confirmar · RD${{ fmt(payAmount) }}</span>
+          <span *ngIf="processing" class="ld-spinner-row">
+            <span class="ld-spinner-sm"></span> Procesando…
+          </span>
+        </button>
+        <button class="ld-pf-cancel" (click)="showPayForm=false; payRaw=''">Cancelar</button>
+      </div>
     </div>
 
-  </ion-content>
+    <div style="height:48px"></div>
+  </div>
 
-</div><!-- /ld-page -->
+</ion-content>

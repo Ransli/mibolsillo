@@ -20,20 +20,22 @@
   --ld-radius:  14px;
 }
 
-// ── Estructura principal (flex column, altura total) ──────────────────────────
-.ld-page {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  background: var(--ld-bg);
-  color: var(--ld-text);
-  font-family: -apple-system, BlinkMacSystemFont, 'Inter', sans-serif;
-  overflow: hidden; // evita doble scroll
+// ── ion-content raíz ─────────────────────────────────────────────────────────
+ion-content.ld-content {
+  --background: var(--ld-bg);
+  --color: var(--ld-text);
 }
 
-// ── Header (no scrollea) ──────────────────────────────────────────────────────
+// ── Sticky top (header + tabs) ────────────────────────────────────────────────
+.ld-sticky-top {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: var(--ld-bg);
+}
+
+// ── Header ────────────────────────────────────────────────────────────────────
 .ld-header {
-  flex-shrink: 0;
   display: flex;
   align-items: center;
   gap: 12px;
@@ -65,9 +67,32 @@
   letter-spacing: 0.4px; flex-shrink: 0; white-space: nowrap;
 }
 
-// ── Hero (no scrollea) ────────────────────────────────────────────────────────
+// ── Tab bar ───────────────────────────────────────────────────────────────────
+.ld-tabs {
+  display: flex; gap: 4px;
+  background: var(--ld-surface);
+  border-radius: 24px; padding: 4px;
+  margin: 14px 16px 14px;
+  border: 1px solid var(--ld-border);
+}
+
+.ld-tab {
+  flex: 1; border: none;
+  background: transparent;
+  color: var(--ld-text2);
+  font-size: 13px; font-weight: 500;
+  padding: 8px 0; border-radius: 20px;
+  cursor: pointer; transition: all 0.2s ease;
+  -webkit-tap-highlight-color: transparent;
+
+  &.active {
+    background: rgba(255,255,255,0.1);
+    color: var(--ld-text); font-weight: 700;
+  }
+}
+
+// ── Hero (scrollea con el contenido) ─────────────────────────────────────────
 .ld-hero {
-  flex-shrink: 0;
   display: flex; align-items: center; gap: 16px;
   padding: 16px 20px;
   background: linear-gradient(180deg, rgba(27,58,110,0.2) 0%, transparent 100%);
@@ -95,42 +120,6 @@
   font-size: 11px; font-weight: 600; color: var(--ld-amber);
   background: rgba(245,158,11,0.1); border-radius: 20px; padding: 4px 10px;
   &.urgent { color: var(--ld-red); background: rgba(239,68,68,0.1); }
-}
-
-// ── Tab bar (no scrollea) ─────────────────────────────────────────────────────
-.ld-tabs {
-  flex-shrink: 0;
-  display: flex; gap: 4px;
-  background: var(--ld-surface);
-  border-radius: 24px; padding: 4px;
-  margin: 0 16px 12px;
-  border: 1px solid var(--ld-border);
-}
-
-.ld-tab {
-  flex: 1; border: none;
-  background: transparent;
-  color: var(--ld-text2);
-  font-size: 13px; font-weight: 500;
-  padding: 8px 0; border-radius: 20px;
-  cursor: pointer; transition: all 0.2s ease;
-  -webkit-tap-highlight-color: transparent;
-
-  &.active {
-    background: rgba(255,255,255,0.1);
-    color: var(--ld-text); font-weight: 700;
-  }
-}
-
-// ── Ion-content (scrollable) ──────────────────────────────────────────────────
-ion-content.ld-ion-scroll {
-  --background: var(--ld-bg);
-  flex: 1;       // toma el espacio restante del flex container
-  min-height: 0; // importante para que flex funcione bien
-}
-
-.ld-tab-body {
-  padding-bottom: 16px;
 }
 
 // ── Section title ─────────────────────────────────────────────────────────────

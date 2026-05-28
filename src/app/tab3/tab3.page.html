@@ -84,7 +84,7 @@
               <div class="plastic-card__footer">
                 <div>
                   <div class="plastic-lbl">TITULAR</div>
-                  <div class="plastic-val-sm">MiBolsillo</div>
+                  <div class="plastic-val-sm">{{ (user$ | async)?.displayName?.split(' ')[0] | uppercase }}</div>
                 </div>
                 <div>
                   <div class="plastic-lbl">CORTE</div>

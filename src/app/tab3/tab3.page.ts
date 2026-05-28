@@ -5,6 +5,7 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, FormsModule, Validators } from '@angular/forms';
 import { IonContent, AlertController, ToastController, ModalController } from '@ionic/angular/standalone';
 import { WalletService, Loan } from '../core/wallet.service';
+import { AuthService } from '../core/auth.service';
 import { NotificationService } from '../core/notification.service';
 import { CardDetailModal } from './card-detail.modal';
 import { CardPaymentModal } from './card-payment.modal';
@@ -41,6 +42,9 @@ const LOAN_COLORS = ['#10B981','#3B82F6','#7C3AED','#F59E0B','#EF4444','#06B6D4'
 })
 export class Tab3Page implements OnDestroy {
 
+  // Usuario actual
+  user$: Observable<any>;
+
   // Segment
   activeSegment: 'cards' | 'loans' = 'cards';
 
@@ -70,11 +74,13 @@ export class Tab3Page implements OnDestroy {
   constructor(
     private fb: FormBuilder,
     private wallet: WalletService,
+    private auth: AuthService,
     private notifications: NotificationService,
     private alertCtrl: AlertController,
     private toastCtrl: ToastController,
     private modalCtrl: ModalController,
   ) {
+    this.user$ = this.auth.user$;
     this.cardForm = this.fb.group({
       name:        ['', [Validators.required, Validators.minLength(2)]],
       limit:       [null, [Validators.required, Validators.min(1)]],
