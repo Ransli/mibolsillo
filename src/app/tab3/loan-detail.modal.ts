@@ -1,8 +1,7 @@
 // loan-detail.modal.ts — Modal de detalle de préstamo
 
-import { Component, Input, OnInit, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
 import { IonContent, ModalController, ToastController } from '@ionic/angular/standalone';
 import { WalletService, Loan, Tx } from '../core/wallet.service';
 
@@ -11,8 +10,7 @@ import { WalletService, Loan, Tx } from '../core/wallet.service';
   selector: 'app-loan-detail-modal',
   templateUrl: './loan-detail.modal.html',
   styleUrls: ['./loan-detail.modal.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, FormsModule, IonContent],
+  imports: [CommonModule, IonContent],   // FormsModule ya no necesario (input manual)
 })
 export class LoanDetailModal implements OnInit {
   @Input() loan!: Loan;
@@ -22,19 +20,18 @@ export class LoanDetailModal implements OnInit {
   paymentHistory: Tx[] = [];
   loading = true;
 
-  // Proyección (calculada una sola vez, no en getter)
+  // Proyección calculada una sola vez (nunca como getter con *ngFor)
   projectionRows: Array<{ month: string; capital: number; interest: number; balance: number }> = [];
 
   // Formulario de pago
   showPayForm = false;
-  payRaw = '';
+  payDisplay = '';   // valor visible con separadores de miles: "1,500.00"
   processing = false;
 
   constructor(
     private modalCtrl: ModalController,
     private toastCtrl: ToastController,
     private wallet: WalletService,
-    private cdr: ChangeDetectorRef,
   ) {}
 
   async ngOnInit(): Promise<void> {
@@ -42,15 +39,12 @@ export class LoanDetailModal implements OnInit {
     await this.loadHistory();
   }
 
-  // ── Proyección (calculada explícitamente, no como getter) ─────────────────
+  // ── Proyección ────────────────────────────────────────────────────────────
 
   buildProjection(): void {
     const rows: Array<{ month: string; capital: number; interest: number; balance: number }> = [];
     const loan = this.loan;
-    if (!loan?.balance || loan.balance <= 0) {
-      this.projectionRows = rows;
-      return;
-    }
+    if (!loan?.balance || loan.balance <= 0) { this.projectionRows = rows; return; }
     const rate = (loan.interestRate || 0) / 100 / 12;
     let bal = loan.balance;
     const mp = loan.monthlyPayment || 0;
@@ -79,12 +73,9 @@ export class LoanDetailModal implements OnInit {
         });
     } catch { /* ignore */ }
     this.loading = false;
-    this.cdr.markForCheck();
   }
 
-  dismiss(updated = false): void {
-    this.modalCtrl.dismiss({ updated });
-  }
+  dismiss(updated = false): void { this.modalCtrl.dismiss({ updated }); }
 
   // ── Cálculos generales ────────────────────────────────────────────────────
 
@@ -98,8 +89,7 @@ export class LoanDetailModal implements OnInit {
   }
 
   get dashArray(): string {
-    const r = 54;
-    const circ = 2 * Math.PI * r;
+    const circ = 2 * Math.PI * 54;
     return `${(this.paidPct / 100) * circ} ${circ}`;
   }
 
@@ -121,8 +111,9 @@ export class LoanDetailModal implements OnInit {
     return Math.round(bal * (rate / 100 / 12) * 100) / 100;
   }
 
+  /** Importe a pagar — parseamos payDisplay quitando comas */
   get payAmount(): number {
-    return parseFloat(this.payRaw.replace(/,/g, '')) || 0;
+    return parseFloat(this.payDisplay.replace(/,/g, '')) || 0;
   }
 
   get capitalPaid(): number {
@@ -143,18 +134,52 @@ export class LoanDetailModal implements OnInit {
 
   get canPay(): boolean { return this.payAmount > 0.99 && !this.processing; }
 
-  // ── Pago ──────────────────────────────────────────────────────────────────
+  // ── Input con formato de miles ────────────────────────────────────────────
+
+  onPayInput(event: Event): void {
+    const el = event.target as HTMLInputElement;
+    const cursorBefore = el.selectionStart ?? el.value.length;
+    const prevLen = el.value.length;
+
+    // Limpiar: solo dígitos y un punto decimal
+    const stripped = el.value.replace(/[^0-9.]/g, '');
+    const dotIdx   = stripped.indexOf('.');
+    const intPart  = dotIdx >= 0 ? stripped.slice(0, dotIdx) : stripped;
+    const decPart  = dotIdx >= 0 ? stripped.slice(dotIdx + 1, dotIdx + 3) : null;
+
+    // Formatear parte entera con comas
+    const intFormatted = intPart ? Number(intPart).toLocaleString('es-DO') : '';
+    const formatted    = decPart !== null ? `${intFormatted}.${decPart}` : intFormatted;
+
+    this.payDisplay = formatted;
+    el.value = formatted;
+
+    // Reposicionar cursor
+    const diff = formatted.length - prevLen;
+    const newCursor = Math.max(0, cursorBefore + diff);
+    el.setSelectionRange(newCursor, newCursor);
+  }
+
+  /** Rellena el campo con la cuota exacta formateada */
+  setExactPayment(): void {
+    const val = this.loan?.monthlyPayment || 0;
+    this.payDisplay = new Intl.NumberFormat('es-DO', {
+      minimumFractionDigits: 2, maximumFractionDigits: 2
+    }).format(val);
+  }
+
+  // ── Apertura del formulario ───────────────────────────────────────────────
 
   openPayForm(): void {
-    this.payRaw = String(this.loan?.monthlyPayment || '');
+    this.payDisplay = '';   // campo en blanco
     this.showPayForm = true;
-    this.cdr.markForCheck();
   }
+
+  // ── Procesar pago ─────────────────────────────────────────────────────────
 
   async processPayment(): Promise<void> {
     if (!this.canPay) return;
     this.processing = true;
-    this.cdr.markForCheck();
 
     const paid     = this.payAmount;
     const interest = this.monthlyInterest;
@@ -176,7 +201,6 @@ export class LoanDetailModal implements OnInit {
         paidMonths: (this.loan.paidMonths || 0) + 1,
       });
 
-      // Actualizar objeto local y recalcular proyección
       this.loan = { ...this.loan, balance: newBal, paidMonths: (this.loan.paidMonths || 0) + 1 };
       this.buildProjection();
 
@@ -188,30 +212,33 @@ export class LoanDetailModal implements OnInit {
 
       await this.loadHistory();
       this.showPayForm = false;
-      this.payRaw = '';
+      this.payDisplay = '';
 
     } catch {
       const t = await this.toastCtrl.create({
-        message: '❌ Error al registrar', duration: 2000, position: 'top',
+        message: '❌ Error al registrar el pago', duration: 2000, position: 'top',
       });
       await t.present();
     } finally {
       this.processing = false;
-      this.cdr.markForCheck();
     }
   }
 
   // ── Helpers ───────────────────────────────────────────────────────────────
 
   fmt(n: number): string {
-    return new Intl.NumberFormat('es-DO', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(n ?? 0);
+    return new Intl.NumberFormat('es-DO', {
+      minimumFractionDigits: 2, maximumFractionDigits: 2
+    }).format(n ?? 0);
   }
+
   fmtDate(val: any): string {
     if (!val) return '—';
     const d = val?.toDate ? val.toDate() : new Date(val);
     if (isNaN(d.getTime())) return '—';
     return d.toLocaleDateString('es-DO', { day: '2-digit', month: 'short', year: 'numeric' });
   }
+
   fmtShort(val: any): string {
     if (!val) return '—';
     const d = val?.toDate ? val.toDate() : new Date(val);
@@ -219,9 +246,6 @@ export class LoanDetailModal implements OnInit {
     return `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()}`;
   }
 
-  // trackBy para *ngFor de proyección (evita re-render innecesario)
   trackByMonth(_: number, row: { month: string }): string { return row.month; }
-
-  // trackBy para historial de pagos
   trackByTxId(_: number, tx: Tx): string { return tx.id || String(_); }
 }

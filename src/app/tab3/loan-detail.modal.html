@@ -1,4 +1,4 @@
-<!-- loan-detail.modal.html — ion-content como raíz (mismo patrón que card-detail) -->
+<!-- loan-detail.modal.html -->
 <ion-content class="ld-content" [fullscreen]="true">
 
   <!-- ── STICKY TOP: header + tabs ── -->
@@ -30,7 +30,7 @@
 
   </div>
 
-  <!-- ── HERO (scrollea con el contenido) ── -->
+  <!-- ── HERO ── -->
   <div class="ld-hero">
     <div class="ld-donut-wrap">
       <svg width="100" height="100" viewBox="0 0 130 130">
@@ -90,11 +90,11 @@
       </div>
       <div class="ld-row">
         <span class="ld-lbl">Pagos realizados</span>
-        <span class="ld-val">{{ loan.paidMonths }} de {{ loan.termMonths }}</span>
+        <span class="ld-val">{{ loan.paidMonths || 0 }} de {{ loan.termMonths }}</span>
       </div>
       <div class="ld-row">
         <span class="ld-lbl">Meses restantes</span>
-        <span class="ld-val">{{ loan.termMonths - loan.paidMonths }}</span>
+        <span class="ld-val">{{ loan.termMonths - (loan.paidMonths || 0) }}</span>
       </div>
       <div class="ld-row">
         <span class="ld-lbl">Próximo pago</span>
@@ -117,7 +117,9 @@
       <div class="ld-proj-header">
         <span>Mes</span><span>Capital</span><span>Interés</span><span>Saldo</span>
       </div>
-      <div class="ld-proj-row" *ngFor="let p of projectionRows; let last=last; trackBy: trackByMonth" [class.last]="last">
+      <div class="ld-proj-row"
+           *ngFor="let p of projectionRows; let last=last; trackBy: trackByMonth"
+           [class.last]="last">
         <span class="ld-proj-month">{{ p.month }}</span>
         <span class="ld-green">{{ fmt(p.capital) }}</span>
         <span class="ld-amber">{{ fmt(p.interest) }}</span>
@@ -133,11 +135,14 @@
 
     <ng-container *ngIf="!loading">
       <div class="ld-pay-list" *ngIf="paymentHistory.length > 0; else noPay">
-        <div class="ld-pay-item" *ngFor="let tx of paymentHistory; let last=last; trackBy: trackByTxId" [class.last]="last">
-          <div class="ld-pay-icon">💳</div>
+        <div class="ld-pay-item"
+             *ngFor="let tx of paymentHistory; let last=last; trackBy: trackByTxId"
+             [class.last]="last">
+          <!-- Ícono préstamo -->
+          <div class="ld-pay-icon">🏦</div>
           <div class="ld-pay-info">
-            <div class="ld-pay-title-line">Pago registrado</div>
-            <div class="ld-pay-note">{{ tx.note }}</div>
+            <div class="ld-pay-title-line">Pago de cuota</div>
+            <div class="ld-pay-note" *ngIf="tx.note">{{ tx.note }}</div>
             <div class="ld-pay-date">{{ fmtShort(tx.createdAt) }}</div>
           </div>
           <div class="ld-pay-amount">−RD${{ fmt(tx.amount) }}</div>
@@ -166,7 +171,7 @@
       <div class="ld-pf-title">Registrar pago</div>
 
       <div class="ld-pf-chips">
-        <button class="ld-pf-chip" (click)="payRaw = loan.monthlyPayment.toString()">
+        <button class="ld-pf-chip" (click)="setExactPayment()">
           Cuota exacta · RD${{ fmt(loan.monthlyPayment) }}
         </button>
       </div>
@@ -174,11 +179,14 @@
       <div class="ld-pf-input-wrap">
         <span class="ld-pf-curr">RD$</span>
         <input
+          #payInput
           class="ld-pf-input"
-          type="number"
+          type="text"
           inputmode="decimal"
           placeholder="0.00"
-          [(ngModel)]="payRaw"
+          [value]="payDisplay"
+          (input)="onPayInput($event)"
+          autocomplete="off"
         />
       </div>
 
@@ -213,7 +221,7 @@
             <span class="ld-spinner-sm"></span> Procesando…
           </span>
         </button>
-        <button class="ld-pf-cancel" (click)="showPayForm=false; payRaw=''">Cancelar</button>
+        <button class="ld-pf-cancel" (click)="showPayForm=false; payDisplay=''">Cancelar</button>
       </div>
     </div>
 

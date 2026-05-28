@@ -129,22 +129,20 @@
 
     <!-- ── FILTROS ── -->
     <div class="filters-row">
-      <div class="filter-chips">
-        <button class="mf-chip" [class.active]="dateFilter==='all'" (click)="dateFilter='all'; applyFilters()">Todos</button>
-        <button class="mf-chip" [class.active]="dateFilter==='today'" (click)="dateFilter='today'; applyFilters()">Hoy</button>
-        <button class="mf-chip" [class.active]="dateFilter==='week'" (click)="dateFilter='week'; applyFilters()">Semana</button>
-      </div>
-      <div class="filter-selects">
-        <ion-select [(ngModel)]="categoryFilter" (ionChange)="applyFilters()" placeholder="Cat." interface="popover" class="mini-select">
-          <ion-select-option value="all">Todas</ion-select-option>
-          <ion-select-option *ngFor="let c of (categories$ | async)" [value]="c.name">{{ c.emoji }} {{ c.name }}</ion-select-option>
-        </ion-select>
-        <ion-select [(ngModel)]="cardFilter" (ionChange)="applyFilters()" placeholder="Pago" interface="popover" class="mini-select">
-          <ion-select-option value="all">Todos</ion-select-option>
-          <ion-select-option value="cash">Efectivo</ion-select-option>
-          <ion-select-option *ngFor="let card of (cards$ | async)" [value]="card.id">{{ card.name }}</ion-select-option>
-        </ion-select>
-      </div>
+      <button class="mf-chip" [class.active]="dateFilter==='all'" (click)="dateFilter='all'; applyFilters()">Todos</button>
+      <button class="mf-chip" [class.active]="dateFilter==='today'" (click)="dateFilter='today'; applyFilters()">Hoy</button>
+      <button class="mf-chip" [class.active]="dateFilter==='week'" (click)="dateFilter='week'; applyFilters()">Semana</button>
+      <ion-select [(ngModel)]="categoryFilter" (ionChange)="applyFilters()"
+        placeholder="Categoría" interface="action-sheet" class="mini-select">
+        <ion-select-option value="all">Todas las categorías</ion-select-option>
+        <ion-select-option *ngFor="let c of (categories$ | async)" [value]="c.name">{{ c.emoji }} {{ c.name }}</ion-select-option>
+      </ion-select>
+      <ion-select [(ngModel)]="cardFilter" (ionChange)="applyFilters()"
+        placeholder="Método" interface="action-sheet" class="mini-select">
+        <ion-select-option value="all">Todos los métodos</ion-select-option>
+        <ion-select-option value="cash">💵 Efectivo</ion-select-option>
+        <ion-select-option *ngFor="let card of (cards$ | async)" [value]="card.id">💳 {{ card.name }}</ion-select-option>
+      </ion-select>
     </div>
 
     <!-- ── TRANSACTIONS TITLE ── -->
@@ -163,12 +161,23 @@
             <span>{{ getCatEmoji(t.category) }}</span>
           </div>
           <div class="tx-info">
-            <div class="tx-name">{{ t.type === 'in' ? 'Ingreso' : t.category || 'Gasto' }}</div>
-            <div class="tx-meta">
-              <span *ngIf="t.paymentMethod === 'card'">💳 {{ getCardName(t.cardId) }}</span>
-              <span *ngIf="t.paymentMethod === 'cash'">💵 Efectivo</span>
-              <span *ngIf="t.note"> · {{ t.note }}</span>
-            </div>
+
+            <!-- Pago de préstamo -->
+            <ng-container *ngIf="t.loanId">
+              <div class="tx-name">🏦 {{ getLoanTxTitle(t.note) }}</div>
+              <div class="tx-meta tx-loan-meta">{{ getLoanTxDetail(t.note) }}</div>
+            </ng-container>
+
+            <!-- Transacción normal -->
+            <ng-container *ngIf="!t.loanId">
+              <div class="tx-name">{{ t.type === 'in' ? 'Ingreso' : t.category || 'Gasto' }}</div>
+              <div class="tx-meta">
+                <span *ngIf="t.paymentMethod === 'card'">💳 {{ getCardName(t.cardId) }}</span>
+                <span *ngIf="t.paymentMethod === 'cash'">💵 Efectivo</span>
+                <span *ngIf="t.note"> · {{ t.note }}</span>
+              </div>
+            </ng-container>
+
             <div class="tx-date">
               {{ t.createdAt?.toDate ? (t.createdAt.toDate() | date:'dd MMM, h:mma':'':'es') : (t.createdAt | date:'dd MMM, h:mma':'':'es') }}
             </div>

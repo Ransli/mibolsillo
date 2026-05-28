@@ -1,4 +1,4 @@
-<!-- new-tx.modal.html — MoneyFlow style -->
+﻿<!-- new-tx.modal.html — MoneyFlow style -->
 <div class="modal-wrapper">
   <!-- Drag handle -->
   <div class="drag-handle-row">
@@ -41,7 +41,7 @@
         <div class="field-row" *ngIf="txMode==='expense'">
           <span class="field-key">Categoría</span>
           <div class="field-val">
-            <ion-select formControlName="category" placeholder="Seleccionar" interface="popover" class="field-select">
+            <ion-select formControlName="category" placeholder="Seleccionar" interface="action-sheet" class="field-select">
               <ion-select-option *ngFor="let c of (categories$ | async)" [value]="c.name">{{ c.emoji }} {{ c.name }}</ion-select-option>
             </ion-select>
           </div>
@@ -52,7 +52,7 @@
         <!-- Método de pago -->
         <div class="field-row">
           <span class="field-key">Método</span>
-          <ion-select formControlName="paymentMethod" interface="popover" class="field-select" (ionChange)="onPaymentChange($event)">
+          <ion-select formControlName="paymentMethod" interface="action-sheet" class="field-select" (ionChange)="onPaymentChange($event)">
             <ion-select-option value="cash">💵 Efectivo</ion-select-option>
             <ion-select-option value="card">💳 Tarjeta</ion-select-option>
           </ion-select>
@@ -62,7 +62,7 @@
           <div class="field-divider"></div>
           <div class="field-row">
             <span class="field-key">Tarjeta</span>
-            <ion-select formControlName="cardId" placeholder="Seleccionar" interface="popover" class="field-select">
+            <ion-select formControlName="cardId" placeholder="Seleccionar" interface="action-sheet" class="field-select">
               <ion-select-option *ngFor="let c of (cards$ | async)" [value]="c.id">{{ c.name }}</ion-select-option>
             </ion-select>
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--mf-text3)" stroke-width="2" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
@@ -89,7 +89,7 @@
         <div class="field-row">
           <span class="field-key">Préstamo</span>
           <div class="field-val">
-            <ion-select formControlName="loanId" placeholder="Seleccionar préstamo" interface="popover" class="field-select"
+            <ion-select formControlName="loanId" placeholder="Seleccionar préstamo" interface="action-sheet" class="field-select"
               (ionChange)="onLoanChange($event)">
               <ion-select-option *ngFor="let l of loans" [value]="l.id">🏦 {{ l.name }}</ion-select-option>
             </ion-select>
@@ -149,3 +149,4 @@
     <div style="height:24px"></div>
   </div>
 </div>
+

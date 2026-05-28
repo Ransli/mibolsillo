@@ -1,4 +1,4 @@
-<!-- settings.page.html — MoneyFlow Profile -->
+﻿<!-- settings.page.html — MoneyFlow Profile -->
 <ion-content [fullscreen]="true" class="settings-content">
   <div class="page-content">
 
@@ -107,7 +107,7 @@
       <div class="menu-item">
         <div class="mi-icon mi-icon--violet">💱</div>
         <span class="mi-label">Moneda principal</span>
-        <ion-select [(ngModel)]="currency" (ionChange)="saveCurrency()" interface="popover" class="mi-select">
+        <ion-select [(ngModel)]="currency" (ionChange)="saveCurrency()" interface="action-sheet" class="mi-select">
           <ion-select-option value="DOP">RD$ (DOP)</ion-select-option>
           <ion-select-option value="USD">$ (USD)</ion-select-option>
           <ion-select-option value="EUR">€ (EUR)</ion-select-option>
@@ -119,7 +119,7 @@
       <div class="menu-item">
         <div class="mi-icon mi-icon--blue">📅</div>
         <span class="mi-label">Frecuencia de pago</span>
-        <ion-select [(ngModel)]="paymentFrequency" (ionChange)="savePaymentFrequency()" interface="popover" class="mi-select">
+        <ion-select [(ngModel)]="paymentFrequency" (ionChange)="savePaymentFrequency()" interface="action-sheet" class="mi-select">
           <ion-select-option value="monthly">Mensual</ion-select-option>
           <ion-select-option value="biweekly">Quincenal</ion-select-option>
         </ion-select>
@@ -203,3 +203,4 @@
     <div style="height:32px"></div>
   </div>
 </ion-content>
+

@@ -29,6 +29,8 @@ const CAT_COLORS: Record<string, string> = {
   'Viajes':         '#8B5CF6',
   'Salario':        '#22C55E',
   'Freelance':      '#14B8A6',
+  'Pago Préstamo':  '#7C3AED',
+  'Pago Tarjeta':   '#3B82F6',
   'Otros':          '#94A3B8',
 };
 
@@ -44,6 +46,8 @@ const CAT_EMOJI: Record<string, string> = {
   'Viajes':          '✈️',
   'Salario':         '💼',
   'Freelance':       '💻',
+  'Pago Préstamo':   '🏦',
+  'Pago Tarjeta':    '💳',
   'Otros':           '📦',
 };
 
@@ -304,6 +308,26 @@ export class Tab1Page implements OnDestroy {
   }
 
   trackByTxId(_: number, tx: any): string { return tx.id ?? _.toString(); }
+
+  /** Extrae el nombre del préstamo de la nota: "Pago cuota {nombre} · ..." */
+  getLoanTxTitle(note: string): string {
+    if (!note) return 'Pago Préstamo';
+    const m = note.match(/^Pago cuota (.+?) ·/);
+    return m ? m[1] : 'Pago Préstamo';
+  }
+
+  /** Extrae capital + interés + abono de la nota */
+  getLoanTxDetail(note: string): string {
+    if (!note) return '';
+    const cap   = note.match(/Capital:\s*(RD\$[\d,.]+)/)?.[1];
+    const int   = note.match(/Interés:\s*(RD\$[\d,.]+)/)?.[1];
+    const abono = note.match(/Abono extra:\s*(RD\$[\d,.]+)/)?.[1];
+    const parts = [];
+    if (cap)   parts.push(`Cap ${cap}`);
+    if (int)   parts.push(`Int ${int}`);
+    if (abono) parts.push(`Abono ${abono}`);
+    return parts.join(' · ');
+  }
 
   private async showToast(message: string): Promise<void> {
     const t = await this.toastCtrl.create({ message, duration: 1800, position: 'top' });
