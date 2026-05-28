@@ -1,7 +1,8 @@
 // src/app/tab1/categories.modal.ts
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { IonicModule, ModalController, ToastController, AlertController } from '@ionic/angular';
+import { ModalController, ToastController, AlertController } from '@ionic/angular/standalone';
+import { IonContent } from '@ionic/angular/standalone';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Observable } from 'rxjs';
 import { WalletService, Category } from '../core/wallet.service';
@@ -11,7 +12,7 @@ import { WalletService, Category } from '../core/wallet.service';
   selector: 'app-categories-modal',
   templateUrl: './categories.modal.html',
   styleUrls: ['./categories.modal.scss'],
-  imports: [IonicModule, CommonModule, ReactiveFormsModule],
+  imports: [IonContent, CommonModule, ReactiveFormsModule],
 })
 export class CategoriesModal {
   private wallet = inject(WalletService);

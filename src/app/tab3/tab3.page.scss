@@ -1,907 +1,307 @@
-/* src/app/tab3/tab3.page.scss */
+// tab3.page.scss — Tarjetas & Préstamos
 
-/* ===== Títulos de sección ===== */
-.section-title {
-  font-size: 13px;
-  font-weight: 800;
-  letter-spacing: 1.5px;
-  color: #94a3b8;
-  margin: 24px 0 16px;
+.tab3-content { --background: var(--mf-bg); }
+.page-content { padding: 0 16px 100px; }
+
+// Header
+.page-header { display: flex; align-items: center; justify-content: space-between; padding: 52px 4px 12px; }
+.page-title { color: var(--mf-text); font-weight: 800; font-size: 24px; }
+.add-btn {
+  width: 40px; height: 40px; border-radius: 12px;
+  background: var(--mf-gradient); border: none; color: #fff;
+  display: flex; align-items: center; justify-content: center; cursor: pointer;
+  box-shadow: var(--mf-shadow-glow);
 }
 
-/* ===== Formulario de tarjeta ===== */
-.form-card {
-  margin: 0 0 32px;
-  border-radius: 16px;
-  background: #fff;
-  box-shadow: 0 6px 18px rgba(31, 41, 55, 0.08);
-
-  ion-card-content {
-    padding: 24px;
-  }
+// Segment
+.seg-bar {
+  display: flex; background: var(--mf-surface); border-radius: 12px;
+  padding: 4px; gap: 4px; margin-bottom: 16px;
 }
-
-.form-grid {
-  display: grid;
-  gap: 20px;
-  margin-bottom: 24px;
-
-  @media (min-width: 768px) {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
-.form-field {
-  .field-label {
-    display: block;
-    font-size: 12px;
-    font-weight: 700;
-    color: #64748b;
-    margin-bottom: 8px;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-  }
-
-  .custom-input {
-    --background: #f8fafc;
-    --color: #1e293b;
-    --placeholder-color: #94a3b8;
-    --padding-start: 16px;
-    --padding-end: 16px;
-    border: 2px solid #e2e8f0;
-    border-radius: 12px;
-    min-height: 48px;
-    font-size: 15px;
-    font-weight: 500;
-    transition: all 0.2s;
-
-    &:focus-within {
-      --background: #fff;
-      border-color: var(--ion-color-primary);
-      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-    }
+.seg-btn {
+  flex: 1; height: 38px; border: none; border-radius: 9px;
+  background: transparent; color: var(--mf-text2);
+  font-weight: 700; font-size: 13px; cursor: pointer; font-family: var(--mf-font);
+  transition: all 0.2s;
+  &.active {
+    background: var(--mf-gradient); color: #fff;
+    box-shadow: var(--mf-shadow-glow);
   }
 }
 
-.add-button {
-  --background: var(--ion-color-primary);
-  --background-hover: #2563eb;
-  --border-radius: 12px;
-  --padding-top: 14px;
-  --padding-bottom: 14px;
-  font-weight: 700;
-  font-size: 14px;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  margin-top: 8px;
+// Summary glass (cards)
+.summary-glass {
+  background: var(--mf-violet-soft); border: 1px solid rgba(124,58,237,0.3);
+  border-radius: 16px; padding: 16px; margin-bottom: 18px;
+}
+.summary-label { color: var(--mf-text2); font-size: 12px; font-weight: 500; }
+.summary-value {
+  color: var(--mf-text); font-size: 22px; font-weight: 800; margin-top: 4px;
+  font-family: var(--mf-font-mono);
+}
+.summary-of { color: var(--mf-text2); font-size: 13px; font-weight: 500; }
+.summary-meta {
+  display: flex; gap: 16px; margin-top: 10px; font-size: 12px;
+  color: var(--mf-text2);
+  strong { color: var(--mf-text); }
 }
 
-/* ===== Tarjetas de crédito tipo plástico ===== */
-.cards-list {
-  display: grid;
-  gap: 20px;
-  margin-bottom: 32px;
-  padding: 4px;
+// Loan summary glass
+.loan-summary-glass {
+  position: relative; border-radius: 20px; padding: 20px; overflow: hidden;
+  background: rgba(124,58,237,0.18); backdrop-filter: blur(20px);
+  border: 1px solid rgba(124,58,237,0.3); margin-bottom: 20px;
+  box-shadow: 0 8px 32px rgba(124,58,237,0.2);
+}
+.ls-shine {
+  position: absolute; top: -40px; right: -40px; width: 160px; height: 160px;
+  border-radius: 80px;
+  background: radial-gradient(circle, rgba(124,58,237,0.4) 0%, transparent 70%);
+}
+.ls-label { color: var(--mf-text2); font-size: 12px; font-weight: 500; }
+.ls-total { color: var(--mf-text); font-size: 28px; font-weight: 800; margin-top: 4px; letter-spacing: -1px; font-family: var(--mf-font-mono); }
+.ls-meta { color: var(--mf-text2); font-size: 12px; margin-top: 8px; strong { color: var(--mf-text); } }
+.ls-progress { margin-top: 14px; }
+.ls-progress-labels { display: flex; justify-content: space-between; font-size: 11px; color: var(--mf-text2); margin-bottom: 6px; strong { color: var(--mf-text); } }
+.ls-track { height: 6px; border-radius: 3px; background: rgba(255,255,255,0.1); overflow: hidden; }
+.ls-fill { height: 100%; background: var(--mf-gradient); border-radius: 3px; transition: width 0.4s; }
 
-  @media (min-width: 768px) {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 24px;
-  }
+// Add form
+.add-form { margin-bottom: 20px; display: flex; flex-direction: column; gap: 10px; padding: 16px; }
+.form-title { color: var(--mf-text); font-weight: 700; font-size: 15px; }
+.form-input {
+  width: 100%; background: var(--mf-surface-alt); border: 1.5px solid var(--mf-border-strong);
+  border-radius: 10px; padding: 11px 14px; color: var(--mf-text);
+  font-size: 14px; font-family: var(--mf-font); outline: none; box-sizing: border-box;
+  &::placeholder { color: var(--mf-text3); }
+  &:focus { border-color: var(--mf-violet); }
+}
+.form-select {
+  appearance: none; -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2394A3B8' stroke-width='2.5'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 12px center;
+  option { background: #1A1A2E; color: #fff; }
+}
+.date-inp { color-scheme: dark; }
+.form-row { display: flex; gap: 8px; }
+.form-group { flex: 1; display: flex; flex-direction: column; gap: 4px; }
+.form-lbl { color: var(--mf-text2); font-size: 11px; font-weight: 600; display: block; }
+.save-btn {
+  background: var(--mf-gradient); color: #fff; border: none;
+  border-radius: 12px; padding: 13px; font-weight: 700; font-size: 15px;
+  cursor: pointer; font-family: var(--mf-font); box-shadow: var(--mf-shadow-glow);
+  &:disabled { opacity: .4; cursor: not-allowed; }
 }
 
-.credit-card {
-  position: relative;
-  width: 100%;
-  max-width: 380px;
-  margin: 0 auto;
-  aspect-ratio: 1.7;
-  border-radius: 18px;
-  padding: 18px 20px;
-  color: white;
-  cursor: pointer;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
+// ─── PLASTIC CARD ────────────────────────────────────────────────────────────
+.card-item { margin-bottom: 24px; }
 
-  &::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0) 100%);
-    pointer-events: none;
-  }
+.plastic-card {
+  border-radius: 18px; padding: 18px; position: relative; overflow: hidden;
+  box-shadow: 0 12px 32px rgba(0,0,0,0.45); color: #fff; cursor: pointer;
+  min-height: 180px; display: flex; flex-direction: column; justify-content: space-between;
 
-  &:hover {
-    transform: translateY(-6px) scale(1.01);
-    box-shadow: 0 16px 32px rgba(0, 0, 0, 0.25);
+  &__shine {
+    position: absolute; top: -50px; right: -50px; width: 200px; height: 200px;
+    border-radius: 100px; background: radial-gradient(circle,rgba(255,255,255,0.2) 0%,transparent 60%);
   }
-
-  &:active {
-    transform: translateY(-2px) scale(1.005);
-  }
+  &__top { display: flex; justify-content: space-between; align-items: flex-start; }
+  &__name { font-size: 12px; font-weight: 600; opacity: .85; }
+  &__type { font-size: 9px; opacity: .5; text-transform: uppercase; letter-spacing: 1px; margin-top: 2px; }
+  &__number { font-family: var(--mf-font-mono); font-size: 16px; letter-spacing: 2px; font-weight: 500; margin: 12px 0; }
+  &__footer { display: flex; gap: 16px; align-items: flex-end; }
 }
 
-/* Chip de la tarjeta */
-.card-chip {
-  width: 42px;
-  height: 32px;
-  background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
-  border-radius: 5px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  padding: 5px;
-  gap: 2px;
-  margin-bottom: 12px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
-  flex-shrink: 0;
-
-  .chip-line {
-    height: 2px;
-    background: rgba(0, 0, 0, 0.3);
-    border-radius: 1px;
-
-    &:nth-child(2) {
-      width: 80%;
-    }
-  }
+.plastic-chip {
+  width: 36px; height: 26px; border-radius: 5px;
+  background: linear-gradient(135deg, #FBBF24 0%, #D97706 100%);
+  position: relative; flex-shrink: 0;
+}
+.chip-inner {
+  position: absolute; inset: 4px; border: 1px solid rgba(0,0,0,0.2); border-radius: 2px;
 }
 
-/* Número de tarjeta */
-.card-number {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 12px;
-  font-family: 'Courier New', monospace;
-  font-size: clamp(13px, 3.5vw, 16px);
-  font-weight: 700;
-  letter-spacing: 1px;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-  flex-shrink: 0;
+.plastic-lbl { font-size: 9px; opacity: .6; text-transform: uppercase; letter-spacing: 0.5px; }
+.plastic-val { font-size: 11px; font-weight: 600; margin-top: 2px; }
+.plastic-val-sm { font-size: 10px; font-weight: 600; margin-top: 2px; }
 
-  .number-group {
-    opacity: 0.9;
-  }
+.card-brand { margin-left: auto; font-size: 13px; font-weight: 800; font-style: italic; opacity: .9; }
+
+.del-btn {
+  position: absolute; top: 10px; right: 10px;
+  background: rgba(0,0,0,0.3); border: none; border-radius: 8px;
+  padding: 4px 8px; font-size: 14px; cursor: pointer;
+  &:active { opacity: 0.7; }
 }
 
-/* Información de la tarjeta */
-.card-bottom {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 8px;
-  flex-shrink: 0;
-}
+// Card info panel
+.card-panel {
+  background: var(--mf-surface); border: 1px solid var(--mf-border);
+  border-radius: 16px; padding: 16px; margin-top: -18px; padding-top: 30px;
 
-.card-info-section {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  min-width: 0;
-}
-
-.info-group {
-  display: flex;
-  flex-direction: column;
-  gap: 1px;
-  min-width: 0;
-
-  .info-label {
-    font-size: 9px;
-    font-weight: 700;
-    letter-spacing: 0.5px;
-    opacity: 0.75;
-    text-transform: uppercase;
-    white-space: nowrap;
-  }
-
-  .info-value {
-    font-size: clamp(12px, 2.8vw, 14px);
-    font-weight: 700;
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+  &__top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+  &__name { color: var(--mf-text); font-weight: 700; font-size: 14px; }
+  &__status {
+    padding: 3px 8px; border-radius: 6px; font-size: 10px; font-weight: 700;
+    &.on-time { background: var(--mf-green-soft); color: var(--mf-green); }
+    &.urgent { background: var(--mf-red-soft); color: var(--mf-red); }
   }
 }
 
-/* Estado de uso de la tarjeta */
-.card-status {
-  margin-top: auto;
-  padding-top: 6px;
-  flex-shrink: 0;
+.card-info-row { display: flex; justify-content: space-between; align-items: center; font-size: 11px; color: var(--mf-text2); margin-bottom: 6px; }
+.card-pct { font-weight: 800; font-family: var(--mf-font-mono); }
+
+.usage-track { height: 6px; border-radius: 3px; background: var(--mf-surface-alt); overflow: hidden; }
+.usage-fill { height: 100%; border-radius: 3px; transition: width .3s; }
+
+.card-trivia {
+  display: flex; justify-content: space-between; margin-top: 12px; padding-top: 12px;
+  border-top: 1px solid var(--mf-border);
+}
+.trivia-item { text-align: center; flex: 1; }
+.trivia-lbl { color: var(--mf-text3); font-size: 10px; margin-bottom: 2px; }
+.trivia-val { color: var(--mf-text); font-weight: 700; font-size: 12px; }
+
+// Period navigation
+.period-nav {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 8px 0 10px; border-bottom: 1px solid var(--mf-border); margin-bottom: 10px;
+}
+.period-arrow-btn {
+  background: none; border: none; color: var(--mf-text2); cursor: pointer; padding: 4px 8px;
+  border-radius: 6px; display: flex; align-items: center; justify-content: center;
+  &:disabled { opacity: 0.3; cursor: default; }
+  &:not(:disabled):active { background: var(--mf-surface-alt); }
+}
+.period-label-sm {
+  color: var(--mf-text); font-size: 12px; font-weight: 700;
+  font-family: var(--mf-font-mono); text-align: center; flex: 1;
 }
 
-.status-bar {
-  height: 6px;
-  background: rgba(255, 255, 255, 0.25);
-  border-radius: 3px;
-  overflow: hidden;
-  margin-bottom: 8px;
-  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.2);
-
-  .status-consumed {
-    height: 100%;
-    background: linear-gradient(90deg, #fbbf24 0%, #f59e0b 50%, #ef4444 100%);
-    border-radius: 3px;
-    transition: width 0.3s ease;
-    box-shadow: 0 0 6px rgba(239, 68, 68, 0.4);
-  }
+.card-actions { display: flex; gap: 8px; margin-top: 12px; }
+.ca-btn {
+  flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px;
+  border-radius: 10px; padding: 10px 6px; font-size: 11px; font-weight: 700;
+  font-family: var(--mf-font); cursor: pointer; border: 1px solid;
+  &--green  { background: var(--mf-green-soft);  color: var(--mf-green);  border-color: rgba(16,185,129,0.3); }
+  &--blue   { background: var(--mf-blue-soft);   color: var(--mf-blue);   border-color: rgba(59,130,246,0.3); }
+  &--violet { background: var(--mf-violet-soft); color: var(--mf-violet); border-color: rgba(124,58,237,0.3); }
 }
 
-.status-info {
-  display: flex;
-  justify-content: space-between;
-  font-size: 11px;
-  font-weight: 600;
-  gap: 8px;
-  padding: 0 2px;
+// TX section
+.tx-section { margin-top: 10px; }
+.tx-section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+.tx-period-badge {
+  background: var(--mf-surface-alt); border: 1px solid var(--mf-border);
+  border-radius: 8px; padding: 2px 8px; font-size: 10px; font-weight: 700;
+  color: var(--mf-text2); font-family: var(--mf-font-mono);
+}
+.tx-card { padding: 0; overflow: hidden; }
+.tx-row {
+  display: flex; align-items: center; gap: 10px; padding: 12px 16px;
+  border-bottom: 1px solid var(--mf-border);
+  &.last { border-bottom: none; }
+}
+.tx-cat-bubble { font-size: 20px; }
+.tx-info { flex: 1; }
+.tx-cat { color: var(--mf-text); font-size: 13px; font-weight: 600; display: block; }
+.tx-date { color: var(--mf-text2); font-size: 11px; }
+.tx-amount { color: var(--mf-red); font-weight: 700; font-size: 13px; font-family: var(--mf-font-mono); }
+.no-tx-msg { color: var(--mf-text3); font-size: 13px; text-align: center; padding: 16px; }
 
-  .consumed,
-  .available {
-    color: rgba(255, 255, 255, 0.95);
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
+// ─── LOANS ────────────────────────────────────────────────────────────────────
+.loan-item {
+  background: var(--mf-surface); border: 1px solid var(--mf-border);
+  border-left-width: 4px; border-radius: 16px; padding: 16px;
+  margin-bottom: 14px; cursor: pointer;
+  transition: border-color 0.2s;
+
+  &__header { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+  &__info { flex: 1; }
 }
 
-/* Botón eliminar */
-.delete-card-btn {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  --color: #ffffff;
-  --background: rgba(0, 0, 0, 0.35);
-  --background-hover: rgba(239, 68, 68, 0.85);
-  --background-activated: rgba(239, 68, 68, 0.95);
-  backdrop-filter: blur(8px);
-  border-radius: 8px;
-  width: 34px;
-  height: 34px;
-  z-index: 10;
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.25);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s ease;
+.loan-icon {
+  width: 40px; height: 40px; border-radius: 10px;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.loan-name { color: var(--mf-text); font-weight: 700; font-size: 14px; }
+.loan-meta { color: var(--mf-text2); font-size: 11px; margin-top: 2px; }
 
-  ion-icon {
-    font-size: 18px;
-    color: white;
-  }
-
-  &:hover {
-    transform: scale(1.08);
-  }
-
-  &:active {
-    transform: scale(0.92);
-  }
+.loan-badge {
+  padding: 3px 8px; border-radius: 6px; font-size: 10px; font-weight: 700; flex-shrink: 0;
+  &.urgent { background: var(--mf-red-soft); color: var(--mf-red); }
+  &.ok     { background: var(--mf-green-soft); color: var(--mf-green); }
 }
 
-/* Logo/Brand de la tarjeta */
-.card-brand {
-  position: absolute;
-  bottom: 16px;
-  right: 20px;
-  font-size: 40px;
-  opacity: 0.25;
+.loan-amounts { display: flex; justify-content: space-between; margin-bottom: 10px; }
+.loan-amount-lbl { color: var(--mf-text3); font-size: 10px; margin-bottom: 2px; }
+.loan-amount-val { color: var(--mf-text); font-weight: 800; font-size: 15px; font-family: var(--mf-font-mono); &--red { color: var(--mf-red); } }
 
-  ion-icon {
-    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
-  }
+.loan-progress { margin-top: 8px; }
+.loan-progress-labels { display: flex; justify-content: space-between; font-size: 11px; color: var(--mf-text2); margin-bottom: 4px; }
+
+.loan-footer {
+  display: flex; justify-content: space-between; margin-top: 10px;
+  font-size: 11px; color: var(--mf-text2);
+  strong { color: var(--mf-text); }
 }
 
-/* ===== Selector de tarjeta ===== */
-.selector-card {
-  margin: 0 0 16px;
-  border-radius: 16px;
-  background: #fff;
-  box-shadow: 0 6px 18px rgba(31, 41, 55, 0.08);
+// Loan detail (expanded)
+.loan-detail { margin-top: 14px; }
+.loan-detail-divider { height: 1px; background: var(--mf-border); margin-bottom: 16px; }
 
-  ion-card-content {
-    padding: 20px;
-  }
+.loan-donut-row { display: flex; align-items: center; gap: 16px; margin-bottom: 16px; }
+.loan-donut { position: relative; width: 120px; height: 120px; flex-shrink: 0; }
+.loan-donut-center {
+  position: absolute; inset: 0; display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+}
+.loan-donut-pct { color: var(--mf-text); font-size: 24px; font-weight: 800; }
+.loan-donut-lbl { color: var(--mf-text2); font-size: 10px; }
 
-  ion-select {
-    width: 100%;
-    --padding-start: 16px;
-    --padding-end: 16px;
-    border: 2px solid #e2e8f0;
-    border-radius: 12px;
-    min-height: 48px;
-    margin-bottom: 16px;
-    font-weight: 600;
-  }
+.loan-donut-legend { flex: 1; display: flex; flex-direction: column; gap: 12px; }
+.legend-item { display: flex; align-items: center; gap: 8px; }
+.legend-dot { width: 10px; height: 10px; border-radius: 5px; flex-shrink: 0; }
+.legend-lbl { color: var(--mf-text2); font-size: 11px; }
+.legend-val { color: var(--mf-text); font-weight: 700; font-size: 13px; margin-top: 1px; }
 
-  .view-statement-btn {
-    --background: var(--ion-color-primary);
-    --border-radius: 12px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-  }
+.loan-detail-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 16px; }
+.detail-cell {
+  background: var(--mf-surface-alt); border: 1px solid var(--mf-border); border-radius: 12px; padding: 12px;
+  display: flex; flex-direction: column; gap: 4px;
+}
+.detail-lbl { color: var(--mf-text3); font-size: 10px; font-weight: 600; }
+.detail-val { color: var(--mf-text); font-weight: 700; font-size: 12px; }
+
+.proj-title { color: var(--mf-text); font-size: 14px; font-weight: 700; margin-bottom: 10px; }
+.proj-table { padding: 0; overflow: hidden; }
+.proj-header {
+  display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr 1.2fr; gap: 0;
+  padding: 10px 12px; background: var(--mf-surface-alt);
+  font-size: 9px; color: var(--mf-text2); font-weight: 700; text-transform: uppercase; letter-spacing: 0.4px;
+}
+.proj-row {
+  display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr 1.2fr;
+  padding: 10px 12px; font-size: 11px; color: var(--mf-text);
+  border-top: 1px solid var(--mf-border); font-family: var(--mf-font-mono);
+  &-last { /* no extra styles needed */ }
 }
 
-/* ===== Resumen mensual ===== */
-.summary-card {
-  margin: 0 0 24px;
-  border-radius: 16px;
-  background: #fff;
-  box-shadow: 0 6px 18px rgba(31, 41, 55, 0.08);
-
-  ion-card-content {
-    padding: 20px;
-  }
+.loan-delete-btn {
+  width: 100%; margin-top: 12px; background: var(--mf-red-soft);
+  border: 1px solid rgba(239,68,68,0.3); color: var(--mf-red);
+  border-radius: 10px; padding: 11px; font-size: 13px; font-weight: 700;
+  font-family: var(--mf-font); cursor: pointer;
+  &:active { opacity: 0.7; }
 }
 
-.summary-header {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  margin-bottom: 16px;
+// Empty
+.empty-state { text-align: center; padding: 40px 20px; }
+.empty-icon { font-size: 48px; margin-bottom: 12px; }
+.empty-title { color: var(--mf-text); font-weight: 700; font-size: 16px; }
+.empty-sub { color: var(--mf-text2); font-size: 13px; margin-top: 4px; }
+.empty-cta {
+  margin-top: 16px; background: var(--mf-gradient); color: #fff; border: none;
+  border-radius: 12px; padding: 12px 24px; font-weight: 700; font-size: 14px;
+  cursor: pointer; font-family: var(--mf-font); box-shadow: var(--mf-shadow-glow);
 }
-
-.summary-icon {
-  width: 56px;
-  height: 56px;
-  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-  border-radius: 14px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  .icon-text {
-    font-size: 20px;
-    font-weight: 800;
-    color: white;
-  }
-}
-
-.summary-info {
-  flex: 1;
-
-  h3 {
-    font-size: 18px;
-    font-weight: 700;
-    color: var(--ion-text-color);
-    margin: 0 0 4px;
-  }
-
-  .limit-text {
-    font-size: 14px;
-    color: #64748b;
-    margin: 0;
-  }
-}
-
-.summary-amounts {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-  font-size: 18px;
-  font-weight: 700;
-
-  .used-amount {
-    color: #ef4444;
-  }
-
-  .separator {
-    color: #94a3b8;
-  }
-
-  .available-amount {
-    color: #10b981;
-  }
-}
-
-/* ===== Lista de transacciones ===== */
-.transactions-list {
-  display: grid;
-  gap: 12px;
-}
-
-.transaction-item {
-  background: #fff;
-  border-radius: 16px;
-  padding: 16px;
-  box-shadow: 0 4px 12px rgba(31, 41, 55, 0.06);
-  display: flex;
-  align-items: center;
-  gap: 16px;
-}
-
-.tx-badge {
-  width: 56px;
-  height: 56px;
-  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-  border-radius: 14px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-
-  .badge-text {
-    font-size: 14px;
-    font-weight: 800;
-    color: white;
-  }
-}
-
-.tx-info {
-  flex: 1;
-  min-width: 0;
-
-  .tx-category {
-    font-size: 15px;
-    font-weight: 600;
-    color: var(--ion-text-color);
-    margin: 0 0 4px;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-
-    ion-icon {
-      font-size: 16px;
-      color: #3b82f6;
-    }
-  }
-
-  .tx-date {
-    font-size: 13px;
-    color: #64748b;
-    margin: 0;
-  }
-}
-
-.tx-amount {
-  font-size: 18px;
-  font-weight: 800;
-  color: #ef4444;
-  flex-shrink: 0;
-}
-
-/* ===== Estado vacío ===== */
-.empty-state {
-  text-align: center;
-  padding: 60px 20px;
-
-  .empty-icon {
-    font-size: 80px;
-    color: #cbd5e1;
-    margin-bottom: 16px;
-  }
-
-  p {
-    font-size: 16px;
-    color: #64748b;
-    margin: 8px 0;
-
-    &.empty-hint {
-      font-size: 14px;
-      color: #94a3b8;
-    }
-  }
-}
-
-/* ===== 🔥 MODO OSCURO ===== */
-:host-context(body.dark) {
-  .section-title {
-    color: #94a3b8;
-  }
-
-  .form-card {
-    background: #1e293b;
-    
-    .field-label {
-      color: #94a3b8;
-    }
-    
-    .custom-input {
-      --background: #0f172a;
-      --color: #f1f5f9;
-      border-color: #334155;
-      
-      &:focus-within {
-        --background: #1e293b;
-        border-color: var(--ion-color-primary);
-      }
-    }
-  }
-
-  .selector-card,
-  .summary-card {
-    background: #1e293b;
-    
-    ion-select {
-      --background: #0f172a;
-      --color: #f1f5f9;
-      border-color: #334155;
-    }
-    
-    .summary-info h3 {
-      color: #f1f5f9;
-    }
-    
-    .limit-text {
-      color: #94a3b8;
-    }
-  }
-
-  .transaction-item {
-    background: #1e293b;
-    
-    .tx-category {
-      color: #f1f5f9;
-    }
-    
-    .tx-date {
-      color: #94a3b8;
-    }
-  }
-
-  .empty-state {
-    .empty-icon {
-      color: #475569;
-    }
-    
-    p {
-      color: #94a3b8;
-      
-      &.empty-hint {
-        color: #64748b;
-      }
-    }
-  }
-}
-
-/* ===== Responsive ===== */
-@media (max-width: 640px) {
-  .credit-card {
-    padding: 14px 16px;
-    aspect-ratio: 1.65;
-
-    .card-number {
-      font-size: 13px;
-      letter-spacing: 0.5px;
-      margin-bottom: 10px;
-    }
-
-    .card-chip {
-      width: 38px;
-      height: 28px;
-      margin-bottom: 10px;
-    }
-
-    .info-value {
-      font-size: 11px !important;
-    }
-
-    .delete-card-btn {
-      width: 32px;
-      height: 32px;
-      top: 8px;
-      right: 8px;
-
-      ion-icon {
-        font-size: 16px;
-      }
-    }
-  }
-}
-
-/* ===== Tarjetas de resumen ===== */
-.summary-cards {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-    gap: 12px;
-    margin-bottom: 24px;
-  }
-  
-  .summary-card {
-    margin: 0;
-    border-radius: 16px;
-    box-shadow: 0 6px 18px rgba(31,41,55,.08);
-  
-    ion-card-content {
-      padding: 16px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      text-align: center;
-    }
-  
-    .summary-icon {
-      width: 48px;
-      height: 48px;
-      border-radius: 12px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin-bottom: 12px;
-  
-      ion-icon {
-        font-size: 24px;
-        color: white;
-      }
-  
-      &.success {
-        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-      }
-  
-      &.danger {
-        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-      }
-  
-      &.primary {
-        background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-      }
-    }
-  
-    .summary-label {
-      font-size: 12px;
-      font-weight: 600;
-      color: #64748b;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      margin: 0 0 8px;
-    }
-  
-    .summary-value {
-      font-size: 24px;
-      font-weight: 800;
-      color: var(--ion-text-color);
-      margin: 0;
-  
-      &.positive {
-        color: #10b981;
-      }
-  
-      &.negative {
-        color: #ef4444;
-      }
-    }
-  }
-  
-  /* ===== Secciones de gráficos ===== */
-  .chart-section {
-    margin-bottom: 32px;
-  }
-  
-  .section-title {
-    font-size: 18px;
-    font-weight: 800;
-    color: var(--ion-text-color);
-    margin: 0 0 16px;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-  }
-  
-  .chart-card {
-    margin: 0;
-    border-radius: 16px;
-    box-shadow: 0 10px 24px rgba(31,41,55,.08);
-    background: #fff;
-  
-    ion-card-content {
-      padding: 20px;
-    }
-  
-    canvas {
-      max-height: 300px;
-      margin-bottom: 20px;
-    }
-  }
-  
-  /* ===== Leyenda de gráfico ===== */
-  .chart-legend {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-  }
-  
-  .legend-item {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 8px;
-    border-radius: 8px;
-    background: #f8fafc;
-    transition: background 0.2s;
-  
-    &:hover {
-      background: #f1f5f9;
-    }
-  
-    .legend-color {
-      width: 16px;
-      height: 16px;
-      border-radius: 4px;
-      flex-shrink: 0;
-    }
-  
-    .legend-label {
-      flex: 1;
-      font-weight: 600;
-      color: var(--ion-text-color);
-      font-size: 14px;
-    }
-  
-    .legend-value {
-      font-weight: 700;
-      color: var(--ion-text-color);
-      font-size: 14px;
-    }
-  
-    .legend-percent {
-      color: #64748b;
-      font-size: 13px;
-      min-width: 50px;
-      text-align: right;
-    }
-  }
-  
-  /* ===== Estadísticas adicionales ===== */
-  .stats-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-    gap: 12px;
-    margin-top: 24px;
-  }
-  
-  .stat-card {
-    margin: 0;
-    border-radius: 12px;
-    box-shadow: 0 4px 12px rgba(31,41,55,.06);
-  
-    ion-card-content {
-      padding: 16px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      text-align: center;
-    }
-  
-    .stat-icon {
-      font-size: 32px;
-      color: var(--ion-color-primary);
-      margin-bottom: 8px;
-    }
-  
-    .stat-label {
-      font-size: 11px;
-      font-weight: 600;
-      color: #64748b;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      margin: 0 0 8px;
-    }
-  
-    .stat-value {
-      font-size: 18px;
-      font-weight: 800;
-      color: var(--ion-text-color);
-      margin: 0;
-    }
-  }
-  
-  /* ===== Mensaje vacío ===== */
-  .empty-message {
-    text-align: center;
-    color: #64748b;
-    font-size: 14px;
-    padding: 40px 20px;
-    margin: 0;
-  }
-
-  /* ===== 🔥 MODO OSCURO ===== */
-  :host-context(body.dark) {
-    .summary-card {
-      background: #1e293b;
-      box-shadow: 0 6px 18px rgba(0,0,0,.2);
-      
-      ion-card-content {
-        .summary-label {
-          color: #94a3b8;
-        }
-        
-        .summary-value {
-          color: #f1f5f9;
-          
-          &.positive {
-            color: #6ee7b7;
-          }
-          
-          &.negative {
-            color: #fca5a5;
-          }
-        }
-      }
-    }
-    
-    .section-title {
-      color: #f1f5f9;
-    }
-    
-    .chart-card {
-      background: #1e293b;
-      box-shadow: 0 10px 24px rgba(0,0,0,.3);
-      
-      ion-card-content {
-        background: #1e293b;
-      }
-    }
-    
-    /* 🔥 Leyendas en modo oscuro */
-    .chart-legend {
-      .legend-item {
-        background: #0f172a;
-        border: 1px solid #334155;
-        
-        &:hover {
-          background: #1e293b;
-        }
-        
-        .legend-label {
-          color: #f1f5f9;
-        }
-        
-        .legend-value {
-          color: #f1f5f9;
-        }
-        
-        .legend-percent {
-          color: #94a3b8;
-        }
-      }
-    }
-    
-    .stats-grid {
-      .stat-card {
-        background: #1e293b;
-        box-shadow: 0 4px 12px rgba(0,0,0,.2);
-        
-        ion-card-content {
-          .stat-label {
-            color: #94a3b8;
-          }
-          
-          .stat-value {
-            color: #f1f5f9;
-          }
-        }
-      }
-    }
-    
-    .empty-message {
-      color: #94a3b8;
-    }
-  }
-  
-  /* ===== Responsive ===== */
-  @media (max-width: 768px) {
-    .summary-cards {
-      grid-template-columns: 1fr;
-    }
-  
-    .stats-grid {
-      grid-template-columns: repeat(2, 1fr);
-    }
-  
-    .chart-card canvas {
-      max-height: 250px;
-    }
-  }
-  
-  @media (max-width: 480px) {
-    .stats-grid {
-      grid-template-columns: 1fr;
-    }
-  }

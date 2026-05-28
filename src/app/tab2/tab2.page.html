@@ -1,142 +1,109 @@
-<!-- src/app/tab2/tab2.page.html -->
-<ion-header [translucent]="true">
-  <ion-toolbar>
-    <ion-title>Estadísticas</ion-title>
-  </ion-toolbar>
-</ion-header>
+<!-- tab2.page.html — MoneyFlow Reports -->
+<ion-content [fullscreen]="true" class="tab2-content">
+  <div class="page-content">
 
-<ion-content [fullscreen]="true">
-  <!-- Header colapsable -->
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">Estadísticas</ion-title>
-    </ion-toolbar>
-  </ion-header>
+    <div class="page-header">
+      <span class="page-title">Reportes</span>
+    </div>
 
-  <div class="ion-padding">
-    <!-- Resumen general -->
-    <div class="summary-cards">
-      <ion-card class="summary-card">
-        <ion-card-content>
-          <div class="summary-icon success">
-            <ion-icon name="trending-up-outline"></ion-icon>
+    <!-- Period selector -->
+    <div class="period-bar">
+      <button class="period-arrow" (click)="prevMonth()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>
+      </button>
+      <span class="period-label">{{ currentMonthLabel }}</span>
+      <button class="period-arrow" (click)="nextMonth()" [disabled]="isCurrentMonth">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+      </button>
+    </div>
+
+    <!-- Summary 3 KPIs -->
+    <div class="kpi-row">
+      <div class="kpi-card kpi-card--green">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--mf-green)" stroke-width="2.6" stroke-linecap="round"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>
+        <div class="kpi-lbl">INGRESOS</div>
+        <div class="kpi-val" style="color:var(--mf-green)">RD${{ totalIncome | number:'1.0-0' }}</div>
+      </div>
+      <div class="kpi-card kpi-card--red">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--mf-red)" stroke-width="2.6" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/></svg>
+        <div class="kpi-lbl">GASTOS</div>
+        <div class="kpi-val" style="color:var(--mf-red)">RD${{ totalExpenses | number:'1.0-0' }}</div>
+      </div>
+      <div class="kpi-card kpi-card--violet">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--mf-violet)" stroke-width="2.6" stroke-linecap="round"><path d="M20 12V22H4V12"/><path d="M22 7H2v5h20V7z"/><path d="M12 22V7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg>
+        <div class="kpi-lbl">AHORRO</div>
+        <div class="kpi-val" style="color:var(--mf-violet)">RD${{ balance | number:'1.0-0' }}</div>
+      </div>
+    </div>
+
+    <!-- Category donut -->
+    <div class="mf-card chart-card" *ngIf="categoryData.length > 0">
+      <div class="chart-header">
+        <span class="mf-section-title">Gastos por categoría</span>
+      </div>
+      <div class="donut-row">
+        <div class="donut-wrap">
+          <canvas #categoryChart width="130" height="130"></canvas>
+          <div class="donut-center">
+            <span class="donut-value">{{ totalExpenses | number:'1.0-0' }}</span>
+            <span class="donut-sub">total</span>
           </div>
-          <p class="summary-label">Total Ingresos</p>
-          <h2 class="summary-value">{{ totalIncome | number:'1.2-2' }}</h2>
-        </ion-card-content>
-      </ion-card>
-
-      <ion-card class="summary-card">
-        <ion-card-content>
-          <div class="summary-icon danger">
-            <ion-icon name="trending-down-outline"></ion-icon>
+        </div>
+        <div class="cat-legend">
+          <div class="cat-legend-item" *ngFor="let c of categoryData.slice(0,6)">
+            <div class="cat-dot" [style.background]="chartColors[categoryData.indexOf(c) % chartColors.length]"></div>
+            <span class="cat-name">{{ c.category }}</span>
+            <span class="cat-pct">{{ c.percentage | number:'1.0-0' }}%</span>
           </div>
-          <p class="summary-label">Total Gastos</p>
-          <h2 class="summary-value">{{ totalExpenses | number:'1.2-2' }}</h2>
-        </ion-card-content>
-      </ion-card>
-
-      <ion-card class="summary-card">
-        <ion-card-content>
-          <div class="summary-icon primary">
-            <ion-icon name="wallet-outline"></ion-icon>
-          </div>
-          <p class="summary-label">Balance</p>
-          <h2 class="summary-value" [class.positive]="balance >= 0" [class.negative]="balance < 0">
-            {{ balance | number:'1.2-2' }}
-          </h2>
-        </ion-card-content>
-      </ion-card>
+        </div>
+      </div>
     </div>
 
-    <!-- Gastos por categoría del mes -->
-    <div class="chart-section">
-      <h3 class="section-title">Gastos por Categoría (Este Mes)</h3>
-      
-      <ion-card class="chart-card">
-        <ion-card-content>
-          <canvas #categoryChart></canvas>
-          
-          <div class="chart-legend" *ngIf="categoryData.length > 0">
-            <div class="legend-item" *ngFor="let item of categoryData; let i = index">
-              <span class="legend-color" [style.background-color]="chartColors[i % chartColors.length]"></span>
-              <span class="legend-label">{{ item.category }}</span>
-              <span class="legend-value">{{ item.amount | number:'1.2-2' }}</span>
-              <span class="legend-percent">({{ item.percentage | number:'1.0-0' }}%)</span>
-            </div>
-          </div>
-
-          <p class="empty-message" *ngIf="categoryData.length === 0">
-            No hay gastos registrados este mes
-          </p>
-        </ion-card-content>
-      </ion-card>
+    <!-- Monthly trend -->
+    <div class="mf-card chart-card" *ngIf="monthlyData.length > 0">
+      <div class="chart-header">
+        <span class="mf-section-title">Evolución mensual</span>
+      </div>
+      <canvas #trendChart height="160"></canvas>
     </div>
 
-    <!-- Evolución de ingresos y gastos -->
-    <div class="chart-section">
-      <h3 class="section-title">Evolución Últimos 6 Meses</h3>
-
-      <ion-card class="chart-card">
-        <ion-card-content>
-          <canvas #trendChart></canvas>
-
-          <p class="empty-message" *ngIf="monthlyData.length === 0">
-            No hay suficientes datos para mostrar la evolución
-          </p>
-        </ion-card-content>
-      </ion-card>
+    <!-- Bar comparison -->
+    <div class="mf-card chart-card" *ngIf="monthlyData.length > 0">
+      <div class="chart-header">
+        <span class="mf-section-title">Ingresos vs Gastos</span>
+      </div>
+      <canvas #comparisonChart height="160"></canvas>
     </div>
 
-    <!-- Comparación mensual (barras) -->
-    <div class="chart-section">
-      <h3 class="section-title">Comparación Mensual</h3>
-
-      <ion-card class="chart-card">
-        <ion-card-content>
-          <canvas #comparisonChart></canvas>
-
-          <p class="empty-message" *ngIf="monthlyData.length === 0">
-            No hay suficientes datos para mostrar la comparación
-          </p>
-        </ion-card-content>
-      </ion-card>
+    <!-- Stats summary -->
+    <div class="mf-card stats-card">
+      <div class="stats-row">
+        <div class="stat-item">
+          <span class="stat-lbl">Promedio diario</span>
+          <span class="stat-val">RD${{ averageDaily | number:'1.0-0' }}</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-lbl">Mayor gasto</span>
+          <span class="stat-val">RD${{ maxExpense | number:'1.0-0' }}</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-lbl">Top categoría</span>
+          <span class="stat-val">{{ topCategory || '—' }}</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-lbl">Transacciones</span>
+          <span class="stat-val">{{ totalTransactions }}</span>
+        </div>
+      </div>
     </div>
 
-    <!-- Estadísticas adicionales -->
-    <div class="stats-grid">
-      <ion-card class="stat-card">
-        <ion-card-content>
-          <ion-icon name="calendar-outline" class="stat-icon"></ion-icon>
-          <p class="stat-label">Promedio Diario</p>
-          <h3 class="stat-value">{{ averageDaily | number:'1.2-2' }}</h3>
-        </ion-card-content>
-      </ion-card>
-
-      <ion-card class="stat-card">
-        <ion-card-content>
-          <ion-icon name="apps-outline" class="stat-icon"></ion-icon>
-          <p class="stat-label">Categoría + Gastada</p>
-          <h3 class="stat-value">{{ topCategory || '—' }}</h3>
-        </ion-card-content>
-      </ion-card>
-
-      <ion-card class="stat-card">
-        <ion-card-content>
-          <ion-icon name="flash-outline" class="stat-icon"></ion-icon>
-          <p class="stat-label">Transacciones</p>
-          <h3 class="stat-value">{{ totalTransactions }}</h3>
-        </ion-card-content>
-      </ion-card>
-
-      <ion-card class="stat-card">
-        <ion-card-content>
-          <ion-icon name="trending-up-outline" class="stat-icon"></ion-icon>
-          <p class="stat-label">Mayor Gasto</p>
-          <h3 class="stat-value">{{ maxExpense | number:'1.2-2' }}</h3>
-        </ion-card-content>
-      </ion-card>
+    <!-- Empty state -->
+    <div class="empty-state" *ngIf="categoryData.length === 0 && monthlyData.length === 0">
+      <div class="empty-icon">📊</div>
+      <div class="empty-title">Sin datos aún</div>
+      <div class="empty-sub">Agrega transacciones para ver tus reportes</div>
     </div>
 
+    <div style="height:24px"></div>
   </div>
 </ion-content>

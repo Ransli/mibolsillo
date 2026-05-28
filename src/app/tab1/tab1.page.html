@@ -1,186 +1,194 @@
-<!-- src/app/tab1/tab1.page.html -->
-<ion-header [translucent]="true">
-  <ion-toolbar>
-    <ion-title>Inicio</ion-title>
-  </ion-toolbar>
-</ion-header>
+<!-- src/app/tab1/tab1.page.html — MoneyFlow Dashboard -->
+<ion-content [fullscreen]="true" class="tab1-content">
+  <div class="page-content">
 
-<ion-content [fullscreen]="true">
-  <!-- Header colapsable -->
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">Inicio</ion-title>
-    </ion-toolbar>
-  </ion-header>
-
-  <div class="ion-padding">
-    <!-- Saludo -->
-    <h2 class="greeting">Hola, {{ (user$ | async)?.displayName || '—' }}</h2>
-
-    <!-- KPIs -->
-    <div class="kpi-grid">
-      <ion-card class="card kpi">
-        <ion-card-content>
-          <h3>Ingresos</h3>
-          <div class="kpi-value">{{ ((totals$ | async)?.in ?? 0) | number:'1.2-2' }}</div>
-        </ion-card-content>
-      </ion-card>
-
-      <ion-card class="card kpi">
-        <ion-card-content>
-          <h3>Gastos</h3>
-          <div class="kpi-value">{{ ((totals$ | async)?.out ?? 0) | number:'1.2-2' }}</div>
-        </ion-card-content>
-      </ion-card>
-
-      <ion-card class="card kpi">
-        <ion-card-content>
-          <h3>Saldo</h3>
-          <div class="kpi-value kpi-badge">{{ ((totals$ | async)?.balance ?? 0) | number:'1.2-2' }}</div>
-        </ion-card-content>
-      </ion-card>
+    <!-- ── HEADER ── -->
+    <div class="mf-header">
+      <div class="mf-header__avatar">
+        {{ (user$ | async)?.displayName?.charAt(0)?.toUpperCase() || 'U' }}
+      </div>
+      <div class="mf-header__text">
+        <div class="mf-header__greeting">¡Hola, {{ (user$ | async)?.displayName?.split(' ')[0] || 'Usuario' }}! 👋</div>
+        <div class="mf-header__sub">Resumen financiero</div>
+      </div>
+      <button class="mf-header__bell" (click)="openNew()">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+        </svg>
+      </button>
     </div>
 
-    <!-- Acciones -->
-    <div class="actions ion-margin-vertical">
-      <ion-button fill="outline" (click)="openCategories()">CATEGORÍAS</ion-button>
-      <ion-button color="primary" (click)="openNew()">NUEVA TRANSACCIÓN</ion-button>
-    </div>
-
-    <!-- Selector de Período -->
-    <div class="period-selector">
-      <ion-button fill="clear" size="small" (click)="previousMonth()">
-        <ion-icon name="chevron-back"></ion-icon>
-      </ion-button>
+    <!-- ── PERIOD SELECTOR ── -->
+    <div class="period-bar">
+      <button class="period-arrow" (click)="previousMonth()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>
+      </button>
       <span class="period-label">{{ selectedMonthLabel }}</span>
-      <ion-button fill="clear" size="small" (click)="nextMonth()" [disabled]="isCurrentMonth">
-        <ion-icon name="chevron-forward"></ion-icon>
-      </ion-button>
+      <button class="period-arrow" (click)="nextMonth()" [disabled]="isCurrentMonth">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+      </button>
     </div>
 
-    <!-- Filtros -->
-    <div class="filters-section">
-      <h3 class="section-header">
-        <ion-icon name="filter-outline"></ion-icon>
-        Filtros
-      </h3>
-
-      <ion-card class="filters-card">
-        <ion-card-content>
-          <!-- Filtro por Fecha -->
-          <div class="filter-group">
-            <ion-label>
-              <h4>Por Fecha</h4>
-            </ion-label>
-            <ion-segment
-              [value]="dateFilter"
-              (ionChange)="applyFilters()"
-              class="modern-segment">
-              <ion-segment-button value="all">TODO</ion-segment-button>
-              <ion-segment-button value="today">HOY</ion-segment-button>
-              <ion-segment-button value="week">SEMANA</ion-segment-button>
-              <ion-segment-button value="month">MES</ion-segment-button>
-            </ion-segment>
-          </div>
-
-          <!-- Filtro por Categoría -->
-          <div class="filter-group">
-            <ion-label>
-              <h4>Por Categoría</h4>
-            </ion-label>
-            <ion-select 
-              [(ngModel)]="categoryFilter" 
-              (ionChange)="applyFilters()" 
-              placeholder="Todas las categorías"
-              interface="popover"
-              class="compact-select">
-              <ion-select-option value="all">Todas</ion-select-option>
-              <ion-select-option *ngFor="let c of (categories$ | async)" [value]="c.name">
-                {{ c.emoji }} {{ c.name }}
-              </ion-select-option>
-            </ion-select>
-          </div>
-
-          <!-- Filtro por Tarjeta -->
-          <div class="filter-group">
-            <ion-label>
-              <h4>Por Tarjeta</h4>
-            </ion-label>
-            <ion-select 
-              [(ngModel)]="cardFilter" 
-              (ionChange)="applyFilters()" 
-              placeholder="Todas las tarjetas"
-              interface="popover"
-              class="compact-select">
-              <ion-select-option value="all">Todas</ion-select-option>
-              <ion-select-option value="cash">Efectivo</ion-select-option>
-              <ion-select-option *ngFor="let card of (cards$ | async)" [value]="card.id">
-                {{ card.name }} - **** {{ card.lastFourDigits }}
-              </ion-select-option>
-            </ion-select>
-          </div>
-
-          <!-- Botón limpiar filtros -->
-          <ion-button 
-            expand="block" 
-            fill="outline" 
-            size="small"
-            (click)="clearFilters()">
-            <ion-icon name="close-circle-outline" slot="start"></ion-icon>
-            Limpiar Filtros
-          </ion-button>
-        </ion-card-content>
-      </ion-card>
-    </div>
-
-    <!-- Últimas transacciones - MEJORADO -->
-    <h3 class="list-title">Últimas transacciones</h3>
-
-    <ng-container *ngIf="(filteredTx$ | async) as txs">
-      <ion-list class="tx-list" *ngIf="txs.length > 0; else emptyState" lines="none">
-        <ion-item *ngFor="let t of txs; trackBy: trackByTxId">
-          <ion-label class="ion-text-wrap">
-            <h3>{{ t.type === 'in' ? 'Ingreso' : 'Gasto' }} • {{ t.category || '—' }}</h3>
-            
-            <!-- 🔥 Información de pago con nombre de tarjeta y nota -->
-            <div class="tx-details">
-              <span *ngIf="t.paymentMethod === 'card'" class="payment-badge card">
-                <ion-icon name="card-outline"></ion-icon> 
-                {{ getCardName(t.cardId) }}
-              </span>
-              <span *ngIf="t.paymentMethod === 'cash'" class="payment-badge cash">
-                <ion-icon name="cash-outline"></ion-icon> 
-                Efectivo
-              </span>
-              
-              <!-- Descripción/nota si existe -->
-              <span *ngIf="t.note" class="tx-note">
-                {{ t.note }}
-              </span>
+    <!-- ── BALANCE CARD ── -->
+    <div class="balance-card">
+      <div class="balance-card__glow1"></div>
+      <div class="balance-card__glow2"></div>
+      <div class="balance-card__inner">
+        <div class="balance-card__top">
+          <span class="balance-card__month-lbl">Balance Total</span>
+          <span class="balance-card__period">{{ selectedMonthLabel }}</span>
+        </div>
+        <div class="balance-card__amount">
+          <span class="balance-card__currency">RD$</span>
+          <span class="balance-card__value">{{ ((totals$ | async)?.balance ?? 0) | number:'1.0-0' }}</span>
+        </div>
+        <div class="balance-card__divider"></div>
+        <div class="balance-card__kpis">
+          <div class="balance-kpi">
+            <div class="balance-kpi__icon balance-kpi__icon--green">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>
             </div>
-            
-            <!-- 🔥 Fecha visible -->
-            <p class="tx-date">
-              {{ t.createdAt?.toDate ? (t.createdAt.toDate() | date:'dd/MM/yyyy, HH:mm') : (t.createdAt | date:'dd/MM/yyyy, HH:mm') }}
-            </p>
-          </ion-label>
+            <span class="balance-kpi__lbl">Ingresos</span>
+            <span class="balance-kpi__val">RD${{ ((totals$ | async)?.in ?? 0) | number:'1.0-0' }}</span>
+          </div>
+          <div class="balance-kpi__sep"></div>
+          <div class="balance-kpi">
+            <div class="balance-kpi__icon balance-kpi__icon--red">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/></svg>
+            </div>
+            <span class="balance-kpi__lbl">Gastos</span>
+            <span class="balance-kpi__val">RD${{ ((totals$ | async)?.out ?? 0) | number:'1.0-0' }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
 
-          <ion-badge [ngClass]="t.type === 'in' ? 'income' : 'expense'" slot="end">
-            {{ t.amount | number:'1.2-2' }}
-          </ion-badge>
-        </ion-item>
-      </ion-list>
+    <!-- ── QUICK ACTIONS ── -->
+    <div class="quick-actions">
+      <button class="qa-btn" (click)="openNew('out')">
+        <div class="qa-btn__icon qa-btn__icon--red">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        </div>
+        <span>Gasto</span>
+      </button>
+      <button class="qa-btn" (click)="openNew('in')">
+        <div class="qa-btn__icon qa-btn__icon--green">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        </div>
+        <span>Ingreso</span>
+      </button>
+      <button class="qa-btn" (click)="openCategories()">
+        <div class="qa-btn__icon qa-btn__icon--violet">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        </div>
+        <span>Categorías</span>
+      </button>
+    </div>
+
+    <!-- ── MIS TARJETAS (carousel) ── -->
+    <ng-container *ngIf="(cards$ | async) as cards">
+      <div class="cards-section" *ngIf="cards.length > 0">
+        <div class="section-row">
+          <h3 class="section-title">Mis Tarjetas</h3>
+          <button class="see-all-btn" (click)="goToCards()">Ver todas</button>
+        </div>
+        <div class="cards-scroll">
+          <div class="card-slide" *ngFor="let card of cards; let i = index" (click)="goToCards()">
+            <!-- Plastic card mini -->
+            <div class="mini-plastic" [style.background]="getCardGradient(i)">
+              <div class="mini-plastic__shine"></div>
+              <div class="mini-plastic__top">
+                <div class="mini-plastic__name">{{ card.name }}</div>
+                <div class="mini-plastic__chip"></div>
+              </div>
+              <div class="mini-plastic__number">•••• {{ card.lastFourDigits || '****' }}</div>
+              <div class="mini-plastic__brand">{{ i % 2 === 0 ? 'VISA' : 'MC' }}</div>
+            </div>
+            <!-- Usage info below card -->
+            <div class="card-slide__meta">
+              <span>Disponible: <strong style="color:var(--mf-green)">RD${{ getCardAvailable(card) | number:'1.0-0' }}</strong></span>
+              <span [style.color]="getUsagePctColor(card)" class="card-slide__pct">{{ getCardUsedPct(card) | number:'1.0-0' }}% usado</span>
+            </div>
+            <div class="card-slide__bar">
+              <div class="card-slide__bar-fill" [style.width.%]="getCardUsedPct(card)" [style.background]="getUsagePctColor(card)"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </ng-container>
+
+    <!-- ── ALERTA PRÉSTAMO (si hay próximo vencimiento urgente) ── -->
+    <div class="loan-alert" *ngIf="urgentLoan" (click)="goToCards()">
+      <div class="loan-alert__icon">🔔</div>
+      <div class="loan-alert__body">
+        <div class="loan-alert__title">Próximo vencimiento</div>
+        <div class="loan-alert__sub">{{ urgentLoan.name }} vence en {{ urgentLoanDays }} días — <strong>RD${{ urgentLoan.monthlyPayment | number:'1.0-0' }}</strong></div>
+      </div>
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" style="color:var(--mf-amber);flex-shrink:0"><polyline points="9 18 15 12 9 6"/></svg>
+    </div>
+
+    <!-- ── FILTROS ── -->
+    <div class="filters-row">
+      <div class="filter-chips">
+        <button class="mf-chip" [class.active]="dateFilter==='all'" (click)="dateFilter='all'; applyFilters()">Todos</button>
+        <button class="mf-chip" [class.active]="dateFilter==='today'" (click)="dateFilter='today'; applyFilters()">Hoy</button>
+        <button class="mf-chip" [class.active]="dateFilter==='week'" (click)="dateFilter='week'; applyFilters()">Semana</button>
+      </div>
+      <div class="filter-selects">
+        <ion-select [(ngModel)]="categoryFilter" (ionChange)="applyFilters()" placeholder="Cat." interface="popover" class="mini-select">
+          <ion-select-option value="all">Todas</ion-select-option>
+          <ion-select-option *ngFor="let c of (categories$ | async)" [value]="c.name">{{ c.emoji }} {{ c.name }}</ion-select-option>
+        </ion-select>
+        <ion-select [(ngModel)]="cardFilter" (ionChange)="applyFilters()" placeholder="Pago" interface="popover" class="mini-select">
+          <ion-select-option value="all">Todos</ion-select-option>
+          <ion-select-option value="cash">Efectivo</ion-select-option>
+          <ion-select-option *ngFor="let card of (cards$ | async)" [value]="card.id">{{ card.name }}</ion-select-option>
+        </ion-select>
+      </div>
+    </div>
+
+    <!-- ── TRANSACTIONS TITLE ── -->
+    <div class="tx-section-header">
+      <span class="mf-section-title">Transacciones</span>
+      <button class="clear-btn" (click)="clearFilters()" *ngIf="dateFilter!=='all' || categoryFilter!=='all' || cardFilter!=='all'">
+        Limpiar
+      </button>
+    </div>
+
+    <!-- ── TRANSACTIONS LIST ── -->
+    <ng-container *ngIf="(filteredTx$ | async) as txs">
+      <div class="tx-list" *ngIf="txs.length > 0; else emptyState">
+        <div class="tx-item" *ngFor="let t of txs; trackBy: trackByTxId" (click)="openTxDetail(t)">
+          <div class="tx-bubble" [style.background]="getCatColor(t.category) + '26'" [style.border]="'1px solid ' + getCatColor(t.category) + '40'">
+            <span>{{ getCatEmoji(t.category) }}</span>
+          </div>
+          <div class="tx-info">
+            <div class="tx-name">{{ t.type === 'in' ? 'Ingreso' : t.category || 'Gasto' }}</div>
+            <div class="tx-meta">
+              <span *ngIf="t.paymentMethod === 'card'">💳 {{ getCardName(t.cardId) }}</span>
+              <span *ngIf="t.paymentMethod === 'cash'">💵 Efectivo</span>
+              <span *ngIf="t.note"> · {{ t.note }}</span>
+            </div>
+            <div class="tx-date">
+              {{ t.createdAt?.toDate ? (t.createdAt.toDate() | date:'dd MMM, h:mma':'':'es') : (t.createdAt | date:'dd MMM, h:mma':'':'es') }}
+            </div>
+          </div>
+          <div class="tx-amount" [class.income]="t.type==='in'" [class.expense]="t.type==='out'">
+            {{ t.type === 'in' ? '+' : '−' }}RD${{ t.amount | number:'1.0-0' }}
+          </div>
+        </div>
+      </div>
 
       <ng-template #emptyState>
         <div class="empty-state">
-          <ion-icon name="receipt-outline" class="empty-icon"></ion-icon>
-          <p class="muted">No hay transacciones que coincidan con los filtros.</p>
+          <div class="empty-icon">📭</div>
+          <div class="empty-title">Sin transacciones</div>
+          <div class="empty-sub">Intenta con otro filtro o agrega una nueva</div>
+          <button class="empty-cta" (click)="openNew()">+ Nueva transacción</button>
         </div>
       </ng-template>
     </ng-container>
-    
-    <!-- Espaciador para evitar que el tab bar tape contenido -->
-    <div style="height: 80px;"></div>
-  </div>
 
+    <div style="height:24px"></div>
+  </div>
 </ion-content>

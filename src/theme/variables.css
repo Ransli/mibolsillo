@@ -1,92 +1,99 @@
-/* src/theme/variables.css */
+/* src/theme/variables.css — MoneyFlow dark fintech theme */
 :root {
-  /* ===== PALETA PRINCIPAL ===== */
-  --ion-color-primary: #2563eb;         /* Azul */
-  --ion-color-primary-rgb: 37, 99, 235;
+  /* === MoneyFlow color tokens === */
+  --mf-bg:          #0F0F1A;
+  --mf-surface:     #1A1A2E;
+  --mf-surface-alt: #2D2D44;
+  --mf-border:      #2D2D44;
+  --mf-border-strong: #3D3D5C;
+  --mf-violet:      #7C3AED;
+  --mf-violet-soft: rgba(124, 58, 237, 0.15);
+  --mf-blue:        #3B82F6;
+  --mf-blue-soft:   rgba(59, 130, 246, 0.15);
+  --mf-gradient:    linear-gradient(135deg, #7C3AED 0%, #3B82F6 100%);
+  --mf-green:       #10B981;
+  --mf-green-soft:  rgba(16, 185, 129, 0.15);
+  --mf-red:         #EF4444;
+  --mf-red-soft:    rgba(239, 68, 68, 0.15);
+  --mf-amber:       #F59E0B;
+  --mf-amber-soft:  rgba(245, 158, 11, 0.15);
+  --mf-text:        #FFFFFF;
+  --mf-text2:       #94A3B8;
+  --mf-text3:       #64748B;
+  --mf-font:        'Inter', system-ui, sans-serif;
+  --mf-font-mono:   'JetBrains Mono', monospace;
+  --mf-shadow-glow: 0 8px 32px rgba(124, 58, 237, 0.35);
+  --mf-r-card:      16px;
+  --mf-r-btn:       12px;
+
+  /* === Ionic overrides (dark) === */
+  --ion-color-primary:          #7C3AED;
+  --ion-color-primary-rgb:      124, 58, 237;
   --ion-color-primary-contrast: #ffffff;
-  --ion-color-primary-contrast-rgb: 255, 255, 255;
-  --ion-color-primary-tint: #3b82f6;    /* +tint (más claro) */
-  --ion-color-primary-shade: #1e40af;   /* +shade (más oscuro) */
+  --ion-color-primary-tint:     #9B59F5;
+  --ion-color-primary-shade:    #5B1DB5;
 
-  --ion-color-secondary: #16a34a;       /* Verde */
-  --ion-color-secondary-rgb: 22, 163, 74;
+  --ion-color-secondary:        #10B981;
+  --ion-color-secondary-rgb:    16, 185, 129;
   --ion-color-secondary-contrast: #ffffff;
-  --ion-color-secondary-contrast-rgb: 255, 255, 255;
-  --ion-color-secondary-tint: #22c55e;
-  --ion-color-secondary-shade: #15803d;
+  --ion-color-secondary-tint:   #34D399;
+  --ion-color-secondary-shade:  #059669;
 
-  --ion-color-tertiary: #f59e0b;        /* Ámbar */
-  --ion-color-tertiary-rgb: 245, 158, 11;
-  --ion-color-tertiary-contrast: #1f2937;
-  --ion-color-tertiary-contrast-rgb: 31, 41, 55;
-  --ion-color-tertiary-tint: #fbbf24;
-  --ion-color-tertiary-shade: #b45309;
+  --ion-color-tertiary:         #3B82F6;
+  --ion-color-tertiary-rgb:     59, 130, 246;
+  --ion-color-tertiary-contrast: #ffffff;
+  --ion-color-tertiary-tint:    #60A5FA;
+  --ion-color-tertiary-shade:   #2563EB;
 
-  /* Estados */
-  --ion-color-success: #16a34a;
-  --ion-color-success-rgb: 22, 163, 74;
+  --ion-color-success:          #10B981;
+  --ion-color-success-rgb:      16, 185, 129;
   --ion-color-success-contrast: #ffffff;
-  --ion-color-success-contrast-rgb: 255, 255, 255;
-  --ion-color-success-tint: #22c55e;
-  --ion-color-success-shade: #15803d;
+  --ion-color-success-tint:     #34D399;
+  --ion-color-success-shade:    #059669;
 
-  --ion-color-warning: #f59e0b;
-  --ion-color-warning-rgb: 245, 158, 11;
+  --ion-color-warning:          #F59E0B;
+  --ion-color-warning-rgb:      245, 158, 11;
   --ion-color-warning-contrast: #1f2937;
-  --ion-color-warning-contrast-rgb: 31, 41, 55;
-  --ion-color-warning-tint: #fbbf24;
-  --ion-color-warning-shade: #b45309;
+  --ion-color-warning-tint:     #FBBF24;
+  --ion-color-warning-shade:    #D97706;
 
-  --ion-color-danger: #ef4444;
-  --ion-color-danger-rgb: 239, 68, 68;
-  --ion-color-danger-contrast: #ffffff;
-  --ion-color-danger-contrast-rgb: 255, 255, 255;
-  --ion-color-danger-tint: #f87171;
-  --ion-color-danger-shade: #b91c1c;
+  --ion-color-danger:           #EF4444;
+  --ion-color-danger-rgb:       239, 68, 68;
+  --ion-color-danger-contrast:  #ffffff;
+  --ion-color-danger-tint:      #F87171;
+  --ion-color-danger-shade:     #B91C1C;
 
-  --ion-color-medium: #64748b;          /* Gris medio para bordes/labels */
-  --ion-color-medium-rgb: 100, 116, 139;
-  --ion-color-medium-contrast: #ffffff;
-  --ion-color-medium-contrast-rgb: 255, 255, 255;
-  --ion-color-medium-tint: #94a3b8;
-  --ion-color-medium-shade: #475569;
+  --ion-color-medium:           #64748B;
+  --ion-color-medium-rgb:       100, 116, 139;
+  --ion-color-medium-contrast:  #ffffff;
+  --ion-color-medium-tint:      #94A3B8;
+  --ion-color-medium-shade:     #475569;
 
-  --ion-color-light: #f8fafc;
-  --ion-color-light-rgb: 248, 250, 252;
-  --ion-color-light-contrast: #1f2937;
-  --ion-color-light-contrast-rgb: 31, 41, 55;
-  --ion-color-light-tint: #ffffff;
-  --ion-color-light-shade: #e2e8f0;
+  --ion-color-light:            #2D2D44;
+  --ion-color-light-rgb:        45, 45, 68;
+  --ion-color-light-contrast:   #ffffff;
+  --ion-color-light-tint:       #3D3D5C;
+  --ion-color-light-shade:      #1A1A2E;
 
-  --ion-color-dark: #0f172a;
-  --ion-color-dark-rgb: 15, 23, 42;
-  --ion-color-dark-contrast: #ffffff;
-  --ion-color-dark-contrast-rgb: 255, 255, 255;
-  --ion-color-dark-tint: #1f2937;
-  --ion-color-dark-shade: #0b1220;
+  --ion-color-dark:             #0F0F1A;
+  --ion-color-dark-rgb:         15, 15, 26;
+  --ion-color-dark-contrast:    #ffffff;
+  --ion-color-dark-tint:        #1A1A2E;
+  --ion-color-dark-shade:       #08080F;
 
-  /* ===== FONDOS / TEXTO ===== */
-  --ion-background-color: #f5f6fa;      /* fondo claro suave */
-  --ion-text-color: #1f2937;            /* texto principal */
+  /* === Global background/text === */
+  --ion-background-color:       #0F0F1A;
+  --ion-text-color:             #FFFFFF;
 
-  /* ===== COMPONENTES BASE ===== */
-  --ion-toolbar-background: #ffffff;
-  --ion-toolbar-color: var(--ion-text-color);
+  /* === Component tokens === */
+  --ion-toolbar-background:     #1A1A2E;
+  --ion-toolbar-color:          #FFFFFF;
+  --ion-tab-bar-background:     rgba(26, 26, 46, 0.92);
+  --ion-tab-bar-color:          #64748B;
+  --ion-tab-bar-color-selected: #7C3AED;
+  --ion-card-background:        #1A1A2E;
+  --panel:                      #1A1A2E;
+  --muted:                      #64748B;
 
-  --ion-tab-bar-background: #ffffff;
-  --ion-tab-bar-color: var(--ion-color-medium);
-  --ion-tab-bar-color-selected: var(--ion-color-primary);
-
-  --ion-card-background: #ffffff;
-
-  /* Segment (pestañas internas) */
-  --ion-segment-indicator-color: var(--ion-color-primary);
-  --ion-segment-indicator-height: 2px;
-
-  /* ===== TOKENS PROPIOS ===== */
-  --panel: #ffffff;  /* tarjetas/blancos */
-  --muted: #6b7280;  /* gris medio para textos secundarios */
+  color-scheme: dark;
 }
-
-/* (Opcional) Forzar esquema claro del navegador para coherencia visual */
-:root { color-scheme: light; }

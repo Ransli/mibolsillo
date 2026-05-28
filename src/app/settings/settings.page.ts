@@ -4,48 +4,43 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import {
-  IonHeader, IonToolbar, IonTitle, IonContent, IonCard,
-  IonList, IonItem, IonLabel, IonToggle, IonInput, IonSelect, IonSelectOption,
-  IonButton, IonIcon, AlertController, ToastController
+  IonContent, IonSelect, IonSelectOption,
+  AlertController, ToastController
 } from '@ionic/angular/standalone';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../core/auth.service';
-import { WalletService } from '../core/wallet.service';
+import { WalletService, SalaryEntry } from '../core/wallet.service';
+import { Observable } from 'rxjs';
 
 @Component({
   standalone: true,
   selector: 'app-settings',
   templateUrl: './settings.page.html',
   styleUrls: ['./settings.page.scss'],
-  imports: [
-    CommonModule,
-    FormsModule,
-    IonHeader, IonToolbar, IonTitle, IonContent, IonCard,
-    IonList, IonItem, IonLabel, IonToggle, IonInput, IonSelect, IonSelectOption,
-    IonButton, IonIcon
-  ],
+  imports: [CommonModule, FormsModule, IonContent, IonSelect, IonSelectOption],
 })
-export class SettingsPage implements OnDestroy, OnInit {
-  user$;
-  
-  // Configuración financiera
-  monthlySalary = 0;
-  formattedSalary = '';
-  currency = 'USD';
+export class SettingsPage implements OnInit, OnDestroy {
+  user$: Observable<any>;
+  salaryHistory$: Observable<SalaryEntry[]>;
+
+  // Salary
+  monthlySalary    = 0;
+  formattedSalary  = '';
+  newSalaryNote    = '';
+  newSalaryMonth   = '';   // e.g. "2025-05"
+  showSalaryForm   = false;
+
+  // Stats
+  statsTransactions = 0;
+  statsMonths       = 0;
+  statsCategories   = 0;
+
+  // Preferences
+  currency: string = 'DOP';
   paymentFrequency: 'monthly' | 'biweekly' = 'monthly';
-  paymentDay = 15;
-  paymentDay1 = 15;
-  paymentDay2 = 30;
-
-  // Apariencia
-  darkMode = false;
-  fontSize: 'small' | 'normal' | 'large' | 'extra-large' = 'normal';
-
-  // Notificaciones
-  notificationsEnabled = false;
-  paymentReminders = true;
-  cutoffReminders = true;
-  budgetAlerts = true;
+  paymentDay  = 1;
+  paymentDay1 = 1;
+  paymentDay2 = 15;
 
   constructor(
     private auth: AuthService,
@@ -54,348 +49,181 @@ export class SettingsPage implements OnDestroy, OnInit {
     private alertCtrl: AlertController,
     private toastCtrl: ToastController
   ) {
-    console.log('[SettingsPage] constructor');
     this.user$ = this.auth.user$;
+    this.salaryHistory$ = this.wallet.salaryHistory$();
+
+    // Default new salary month to current month
+    const n = new Date();
+    this.newSalaryMonth = `${n.getFullYear()}-${String(n.getMonth()+1).padStart(2,'0')}`;
   }
 
-  ngOnInit(): void {
-    this.loadSettings();
-  }
+  ngOnInit(): void { this.loadSettings(); this.loadStats(); }
+  ionViewWillEnter(): void { this.loadSettings(); this.loadStats(); }
+  ngOnDestroy(): void {}
 
-  ionViewWillEnter(): void {
-    console.log('[SettingsPage] ionViewWillEnter');
-    this.loadSettings();
-  }
-
-  ionViewDidEnter(): void {
-    console.log('[SettingsPage] ionViewDidEnter');
-  }
-
-  ngOnDestroy(): void {
-    console.log('[SettingsPage] ngOnDestroy');
+  async loadStats(): Promise<void> {
+    try {
+      const txs = await this.wallet.getAllTransactions();
+      this.statsTransactions = txs.length;
+      // Months active: unique year-month combinations
+      const months = new Set(txs.map(t => {
+        const d = t.createdAt?.toDate ? t.createdAt.toDate() : new Date(t.createdAt);
+        return `${d.getFullYear()}-${d.getMonth()}`;
+      }));
+      this.statsMonths = months.size;
+      // Categories: from categories$ (just count from localStorage or Firestore)
+      const cats = await new Promise<number>(resolve => {
+        this.wallet.categories$().subscribe(c => resolve(c.length));
+      });
+      this.statsCategories = cats;
+    } catch { /* ignore */ }
   }
 
   async loadSettings(): Promise<void> {
-    console.log('[SettingsPage] loadSettings ejecutado');
-    
-    // Cargar datos del usuario desde auth.service
-    const user = await this.auth.currentUser;
-    if (user) {
-      // Intentar cargar salary desde el usuario
-      const userData = await this.auth.getUserData();
-      if (userData?.salary) {
-        this.monthlySalary = userData.salary;
-        this.formattedSalary = this.formatNumber(this.monthlySalary);
-      }
-    }
-
-    // Fallback a localStorage si no hay en Firebase
-    const savedSalary = localStorage.getItem('monthlySalary');
-    if (savedSalary && !this.monthlySalary) {
-      this.monthlySalary = parseFloat(savedSalary);
+    const userData = await this.auth.getUserData();
+    if (userData?.salary) {
+      this.monthlySalary = userData.salary;
       this.formattedSalary = this.formatNumber(this.monthlySalary);
     }
 
-    const savedCurrency = localStorage.getItem('currency');
-    if (savedCurrency) this.currency = savedCurrency;
-
-    const savedPaymentFrequency = localStorage.getItem('paymentFrequency');
-    if (savedPaymentFrequency) this.paymentFrequency = savedPaymentFrequency as 'monthly' | 'biweekly';
-
-    const savedPaymentDay = localStorage.getItem('paymentDay');
-    if (savedPaymentDay) this.paymentDay = parseInt(savedPaymentDay);
-
-    const savedPaymentDay1 = localStorage.getItem('paymentDay1');
-    if (savedPaymentDay1) this.paymentDay1 = parseInt(savedPaymentDay1);
-
-    const savedPaymentDay2 = localStorage.getItem('paymentDay2');
-    if (savedPaymentDay2) this.paymentDay2 = parseInt(savedPaymentDay2);
-
-    const savedDarkMode = localStorage.getItem('darkMode');
-    if (savedDarkMode) {
-      this.darkMode = savedDarkMode === 'true';
-      this.applyDarkMode(this.darkMode);
+    const s = localStorage;
+    if (!this.monthlySalary) {
+      const ls = s.getItem('monthlySalary');
+      if (ls) { this.monthlySalary = parseFloat(ls); this.formattedSalary = this.formatNumber(this.monthlySalary); }
     }
-
-    const savedFontSize = localStorage.getItem('fontSize');
-    if (savedFontSize) {
-      this.fontSize = savedFontSize as 'small' | 'normal' | 'large' | 'extra-large';
-      this.applyFontSize(this.fontSize);
-    }
-
-    const savedNotifications = localStorage.getItem('notificationsEnabled');
-    if (savedNotifications) this.notificationsEnabled = savedNotifications === 'true';
-
-    const savedPaymentReminders = localStorage.getItem('paymentReminders');
-    if (savedPaymentReminders) this.paymentReminders = savedPaymentReminders === 'true';
-
-    const savedCutoffReminders = localStorage.getItem('cutoffReminders');
-    if (savedCutoffReminders) this.cutoffReminders = savedCutoffReminders === 'true';
-
-    const savedBudgetAlerts = localStorage.getItem('budgetAlerts');
-    if (savedBudgetAlerts) this.budgetAlerts = savedBudgetAlerts === 'true';
+    const cur = s.getItem('currency'); if (cur) this.currency = cur;
+    const pf  = s.getItem('paymentFrequency'); if (pf) this.paymentFrequency = pf as any;
+    const pd  = s.getItem('paymentDay');  if (pd)  this.paymentDay  = parseInt(pd);
+    const pd1 = s.getItem('paymentDay1'); if (pd1) this.paymentDay1 = parseInt(pd1);
+    const pd2 = s.getItem('paymentDay2'); if (pd2) this.paymentDay2 = parseInt(pd2);
   }
 
-  formatNumber(value: number): string {
-    if (!value) return '';
-    return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  formatNumber(v: number): string {
+    if (!v) return '';
+    return v.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
   }
 
-  parseNumber(value: string): number {
-    return parseFloat(value.replace(/,/g, '')) || 0;
-  }
-
-  onSalaryInput(event: any): void {
-    const input = event.target.value;
-    const numericValue = input.replace(/[^\d]/g, '');
-    
-    if (numericValue) {
-      this.monthlySalary = parseFloat(numericValue);
-      this.formattedSalary = this.formatNumber(this.monthlySalary);
-    } else {
-      this.monthlySalary = 0;
-      this.formattedSalary = '';
-    }
+  onSalaryInput(ev: any): void {
+    const raw = (ev.target.value as string).replace(/[^\d]/g,'');
+    this.monthlySalary = raw ? parseFloat(raw) : 0;
+    this.formattedSalary = this.monthlySalary ? this.formatNumber(this.monthlySalary) : '';
   }
 
   async saveSalary(): Promise<void> {
+    if (!this.monthlySalary || this.monthlySalary <= 0) {
+      await this.showToast('⚠️ Ingresa un sueldo válido'); return;
+    }
     try {
-      // 🔥 CORRECCIÓN: Guardar en Firebase Y localStorage
+      // Parse month
+      let effectiveFrom: Date;
+      if (this.newSalaryMonth) {
+        const [y, m] = this.newSalaryMonth.split('-').map(Number);
+        effectiveFrom = new Date(y, m - 1, 1);
+      } else {
+        const n = new Date();
+        effectiveFrom = new Date(n.getFullYear(), n.getMonth(), 1);
+      }
+
+      await this.wallet.addSalaryEntry({
+        amount: this.monthlySalary,
+        effectiveFrom,
+        notes: this.newSalaryNote || undefined,
+      });
+
+      // Also update legacy salary field for backward compat
       await this.auth.updateUserSalary(this.monthlySalary);
       localStorage.setItem('monthlySalary', this.monthlySalary.toString());
-      this.formattedSalary = this.formatNumber(this.monthlySalary);
-      this.showToast('✅ Sueldo guardado correctamente');
-      console.log('[SettingsPage] Sueldo guardado:', this.monthlySalary);
-    } catch (error) {
-      console.error('[SettingsPage] Error guardando sueldo:', error);
-      this.showToast('❌ Error al guardar el sueldo');
+
+      this.newSalaryNote = '';
+      await this.showToast('✅ Sueldo guardado');
+    } catch (e) {
+      console.error('[Settings] saveSalary error:', e);
+      await this.showToast('❌ Error al guardar');
     }
   }
 
-  saveCurrency(): void {
-    localStorage.setItem('currency', this.currency);
-    this.showToast('✅ Moneda actualizada');
+  async deleteSalaryEntry(entry: SalaryEntry): Promise<void> {
+    if (!entry.id) return;
+    const alert = await this.alertCtrl.create({
+      header: 'Eliminar entrada',
+      message: '¿Eliminar este registro de sueldo?',
+      buttons: [
+        { text: 'Cancelar', role: 'cancel' },
+        { text: 'Eliminar', role: 'destructive', handler: async () => {
+          await this.wallet.deleteSalaryEntry(entry.id!);
+          await this.showToast('🗑 Entrada eliminada');
+        }}
+      ]
+    });
+    await alert.present();
   }
 
-  savePaymentFrequency(): void {
-    localStorage.setItem('paymentFrequency', this.paymentFrequency);
-    this.showToast('✅ Frecuencia de pago guardada');
+  formatSalaryDate(val: any): string {
+    if (!val) return '';
+    const d = val?.toDate ? val.toDate() : new Date(val);
+    const months = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+    return `${months[d.getMonth()]} ${d.getFullYear()}`;
   }
 
-  savePaymentDay(): void {
-    if (this.paymentDay < 1) this.paymentDay = 1;
-    if (this.paymentDay > 31) this.paymentDay = 31;
-    localStorage.setItem('paymentDay', this.paymentDay.toString());
-    this.showToast('✅ Día de pago guardado');
-  }
-
+  saveCurrency(): void { localStorage.setItem('currency', this.currency); this.showToast('✅ Moneda actualizada'); }
+  savePaymentFrequency(): void { localStorage.setItem('paymentFrequency', this.paymentFrequency); }
+  savePaymentDay(): void { localStorage.setItem('paymentDay', this.paymentDay.toString()); this.showToast('✅ Día guardado'); }
   savePaymentDays(): void {
-    if (this.paymentDay1 < 1) this.paymentDay1 = 1;
-    if (this.paymentDay1 > 31) this.paymentDay1 = 31;
-    if (this.paymentDay2 < 1) this.paymentDay2 = 1;
-    if (this.paymentDay2 > 31) this.paymentDay2 = 31;
-    
     localStorage.setItem('paymentDay1', this.paymentDay1.toString());
     localStorage.setItem('paymentDay2', this.paymentDay2.toString());
-    this.showToast('✅ Días de pago guardados');
-  }
-
-  toggleDarkMode(): void {
-    localStorage.setItem('darkMode', this.darkMode.toString());
-    this.applyDarkMode(this.darkMode);
-    this.showToast(this.darkMode ? '🌙 Modo oscuro activado' : '☀️ Modo claro activado');
-  }
-
-  private applyDarkMode(isDark: boolean): void {
-    document.body.classList.toggle('dark', isDark);
-  }
-
-  changeFontSize(): void {
-    localStorage.setItem('fontSize', this.fontSize);
-    this.applyFontSize(this.fontSize);
-    
-    const sizeLabels = {
-      'small': 'Pequeño',
-      'normal': 'Normal',
-      'large': 'Grande',
-      'extra-large': 'Extra Grande'
-    };
-    
-    this.showToast(`🔠 Tamaño: ${sizeLabels[this.fontSize]}`);
-  }
-
-  private applyFontSize(size: string): void {
-    document.body.classList.remove('font-small', 'font-normal', 'font-large', 'font-extra-large');
-    document.body.classList.add(`font-${size}`);
-  }
-
-  async toggleNotifications(): Promise<void> {
-    if (this.notificationsEnabled) {
-      const permission = await this.requestNotificationPermission();
-      if (!permission) {
-        this.notificationsEnabled = false;
-        await this.showAlert(
-          'Permisos Denegados',
-          'Para recibir notificaciones, debes habilitar los permisos en la configuración de tu dispositivo.'
-        );
-        return;
-      }
-      this.showToast('✅ Notificaciones activadas');
-    } else {
-      this.showToast('🔕 Notificaciones desactivadas');
-      this.paymentReminders = false;
-      this.cutoffReminders = false;
-      this.budgetAlerts = false;
-    }
-    
-    localStorage.setItem('notificationsEnabled', this.notificationsEnabled.toString());
-    this.saveSettings();
-  }
-
-  private async requestNotificationPermission(): Promise<boolean> {
-    try {
-      if ('Notification' in window) {
-        const permission = await Notification.requestPermission();
-        return permission === 'granted';
-      }
-      return false;
-    } catch (error) {
-      console.error('[SettingsPage] Error requesting notification permission:', error);
-      return false;
-    }
-  }
-
-  saveSettings(): void {
-    localStorage.setItem('paymentReminders', this.paymentReminders.toString());
-    localStorage.setItem('cutoffReminders', this.cutoffReminders.toString());
-    localStorage.setItem('budgetAlerts', this.budgetAlerts.toString());
+    this.showToast('✅ Días guardados');
   }
 
   async exportData(): Promise<void> {
     try {
-      const transactions = await this.wallet.getAllTransactions();
-      
-      if (transactions.length === 0) {
-        await this.showAlert('Sin Datos', 'No tienes transacciones para exportar.');
-        return;
-      }
-
-      const csv = this.convertToCSV(transactions);
-      
+      const txs = await this.wallet.getAllTransactions();
+      if (!txs.length) { await this.showToast('Sin transacciones para exportar'); return; }
+      const headers = ['Tipo','Monto','Categoría','Método','Fecha','Nota'];
+      const rows = txs.map(t => [
+        t.type === 'in' ? 'Ingreso' : 'Gasto',
+        t.amount, t.category || '', t.paymentMethod || 'cash',
+        t.createdAt?.toDate ? t.createdAt.toDate().toISOString() : '',
+        t.note || ''
+      ]);
+      const csv = [headers, ...rows].map(r => r.map(c => `"${c}"`).join(',')).join('\n');
       const blob = new Blob([csv], { type: 'text/csv' });
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `mibolsillo_${new Date().toISOString().split('T')[0]}.csv`;
-      a.click();
-      window.URL.revokeObjectURL(url);
-
-      this.showToast('✅ Datos exportados exitosamente');
-    } catch (error) {
-      console.error('[SettingsPage] Error exportando datos:', error);
-      this.showToast('❌ Error al exportar datos');
-    }
-  }
-
-  private convertToCSV(data: any[]): string {
-    const headers = ['Tipo', 'Monto', 'Categoría', 'Método', 'Fecha', 'Nota'];
-    const rows = data.map(tx => [
-      tx.type === 'in' ? 'Ingreso' : 'Gasto',
-      tx.amount,
-      tx.category || '',
-      tx.paymentMethod || 'cash',
-      tx.createdAt?.toDate ? tx.createdAt.toDate().toISOString() : '',
-      tx.note || ''
-    ]);
-
-    return [
-      headers.join(','),
-      ...rows.map(row => row.map(cell => `"${cell}"`).join(','))
-    ].join('\n');
+      const url  = URL.createObjectURL(blob);
+      const a    = document.createElement('a');
+      a.href = url; a.download = `mibolsillo_${new Date().toISOString().split('T')[0]}.csv`;
+      a.click(); URL.revokeObjectURL(url);
+      await this.showToast('✅ Exportado');
+    } catch { await this.showToast('❌ Error exportando'); }
   }
 
   async confirmDeleteData(): Promise<void> {
     const alert = await this.alertCtrl.create({
-      header: '⚠️ Eliminar Todos los Datos',
-      message: 'Esta acción eliminará TODAS tus transacciones, categorías y tarjetas. Esta acción NO se puede deshacer. ¿Estás seguro?',
+      header: '⚠️ Eliminar todos los datos',
+      message: 'Esta acción es irreversible. ¿Continuar?',
       buttons: [
-        {
-          text: 'Cancelar',
-          role: 'cancel'
-        },
-        {
-          text: 'Eliminar Todo',
-          role: 'destructive',
-          handler: () => {
-            this.deleteAllData();
-          }
-        }
+        { text: 'Cancelar', role: 'cancel' },
+        { text: 'Eliminar', role: 'destructive', handler: () => this.showToast('⚠️ Función en desarrollo') }
       ]
     });
-
     await alert.present();
-  }
-
-  private async deleteAllData(): Promise<void> {
-    try {
-      this.showToast('⚠️ Esta funcionalidad requiere implementación adicional');
-    } catch (error) {
-      console.error('[SettingsPage] Error eliminando datos:', error);
-      this.showToast('❌ Error al eliminar datos');
-    }
-  }
-
-  openTerms(): void {
-    window.open('https://tuapp.com/terminos', '_blank');
-  }
-
-  openPrivacy(): void {
-    window.open('https://tuapp.com/privacidad', '_blank');
   }
 
   async logout(): Promise<void> {
     const alert = await this.alertCtrl.create({
-      header: 'Cerrar Sesión',
-      message: '¿Estás seguro de que quieres cerrar sesión?',
+      header: 'Cerrar sesión',
+      message: '¿Estás seguro?',
       buttons: [
-        {
-          text: 'Cancelar',
-          role: 'cancel'
-        },
-        {
-          text: 'Salir',
-          handler: async () => {
-            try {
-              await this.auth.logout();
-              await this.router.navigateByUrl('/auth/login', { replaceUrl: true });
-              this.showToast('👋 Sesión cerrada');
-            } catch (error) {
-              console.error('[SettingsPage] Error cerrando sesión:', error);
-              this.showToast('❌ Error al cerrar sesión');
-            }
-          }
-        }
+        { text: 'Cancelar', role: 'cancel' },
+        { text: 'Salir', handler: async () => {
+          await this.auth.logout();
+          await this.router.navigateByUrl('/auth/login', { replaceUrl: true });
+        }}
       ]
     });
-
     await alert.present();
   }
 
-  private async showToast(message: string): Promise<void> {
-    const toast = await this.toastCtrl.create({
-      message,
-      duration: 2000,
-      position: 'top'
-    });
-    await toast.present();
-  }
-
-  private async showAlert(header: string, message: string): Promise<void> {
-    const alert = await this.alertCtrl.create({
-      header,
-      message,
-      buttons: ['OK']
-    });
-    await alert.present();
+  private async showToast(msg: string): Promise<void> {
+    const t = await this.toastCtrl.create({ message: msg, duration: 2000, position: 'top' });
+    await t.present();
   }
 }

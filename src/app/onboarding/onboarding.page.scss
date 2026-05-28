@@ -1,0 +1,94 @@
+// onboarding.page.scss
+
+.onb-content { --background: var(--mf-bg); }
+
+// ─── SPLASH ──────────────────────────────────────────────────────────────────
+.splash {
+  position: fixed; inset: 0; z-index: 100;
+  background: radial-gradient(circle at 30% 20%, #2A1B5E 0%, #0F0F1A 60%);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  overflow: hidden;
+}
+.splash__blob {
+  position: absolute; border-radius: 50%;
+  &--1 {
+    top: 20%; left: 20%; width: 280px; height: 280px;
+    background: radial-gradient(circle, rgba(124,58,237,0.5) 0%, transparent 70%);
+    animation: mfPulse 3s ease-in-out infinite;
+  }
+  &--2 {
+    bottom: 20%; right: 10%; width: 220px; height: 220px;
+    background: radial-gradient(circle, rgba(59,130,246,0.4) 0%, transparent 70%);
+    animation: mfPulse 3s ease-in-out infinite 1s;
+  }
+}
+.splash__center { position: relative; text-align: center; z-index: 2; }
+.splash__logo {
+  width: 96px; height: 96px; border-radius: 28px; margin: 0 auto 24px;
+  background: var(--mf-gradient);
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 20px 60px rgba(124,58,237,0.5), inset 0 2px 4px rgba(255,255,255,0.3);
+}
+.splash__title { color: var(--mf-text); font-size: 38px; font-weight: 800; letter-spacing: -1px; }
+.splash__sub { color: var(--mf-text2); font-size: 14px; margin-top: 6px; font-weight: 500; }
+.splash__spinner {
+  width: 36px; height: 36px; border-radius: 18px; margin: 48px auto 0;
+  border: 3px solid rgba(124,58,237,0.2); border-top-color: var(--mf-violet);
+  animation: mfSpin 0.9s linear infinite;
+}
+.splash__version {
+  position: absolute; bottom: 40px; left: 0; right: 0;
+  text-align: center; color: var(--mf-text3); font-size: 12px; letter-spacing: 1px;
+}
+
+// ─── ONBOARDING ───────────────────────────────────────────────────────────────
+.onb-screen {
+  min-height: 100vh; display: flex; flex-direction: column;
+  padding: 0; background: var(--mf-bg);
+}
+
+.onb-topbar {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 52px 20px 12px;
+}
+.onb-back, .onb-skip {
+  background: none; border: none; color: var(--mf-text2);
+  font-weight: 600; font-size: 14px; cursor: pointer; font-family: var(--mf-font);
+}
+
+.onb-illust {
+  flex: 1; display: flex; align-items: center; justify-content: center;
+  padding: 20px 40px;
+}
+.onb-svg { width: 100%; max-width: 280px; height: auto; }
+
+.onb-text {
+  padding: 0 28px 24px;
+}
+.onb-title {
+  color: var(--mf-text); font-size: 28px; font-weight: 800;
+  margin: 0 0 12px; letter-spacing: -0.5px; text-align: center;
+}
+.onb-subtitle {
+  color: var(--mf-text2); font-size: 15px; line-height: 1.6;
+  text-align: center; margin: 0;
+}
+
+.onb-footer { padding: 0 20px 48px; }
+
+.onb-dots {
+  display: flex; justify-content: center; gap: 8px; margin-bottom: 24px;
+}
+.onb-dot {
+  height: 8px; border-radius: 4px; background: var(--mf-surface-alt);
+  width: 8px; transition: all 0.3s;
+  &.active { width: 24px; background: var(--mf-violet); }
+}
+
+.onb-cta {
+  width: 100%; height: 56px; border-radius: 14px;
+  background: var(--mf-gradient); border: none; color: #fff;
+  font-weight: 700; font-size: 17px; cursor: pointer; font-family: var(--mf-font);
+  box-shadow: var(--mf-shadow-glow);
+  &:active { opacity: 0.9; transform: scale(0.98); }
+}

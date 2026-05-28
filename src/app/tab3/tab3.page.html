@@ -1,220 +1,404 @@
-<!-- src/app/tab3/tab3.page.html -->
-<ion-header [translucent]="true">
-  <ion-toolbar>
-    <ion-title>Tarjetas</ion-title>
-  </ion-toolbar>
-</ion-header>
+<!-- tab3.page.html — Tarjetas & Préstamos -->
+<ion-content [fullscreen]="true" class="tab3-content">
+  <div class="page-content">
 
-<ion-content [fullscreen]="true">
-  <!-- Header colapsable -->
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">Tarjetas</ion-title>
-    </ion-toolbar>
-  </ion-header>
-
-  <div class="ion-padding">
-    <!-- Título de sección -->
-    <h2 class="section-title">GESTIÓN DE TARJETAS</h2>
-
-    <!-- Formulario para agregar tarjeta -->
-    <ion-card class="form-card">
-      <ion-card-content>
-        <form [formGroup]="cardForm" (ngSubmit)="addCard()">
-          <div class="form-grid">
-            <div class="form-field">
-              <ion-label class="field-label">Nombre de la tarjeta</ion-label>
-              <ion-input
-                formControlName="name"
-                placeholder="Ej. Visa personal"
-                class="custom-input">
-              </ion-input>
-            </div>
-
-            <div class="form-field">
-              <ion-label class="field-label">Límite de la tarjeta</ion-label>
-              <ion-input
-                type="text"
-                inputmode="numeric"
-                [value]="formattedLimit"
-                (ionInput)="onLimitInput($event)"
-                placeholder="0"
-                class="custom-input">
-              </ion-input>
-            </div>
-
-            <div class="form-field">
-              <ion-label class="field-label">Fecha de corte</ion-label>
-              <ion-input
-                formControlName="cutoffDate"
-                type="date"
-                class="custom-input">
-              </ion-input>
-            </div>
-
-            <div class="form-field">
-              <ion-label class="field-label">Fecha de pago</ion-label>
-              <ion-input
-                formControlName="paymentDate"
-                type="date"
-                class="custom-input">
-              </ion-input>
-            </div>
-          </div>
-
-          <ion-button
-            expand="block"
-            type="submit"
-            [disabled]="cardForm.invalid || saving"
-            class="add-button">
-            {{ saving ? 'Agregando...' : 'Agregar tarjeta' }}
-          </ion-button>
-        </form>
-      </ion-card-content>
-    </ion-card>
-
-    <!-- Lista de tarjetas tipo plástico -->
-    <div class="cards-list" *ngIf="cards$ | async as cards">
-      <div class="credit-card" *ngFor="let card of cards; let i = index" 
-           [style.background]="getCardGradient(i)"
-           (click)="selectCard(card)">
-        
-        <!-- Chip de la tarjeta -->
-        <div class="card-chip">
-          <div class="chip-line"></div>
-          <div class="chip-line"></div>
-          <div class="chip-line"></div>
-        </div>
-
-        <!-- Número de tarjeta -->
-        <div class="card-number">
-          <span class="number-group">0000</span>
-          <span class="number-group">0000</span>
-          <span class="number-group">0000</span>
-          <span class="number-group">0000</span>
-        </div>
-
-        <!-- Información de la tarjeta -->
-        <div class="card-bottom">
-          <div class="card-info-section">
-            <div class="info-group">
-              <span class="info-label">NOMBRE</span>
-              <span class="info-value">{{ card.name }}</span>
-            </div>
-            <div class="info-group">
-              <span class="info-label">CORTE</span>
-              <span class="info-value">{{ formatCardDate(card.cutoffDate) }}</span>
-            </div>
-          </div>
-          <div class="card-info-section">
-            <div class="info-group">
-              <span class="info-label">LÍMITE</span>
-              <span class="info-value">${{ card.limit | number:'1.2-2' }}</span>
-            </div>
-            <div class="info-group">
-              <span class="info-label">PAGO</span>
-              <span class="info-value">{{ formatCardDate(card.paymentDate) }}</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Estado de la tarjeta -->
-        <div class="card-status">
-          <div class="status-bar">
-            <div class="status-consumed" [style.width.%]="getUsagePercentage(card)"></div>
-          </div>
-          <div class="status-info">
-            <span class="consumed">${{ getCardSpent(card.id) | number:'1.2-2' }} usado</span>
-            <span class="available">${{ (card.limit - getCardSpent(card.id)) | number:'1.2-2' }} disponible</span>
-          </div>
-        </div>
-
-        <!-- 🔥 Botón eliminar CON ICONO -->
-        <ion-button
-          fill="clear"
-          size="small"
-          class="delete-card-btn"
-          (click)="deleteCard(card, $event)">
-          <ion-icon slot="icon-only" name="trash-outline"></ion-icon>
-        </ion-button>
-
-        <!-- Logo/Brand -->
-        <div class="card-brand">
-          <ion-icon name="card"></ion-icon>
-        </div>
-      </div>
-
-      <div class="empty-state" *ngIf="cards.length === 0">
-        <ion-icon name="card-outline" class="empty-icon"></ion-icon>
-        <p>No tienes tarjetas registradas</p>
-        <p class="empty-hint">Agrega tu primera tarjeta arriba</p>
-      </div>
+    <!-- Header -->
+    <div class="page-header">
+      <span class="page-title">{{ activeSegment === 'cards' ? 'Mis Tarjetas' : 'Mis Préstamos' }}</span>
+      <button class="add-btn" (click)="activeSegment === 'cards' ? (showAddCard = !showAddCard) : (showAddLoan = !showAddLoan)">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      </button>
     </div>
 
-    <!-- Estado de tarjeta seleccionada -->
-    <div class="selected-card-section" *ngIf="selectedCard">
-      <h2 class="section-title">ESTADO DE TARJETA SELECCIONADA</h2>
+    <!-- Segment toggle -->
+    <div class="seg-bar">
+      <button class="seg-btn" [class.active]="activeSegment==='cards'" (click)="activeSegment='cards'; showAddCard=false; showAddLoan=false">
+        💳 Tarjetas
+      </button>
+      <button class="seg-btn" [class.active]="activeSegment==='loans'" (click)="activeSegment='loans'; showAddCard=false; showAddLoan=false">
+        🏦 Préstamos
+      </button>
+    </div>
 
-      <!-- Selector de tarjeta -->
-      <ion-card class="selector-card">
-        <ion-card-content>
-          <ion-select
-            [(ngModel)]="selectedCard"
-            (ionChange)="onCardChange()"
-            interface="popover"
-            placeholder="Selecciona una tarjeta">
-            <ion-select-option *ngFor="let card of cards$ | async" [value]="card">
-              {{ card.name }}
-            </ion-select-option>
-          </ion-select>
+    <!-- ───────────────── TARJETAS ───────────────── -->
+    <ng-container *ngIf="activeSegment === 'cards'">
 
-          <ion-button expand="block" (click)="viewCardStatement()" class="view-statement-btn">
-            Ver estado
-          </ion-button>
-        </ion-card-content>
-      </ion-card>
+      <!-- Summary card -->
+      <div class="summary-glass" *ngIf="(cards$ | async) as cards">
+        <div class="summary-label">Crédito disponible total</div>
+        <div class="summary-value">
+          RD${{ getTotalAvailable(cards) | number:'1.0-0' }}
+          <span class="summary-of"> / RD${{ getTotalLimit(cards) | number:'1.0-0' }}</span>
+        </div>
+        <div class="summary-meta">
+          <span>Tarjetas: <strong>{{ cards.length }}</strong></span>
+          <span>Utilizado: <strong [style.color]="getTotalUsedPct(cards) >= 80 ? 'var(--mf-red)' : 'var(--mf-amber)'">{{ getTotalUsedPct(cards) | number:'1.0-0' }}%</strong></span>
+        </div>
+      </div>
 
-      <!-- Resumen mensual -->
-      <ion-card class="summary-card">
-        <ion-card-content>
-          <div class="summary-header">
-            <div class="summary-icon">
-              <span class="icon-text">CC</span>
+      <!-- Add card form -->
+      <div class="mf-card add-form" *ngIf="showAddCard" [formGroup]="cardForm">
+        <div class="form-title">Nueva tarjeta</div>
+        <input class="form-input" formControlName="name" placeholder="Nombre (ej. Visa BanReservas)" />
+        <input class="form-input" type="text" inputmode="numeric" placeholder="Límite (RD$)" [value]="formattedLimit" (input)="onLimitInput($event)" />
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-lbl">Fecha de corte</label>
+            <input class="form-input date-inp" type="date" formControlName="cutoffDate" />
+          </div>
+          <div class="form-group">
+            <label class="form-lbl">Fecha de pago</label>
+            <input class="form-input date-inp" type="date" formControlName="paymentDate" />
+          </div>
+        </div>
+        <button class="save-btn" [disabled]="cardForm.invalid || saving" (click)="addCard()">
+          {{ saving ? 'Guardando…' : 'Agregar tarjeta' }}
+        </button>
+      </div>
+
+      <!-- Cards list -->
+      <ng-container *ngIf="cards$ | async as cards">
+        <div class="empty-state" *ngIf="cards.length === 0 && !showAddCard">
+          <div class="empty-icon">💳</div>
+          <div class="empty-title">Sin tarjetas</div>
+          <div class="empty-sub">Agrega tu primera tarjeta de crédito</div>
+          <button class="empty-cta" (click)="showAddCard=true">+ Agregar tarjeta</button>
+        </div>
+
+        <div class="card-item" *ngFor="let card of cards; let i = index">
+          <!-- Plastic card visual -->
+          <div class="plastic-card" [style.background]="getCardGradient(i)" (click)="selectCard(card)">
+            <div class="plastic-card__shine"></div>
+            <div class="plastic-card__top">
+              <div>
+                <div class="plastic-card__name">{{ card.name }}</div>
+                <div class="plastic-card__type">CRÉDITO</div>
+              </div>
+              <div class="plastic-chip">
+                <div class="chip-inner"></div>
+              </div>
             </div>
-            <div class="summary-info">
-              <h3>Resumen mensual</h3>
-              <p class="limit-text">Límite: ${{ selectedCard.limit | number:'1.2-2' }}</p>
+            <div class="plastic-card__number">•••• •••• •••• {{ card.lastFourDigits || '****' }}</div>
+            <div class="plastic-card__footer">
+              <div>
+                <div class="plastic-lbl">TITULAR</div>
+                <div class="plastic-val-sm">MiBolsillo</div>
+              </div>
+              <div>
+                <div class="plastic-lbl">CORTE</div>
+                <div class="plastic-val">{{ formatCardDate(card.cutoffDate) }}</div>
+              </div>
+              <div>
+                <div class="plastic-lbl">PAGO</div>
+                <div class="plastic-val">{{ formatCardDate(card.paymentDate) }}</div>
+              </div>
+              <div class="card-brand">{{ i % 2 === 0 ? 'VISA' : 'MC' }}</div>
+            </div>
+            <button class="del-btn" (click)="deleteCard(card, $event)">🗑</button>
+          </div>
+
+          <!-- Info panel (overlaps the card bottom) -->
+          <div class="card-panel">
+
+            <!-- Period navigation -->
+            <div class="period-nav">
+              <button class="period-arrow-btn" (click)="previousPeriod(card)">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>
+              </button>
+              <span class="period-label-sm">{{ getPeriodLabel(card) }}</span>
+              <button class="period-arrow-btn" (click)="nextPeriod(card)" [disabled]="isCurrentPeriod(card)">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+              </button>
+            </div>
+
+            <div class="card-panel__top">
+              <div class="card-panel__name">{{ card.name }}</div>
+              <div class="card-panel__status" [class.on-time]="getCardDaysUntilPayment(card) > 5" [class.urgent]="getCardDaysUntilPayment(card) <= 5">
+                {{ getCardDaysUntilPayment(card) > 0 ? 'Pago en ' + getCardDaysUntilPayment(card) + ' días' : 'Al día' }}
+              </div>
+            </div>
+
+            <div class="card-info-row">
+              <span class="card-info-lbl">Usado: <strong>RD${{ getCardSpent(card) | number:'1.0-0' }}</strong> / <strong>RD${{ card.limit | number:'1.0-0' }}</strong></span>
+              <span class="card-pct" [style.color]="getUsagePctColor(card)">{{ getUsagePercentage(card) | number:'1.0-0' }}%</span>
+            </div>
+            <div class="usage-track">
+              <div class="usage-fill" [style.width.%]="getUsagePercentage(card)" [style.background]="getUsagePctColor(card)"></div>
+            </div>
+
+            <div class="card-trivia">
+              <div class="trivia-item">
+                <div class="trivia-lbl">Corte</div>
+                <div class="trivia-val">Día {{ getDateDay(card.cutoffDate) }} c/mes</div>
+              </div>
+              <div class="trivia-item">
+                <div class="trivia-lbl">Disponible</div>
+                <div class="trivia-val" style="color:var(--mf-green)">RD${{ (card.limit - getCardSpent(card)) | number:'1.0-0' }}</div>
+              </div>
+              <div class="trivia-item">
+                <div class="trivia-lbl">Límite</div>
+                <div class="trivia-val">RD${{ card.limit | number:'1.0-0' }}</div>
+              </div>
+            </div>
+
+            <!-- Quick actions -->
+            <div class="card-actions">
+              <button class="ca-btn ca-btn--green" (click)="selectCard(card)">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+                Movimientos
+              </button>
+              <button class="ca-btn ca-btn--violet" (click)="registerCardPayment(card, $event)">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+                Pagar
+              </button>
+              <button class="ca-btn ca-btn--blue" (click)="viewCardStatement(card)">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                Estado
+              </button>
             </div>
           </div>
-          <div class="summary-amounts">
-            <span class="used-amount">${{ getCardSpent(selectedCard.id) | number:'1.2-2' }} usado</span>
-            <span class="separator">•</span>
-            <span class="available-amount">${{ (selectedCard.limit - getCardSpent(selectedCard.id)) | number:'1.2-2' }} disp.</span>
-          </div>
-        </ion-card-content>
-      </ion-card>
 
-      <!-- Transacciones de la tarjeta -->
-      <div class="transactions-list" *ngIf="selectedCardTransactions.length > 0">
-        <div class="transaction-item" *ngFor="let tx of selectedCardTransactions">
-          <div class="tx-badge">
-            <span class="badge-text">OUT</span>
+          <!-- Selected card transactions (filtered by period) -->
+          <div class="tx-section" *ngIf="selectedCard?.id === card.id">
+            <div class="tx-section-header">
+              <span class="mf-section-title">Movimientos — {{ card.name }}</span>
+              <span class="tx-period-badge">{{ getPeriodLabel(card) }}</span>
+            </div>
+            <div class="mf-card tx-card" *ngIf="selectedCardTransactions.length > 0; else noCardTx">
+              <div class="tx-row" *ngFor="let tx of selectedCardTransactions; let last=last" [class.last]="last">
+                <span class="tx-cat-bubble">{{ getCatEmoji(tx.category) }}</span>
+                <div class="tx-info">
+                  <span class="tx-cat">{{ tx.category || '—' }}</span>
+                  <span class="tx-date">{{ tx.createdAt?.toDate ? (tx.createdAt.toDate() | date:'dd/MM/yy') : '' }}</span>
+                </div>
+                <span class="tx-amount">−RD${{ tx.amount | number:'1.0-0' }}</span>
+              </div>
+            </div>
+            <ng-template #noCardTx>
+              <div class="no-tx-msg">Sin movimientos en este período</div>
+            </ng-template>
           </div>
-          <div class="tx-info">
-            <h4 class="tx-category">{{ tx.category }} · <ion-icon name="card"></ion-icon> {{ selectedCard?.name }}</h4>
-            <p class="tx-date">{{ tx.createdAt?.toDate() | date:'d/M/yyyy' }}</p>
+        </div>
+      </ng-container>
+
+    </ng-container>
+
+    <!-- ───────────────── PRÉSTAMOS ───────────────── -->
+    <ng-container *ngIf="activeSegment === 'loans'">
+
+      <!-- Loans summary glass -->
+      <div class="loan-summary-glass" *ngIf="(loans$ | async) as loans">
+        <div class="ls-shine"></div>
+        <div style="position:relative">
+          <div class="ls-label">Deuda total</div>
+          <div class="ls-total">RD${{ getTotalLoanBalance(loans) | number:'1.0-0' }}</div>
+          <div class="ls-meta">
+            Cuotas este mes: <strong>RD${{ getTotalMonthlyPayment(loans) | number:'1.0-0' }}</strong>
           </div>
-          <div class="tx-amount">
-            -${{ tx.amount | number:'1.2-2' }}
+          <div class="ls-progress" *ngIf="loans.length > 0">
+            <div class="ls-progress-labels">
+              <span>Progreso total de pago</span>
+              <strong>{{ getOverallPaidPct(loans) | number:'1.0-0' }}%</strong>
+            </div>
+            <div class="ls-track">
+              <div class="ls-fill" [style.width.%]="getOverallPaidPct(loans)"></div>
+            </div>
           </div>
         </div>
       </div>
 
-      <div class="empty-state" *ngIf="selectedCardTransactions.length === 0">
-        <ion-icon name="receipt-outline" class="empty-icon"></ion-icon>
-        <p>No hay transacciones con esta tarjeta</p>
+      <!-- Add loan form -->
+      <div class="mf-card add-form" *ngIf="showAddLoan" [formGroup]="loanForm">
+        <div class="form-title">Registrar préstamo</div>
+        <input class="form-input" formControlName="name" placeholder="Institución (ej. BanReservas)" />
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-lbl">Tipo</label>
+            <select class="form-input form-select" formControlName="loanType">
+              <option value="Personal">Personal</option>
+              <option value="Hipotecario">Hipotecario</option>
+              <option value="Vehicular">Vehicular</option>
+              <option value="Comercial">Comercial</option>
+              <option value="Estudiantil">Estudiantil</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-lbl">Tasa (% anual)</label>
+            <input class="form-input" type="number" formControlName="interestRate" placeholder="18" />
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-lbl">Monto original</label>
+            <input class="form-input" type="text" inputmode="numeric" placeholder="RD$" [value]="formattedLoanOrig" (input)="onLoanOrigInput($event)" />
+          </div>
+          <div class="form-group">
+            <label class="form-lbl">Saldo pendiente</label>
+            <input class="form-input" type="text" inputmode="numeric" placeholder="RD$" [value]="formattedLoanBal" (input)="onLoanBalInput($event)" />
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-lbl">Cuota mensual</label>
+            <input class="form-input" type="text" inputmode="numeric" placeholder="RD$" [value]="formattedLoanMonthly" (input)="onLoanMonthlyInput($event)" />
+          </div>
+          <div class="form-group">
+            <label class="form-lbl">Plazo (meses)</label>
+            <input class="form-input" type="number" formControlName="termMonths" placeholder="48" />
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-lbl">Meses pagados</label>
+            <input class="form-input" type="number" formControlName="paidMonths" placeholder="0" />
+          </div>
+          <div class="form-group">
+            <label class="form-lbl">Próximo pago</label>
+            <input class="form-input date-inp" type="date" formControlName="nextPaymentDate" />
+          </div>
+        </div>
+        <input class="form-input" formControlName="notes" placeholder="Notas (opcional)" />
+        <button class="save-btn" [disabled]="loanForm.invalid || savingLoan" (click)="addLoan()">
+          {{ savingLoan ? 'Guardando…' : 'Registrar préstamo' }}
+        </button>
       </div>
-    </div>
 
+      <!-- Loans list -->
+      <ng-container *ngIf="loans$ | async as loans">
+        <div class="empty-state" *ngIf="loans.length === 0 && !showAddLoan">
+          <div class="empty-icon">🏦</div>
+          <div class="empty-title">Sin préstamos</div>
+          <div class="empty-sub">Registra y controla tus préstamos bancarios</div>
+          <button class="empty-cta" (click)="showAddLoan=true">+ Registrar préstamo</button>
+        </div>
+
+        <div class="loan-item" *ngFor="let loan of loans" [style.border-left-color]="getLoanColor(loan)" (click)="toggleLoanDetail(loan)">
+          <div class="loan-item__header">
+            <div class="loan-icon" [style.background]="getLoanColor(loan) + '22'">
+              <span style="font-size:18px">🏦</span>
+            </div>
+            <div class="loan-item__info">
+              <div class="loan-name">{{ loan.name }}</div>
+              <div class="loan-meta">{{ loan.loanType }} • {{ loan.termMonths }} meses</div>
+            </div>
+            <div class="loan-badge" [class.urgent]="getLoanDays(loan) <= 5" [class.ok]="getLoanDays(loan) > 5">
+              {{ getLoanDays(loan) <= 0 ? 'Vencido' : 'En ' + getLoanDays(loan) + ' días' }}
+            </div>
+          </div>
+
+          <div class="loan-amounts">
+            <div>
+              <div class="loan-amount-lbl">Saldo pendiente</div>
+              <div class="loan-amount-val loan-amount-val--red">RD${{ loan.balance | number:'1.0-0' }}</div>
+            </div>
+            <div style="text-align:right">
+              <div class="loan-amount-lbl">Cuota mensual</div>
+              <div class="loan-amount-val">RD${{ loan.monthlyPayment | number:'1.0-0' }}</div>
+            </div>
+          </div>
+
+          <div class="loan-progress">
+            <div class="loan-progress-labels">
+              <span>{{ loan.paidMonths }} de {{ loan.termMonths }} pagos</span>
+              <span [style.color]="getLoanColor(loan)">{{ getLoanPaidPct(loan) }}% pagado</span>
+            </div>
+            <div class="usage-track">
+              <div class="usage-fill" [style.width.%]="getLoanPaidPct(loan)" [style.background]="getLoanColor(loan)"></div>
+            </div>
+          </div>
+
+          <div class="loan-footer">
+            <span>Próximo: <strong>{{ formatLoanDate(loan.nextPaymentDate) }}</strong></span>
+            <span>Original: <strong>RD${{ loan.originalAmount | number:'1.0-0' }}</strong></span>
+          </div>
+
+          <!-- Loan detail (expandable) -->
+          <div class="loan-detail" *ngIf="selectedLoan?.id === loan.id">
+            <div class="loan-detail-divider"></div>
+
+            <!-- Donut SVG -->
+            <div class="loan-donut-row">
+              <div class="loan-donut">
+                <svg width="120" height="120" viewBox="0 0 130 130">
+                  <circle cx="65" cy="65" r="56" fill="none" stroke="var(--mf-surface-alt)" stroke-width="14"/>
+                  <circle cx="65" cy="65" r="56" fill="none" [attr.stroke]="getLoanColor(loan)" stroke-width="14"
+                    [attr.stroke-dasharray]="getLoanDashArray(loan)"
+                    stroke-linecap="round" transform="rotate(-90 65 65)"/>
+                </svg>
+                <div class="loan-donut-center">
+                  <span class="loan-donut-pct">{{ getLoanPaidPct(loan) }}%</span>
+                  <span class="loan-donut-lbl">pagado</span>
+                </div>
+              </div>
+              <div class="loan-donut-legend">
+                <div class="legend-item">
+                  <div class="legend-dot" style="background:var(--mf-green)"></div>
+                  <div>
+                    <div class="legend-lbl">Pagado</div>
+                    <div class="legend-val">RD${{ (loan.originalAmount - loan.balance) | number:'1.0-0' }}</div>
+                  </div>
+                </div>
+                <div class="legend-item">
+                  <div class="legend-dot" [style.background]="getLoanColor(loan)"></div>
+                  <div>
+                    <div class="legend-lbl">Pendiente</div>
+                    <div class="legend-val">RD${{ loan.balance | number:'1.0-0' }}</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Detail grid -->
+            <div class="loan-detail-grid">
+              <div class="detail-cell">
+                <span class="detail-lbl">Cuota</span>
+                <span class="detail-val">RD${{ loan.monthlyPayment | number:'1.0-0' }}</span>
+              </div>
+              <div class="detail-cell">
+                <span class="detail-lbl">Tasa</span>
+                <span class="detail-val">{{ loan.interestRate }}% anual</span>
+              </div>
+              <div class="detail-cell">
+                <span class="detail-lbl">Plazo</span>
+                <span class="detail-val">{{ loan.termMonths }} meses</span>
+              </div>
+              <div class="detail-cell">
+                <span class="detail-lbl">Restantes</span>
+                <span class="detail-val">{{ loan.termMonths - loan.paidMonths }} meses</span>
+              </div>
+              <div class="detail-cell">
+                <span class="detail-lbl">Tipo</span>
+                <span class="detail-val">{{ loan.loanType }}</span>
+              </div>
+              <div class="detail-cell">
+                <span class="detail-lbl">Próximo pago</span>
+                <span class="detail-val">{{ formatLoanDate(loan.nextPaymentDate) }}</span>
+              </div>
+            </div>
+
+            <!-- Projection table -->
+            <div class="proj-title">Proyección de pagos</div>
+            <div class="mf-card proj-table">
+              <div class="proj-header">
+                <span>Mes</span><span>Cuota</span><span>Capital</span><span>Interés</span><span>Saldo</span>
+              </div>
+              <div class="proj-row" *ngFor="let p of getLoanProjection(loan); let last=last" [class.proj-row-last]="last">
+                <span>{{ p.month }}</span>
+                <span>{{ p.cuota | number:'1.0-0' }}</span>
+                <span style="color:var(--mf-green)">{{ p.capital | number:'1.0-0' }}</span>
+                <span style="color:var(--mf-amber)">{{ p.interest | number:'1.0-0' }}</span>
+                <span style="color:var(--mf-text2)">{{ p.balance | number:'1.0-0' }}</span>
+              </div>
+            </div>
+
+            <!-- Delete -->
+            <button class="loan-delete-btn" (click)="deleteLoan(loan, $event)">🗑 Eliminar préstamo</button>
+          </div>
+        </div>
+      </ng-container>
+
+    </ng-container>
+
+    <div style="height:24px"></div>
   </div>
 </ion-content>

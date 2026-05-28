@@ -42,6 +42,12 @@ export class AppComponent implements OnInit {
 
   ngOnInit(): void {
     console.log('[AppComponent] Aplicación inicializada');
+    // Primera vez: redirigir al onboarding
+    if (localStorage.getItem('onboardingDone') !== 'true') {
+      setTimeout(() => {
+        this.router.navigateByUrl('/onboarding', { replaceUrl: true });
+      }, 0);
+    }
   }
 
   /** Manejo del botón/gesto de retroceso en Android */

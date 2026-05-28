@@ -1,298 +1,205 @@
-<!-- src/app/settings/settings.page.html -->
-<ion-header [translucent]="true">
-  <ion-toolbar>
-    <ion-title>Ajustes</ion-title>
-  </ion-toolbar>
-</ion-header>
+<!-- settings.page.html — MoneyFlow Profile -->
+<ion-content [fullscreen]="true" class="settings-content">
+  <div class="page-content">
 
-<ion-content [fullscreen]="true">
-  <!-- Header colapsable -->
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">Ajustes</ion-title>
-    </ion-toolbar>
-  </ion-header>
-
-  <div class="ion-padding">
-    
-    <!-- Perfil de usuario -->
-    <div class="profile-section">
-      <div class="profile-avatar">
-        <ion-icon name="person"></ion-icon>
-      </div>
-      <div class="profile-info">
-        <h2 class="profile-name">{{ (user$ | async)?.displayName || 'Usuario' }}</h2>
-        <p class="profile-email">{{ (user$ | async)?.email }}</p>
+    <!-- User glass card -->
+    <div class="user-glass">
+      <div class="user-glass__shine"></div>
+      <div class="user-glass__body">
+        <div class="user-avatar">
+          <ng-container *ngIf="(user$ | async) as u">
+            <img *ngIf="u.photoURL" [src]="u.photoURL" class="avatar-img" alt="avatar" />
+            <span *ngIf="!u.photoURL">{{ u.displayName?.charAt(0)?.toUpperCase() || 'U' }}</span>
+          </ng-container>
+        </div>
+        <div class="user-info">
+          <div class="user-name">{{ (user$ | async)?.displayName || 'Usuario' }}</div>
+          <div class="user-email">{{ (user$ | async)?.email || '' }}</div>
+          <div class="user-plan">
+            <span class="plan-icon">⚡</span> Plan Gratuito
+          </div>
+        </div>
       </div>
     </div>
 
-    <!-- Configuración Financiera -->
-    <div class="settings-section">
-      <h3 class="section-title">
-        <ion-icon name="wallet-outline"></ion-icon>
-        Configuración Financiera
-      </h3>
-
-      <ion-card class="settings-card">
-        <ion-list>
-          <!-- Sueldo mensual -->
-          <ion-item>
-            <ion-label position="stacked">
-              <h3>Sueldo Mensual</h3>
-              <p>Tu ingreso mensual fijo</p>
-            </ion-label>
-            <ion-input
-              type="text"
-              [value]="formattedSalary"
-              placeholder="0"
-              (ionInput)="onSalaryInput($event)"
-              (ionBlur)="saveSalary()">
-            </ion-input>
-          </ion-item>
-
-          <!-- Moneda -->
-          <ion-item>
-            <ion-label>
-              <h3>Moneda</h3>
-              <p>Tipo de moneda para tus transacciones</p>
-            </ion-label>
-            <ion-select [(ngModel)]="currency" (ionChange)="saveCurrency()" interface="popover">
-              <ion-select-option value="USD">USD - Dólar</ion-select-option>
-              <ion-select-option value="EUR">EUR - Euro</ion-select-option>
-              <ion-select-option value="DOP">DOP - Peso Dominicano</ion-select-option>
-              <ion-select-option value="MXN">MXN - Peso Mexicano</ion-select-option>
-              <ion-select-option value="COP">COP - Peso Colombiano</ion-select-option>
-              <ion-select-option value="ARS">ARS - Peso Argentino</ion-select-option>
-            </ion-select>
-          </ion-item>
-
-          <!-- Frecuencia de pago -->
-          <ion-item>
-            <ion-label>
-              <h3>Frecuencia de Pago</h3>
-              <p>¿Cómo recibes tu sueldo?</p>
-            </ion-label>
-            <ion-select [(ngModel)]="paymentFrequency" (ionChange)="savePaymentFrequency()" interface="popover">
-              <ion-select-option value="monthly">Mensual</ion-select-option>
-              <ion-select-option value="biweekly">Quincenal</ion-select-option>
-            </ion-select>
-          </ion-item>
-
-          <!-- Día de pago - Mensual -->
-          <ion-item *ngIf="paymentFrequency === 'monthly'">
-            <ion-label position="stacked">
-              <h3>Día de Pago</h3>
-              <p>Día del mes que recibes tu sueldo</p>
-            </ion-label>
-            <ion-input
-              type="number"
-              [(ngModel)]="paymentDay"
-              placeholder="15"
-              min="1"
-              max="31"
-              (ionChange)="savePaymentDay()">
-            </ion-input>
-          </ion-item>
-
-          <!-- Primer día de pago - Quincenal -->
-          <ion-item *ngIf="paymentFrequency === 'biweekly'">
-            <ion-label position="stacked">
-              <h3>Primer Día de Pago</h3>
-              <p>Primera quincena del mes</p>
-            </ion-label>
-            <ion-input
-              type="number"
-              [(ngModel)]="paymentDay1"
-              placeholder="15"
-              min="1"
-              max="31"
-              (ionChange)="savePaymentDays()">
-            </ion-input>
-          </ion-item>
-
-          <!-- Segundo día de pago - Quincenal -->
-          <ion-item *ngIf="paymentFrequency === 'biweekly'">
-            <ion-label position="stacked">
-              <h3>Segundo Día de Pago</h3>
-              <p>Segunda quincena del mes</p>
-            </ion-label>
-            <ion-input
-              type="number"
-              [(ngModel)]="paymentDay2"
-              placeholder="30"
-              min="1"
-              max="31"
-              (ionChange)="savePaymentDays()">
-            </ion-input>
-          </ion-item>
-        </ion-list>
-      </ion-card>
+    <!-- Stats row -->
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-val">{{ statsTransactions }}</div>
+        <div class="stat-lbl">Transacciones</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-val">{{ statsMonths }}</div>
+        <div class="stat-lbl">Meses activo</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-val">{{ statsCategories }}</div>
+        <div class="stat-lbl">Categorías</div>
+      </div>
     </div>
 
-    <!-- Apariencia -->
-    <div class="settings-section">
-      <h3 class="section-title">
-        <ion-icon name="color-palette-outline"></ion-icon>
-        Apariencia
-      </h3>
+    <!-- ── SECCIÓN: MI SUELDO ─────────────────────────────────── -->
+    <div class="sec-label">Mi Sueldo</div>
+    <div class="mf-card menu-card">
 
-      <ion-card class="settings-card">
-        <ion-list>
-          <!-- Tema -->
-          <ion-item>
-            <ion-label>
-              <h3>Modo Oscuro</h3>
-              <p>Cambiar entre tema claro y oscuro</p>
-            </ion-label>
-            <ion-toggle [(ngModel)]="darkMode" (ionChange)="toggleDarkMode()"></ion-toggle>
-          </ion-item>
+      <!-- Current salary display -->
+      <div class="salary-display">
+        <div class="salary-display__icon">💰</div>
+        <div class="salary-display__info">
+          <div class="salary-display__lbl">Sueldo actual</div>
+          <div class="salary-display__val">RD${{ formatNumber(monthlySalary) || '0' }}</div>
+        </div>
+        <button class="expand-btn" (click)="showSalaryForm = !showSalaryForm">
+          {{ showSalaryForm ? '▲' : '▼' }}
+        </button>
+      </div>
 
-          <!-- Tamaño de fuente -->
-          <ion-item>
-            <ion-label>
-              <h3>Tamaño de Texto</h3>
-              <p>Ajusta el tamaño de las letras</p>
-            </ion-label>
-            <ion-select [(ngModel)]="fontSize" (ionChange)="changeFontSize()" interface="popover">
-              <ion-select-option value="small">Pequeño</ion-select-option>
-              <ion-select-option value="normal">Normal</ion-select-option>
-              <ion-select-option value="large">Grande</ion-select-option>
-              <ion-select-option value="extra-large">Extra Grande</ion-select-option>
-            </ion-select>
-          </ion-item>
-        </ion-list>
-      </ion-card>
+      <ng-container *ngIf="showSalaryForm">
+        <div class="inner-divider"></div>
+        <div class="salary-form">
+          <div class="salary-form-row">
+            <input class="pref-input" type="text" inputmode="numeric" placeholder="Nuevo sueldo (RD$)"
+              [value]="formattedSalary" (input)="onSalaryInput($event)" />
+            <input class="pref-input pref-input--sm date-inp" type="month" [value]="newSalaryMonth"
+              (change)="newSalaryMonth = $event.target['value']" title="Mes desde el que aplica" />
+          </div>
+          <input class="pref-input" type="text" placeholder="Nota (ej. Aumento anual...)" [(ngModel)]="newSalaryNote" />
+          <button class="save-pref-btn" (click)="saveSalary()">Guardar sueldo</button>
+        </div>
+
+        <div class="salary-hist" *ngIf="(salaryHistory$ | async) as history">
+          <div class="inner-divider" *ngIf="history.length > 0"></div>
+          <div class="hist-title" *ngIf="history.length > 0">Historial de sueldos</div>
+          <div class="hist-item" *ngFor="let e of history">
+            <div class="hist-left">
+              <div class="hist-amount">RD${{ formatNumber(e.amount) }}</div>
+              <div class="hist-date">Desde {{ formatSalaryDate(e.effectiveFrom) }}</div>
+              <div class="hist-note" *ngIf="e.notes">{{ e.notes }}</div>
+            </div>
+            <button class="hist-del" (click)="deleteSalaryEntry(e)">🗑</button>
+          </div>
+        </div>
+      </ng-container>
     </div>
 
-    <!-- Notificaciones -->
-    <div class="settings-section">
-      <h3 class="section-title">
-        <ion-icon name="notifications-outline"></ion-icon>
-        Notificaciones
-      </h3>
-
-      <ion-card class="settings-card">
-        <ion-list>
-          <!-- Notificaciones generales -->
-          <ion-item>
-            <ion-label>
-              <h3>Activar Notificaciones</h3>
-              <p>Recibir alertas de la aplicación</p>
-            </ion-label>
-            <ion-toggle [(ngModel)]="notificationsEnabled" (ionChange)="toggleNotifications()"></ion-toggle>
-          </ion-item>
-
-          <!-- Notificación de fechas de pago -->
-          <ion-item [disabled]="!notificationsEnabled">
-            <ion-label>
-              <h3>Fechas de Pago de Tarjetas</h3>
-              <p>Recordatorio 3 días antes</p>
-            </ion-label>
-            <ion-toggle [(ngModel)]="paymentReminders" (ionChange)="saveSettings()"></ion-toggle>
-          </ion-item>
-
-          <!-- Notificación de fechas de corte -->
-          <ion-item [disabled]="!notificationsEnabled">
-            <ion-label>
-              <h3>Fechas de Corte de Tarjetas</h3>
-              <p>Recordatorio 2 días antes</p>
-            </ion-label>
-            <ion-toggle [(ngModel)]="cutoffReminders" (ionChange)="saveSettings()"></ion-toggle>
-          </ion-item>
-
-          <!-- Notificación de presupuesto -->
-          <ion-item [disabled]="!notificationsEnabled">
-            <ion-label>
-              <h3>Límite de Gastos</h3>
-              <p>Alerta al superar 80% del presupuesto</p>
-            </ion-label>
-            <ion-toggle [(ngModel)]="budgetAlerts" (ionChange)="saveSettings()"></ion-toggle>
-          </ion-item>
-        </ion-list>
-      </ion-card>
+    <!-- ── SECCIÓN: CUENTA ────────────────────────────────────── -->
+    <div class="sec-label">Cuenta</div>
+    <div class="mf-card menu-card">
+      <div class="menu-item">
+        <div class="mi-icon mi-icon--violet">👤</div>
+        <span class="mi-label">{{ (user$ | async)?.displayName || 'Usuario' }}</span>
+        <span class="mi-meta">Editar</span>
+        <svg class="mi-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+      </div>
+      <div class="menu-divider"></div>
+      <div class="menu-item">
+        <div class="mi-icon mi-icon--amber">🔔</div>
+        <span class="mi-label">Notificaciones</span>
+        <span class="mi-meta">Activadas</span>
+        <svg class="mi-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+      </div>
     </div>
 
-    <!-- Datos y Privacidad -->
-    <div class="settings-section">
-      <h3 class="section-title">
-        <ion-icon name="shield-outline"></ion-icon>
-        Datos y Privacidad
-      </h3>
+    <!-- ── SECCIÓN: PREFERENCIAS ──────────────────────────────── -->
+    <div class="sec-label">Preferencias</div>
+    <div class="mf-card menu-card">
 
-      <ion-card class="settings-card">
-        <ion-list>
-          <!-- Exportar datos -->
-          <ion-item button (click)="exportData()">
-            <ion-icon name="download-outline" slot="start" class="item-icon"></ion-icon>
-            <ion-label>
-              <h3>Exportar Datos</h3>
-              <p>Descargar todas tus transacciones</p>
-            </ion-label>
-          </ion-item>
+      <div class="menu-item">
+        <div class="mi-icon mi-icon--violet">💱</div>
+        <span class="mi-label">Moneda principal</span>
+        <ion-select [(ngModel)]="currency" (ionChange)="saveCurrency()" interface="popover" class="mi-select">
+          <ion-select-option value="DOP">RD$ (DOP)</ion-select-option>
+          <ion-select-option value="USD">$ (USD)</ion-select-option>
+          <ion-select-option value="EUR">€ (EUR)</ion-select-option>
+        </ion-select>
+      </div>
 
-          <!-- Eliminar datos -->
-          <ion-item button (click)="confirmDeleteData()">
-            <ion-icon name="trash-outline" slot="start" class="item-icon danger"></ion-icon>
-            <ion-label color="danger">
-              <h3>Eliminar Todos los Datos</h3>
-              <p>Esta acción no se puede deshacer</p>
-            </ion-label>
-          </ion-item>
-        </ion-list>
-      </ion-card>
+      <div class="menu-divider"></div>
+
+      <div class="menu-item">
+        <div class="mi-icon mi-icon--blue">📅</div>
+        <span class="mi-label">Frecuencia de pago</span>
+        <ion-select [(ngModel)]="paymentFrequency" (ionChange)="savePaymentFrequency()" interface="popover" class="mi-select">
+          <ion-select-option value="monthly">Mensual</ion-select-option>
+          <ion-select-option value="biweekly">Quincenal</ion-select-option>
+        </ion-select>
+      </div>
+
+      <ng-container *ngIf="paymentFrequency === 'monthly'">
+        <div class="menu-divider"></div>
+        <div class="menu-item">
+          <div class="mi-icon mi-icon--green">🗓️</div>
+          <span class="mi-label">Día de pago</span>
+          <input class="mi-number" type="number" min="1" max="31" [(ngModel)]="paymentDay" (change)="savePaymentDay()" />
+        </div>
+      </ng-container>
+
+      <ng-container *ngIf="paymentFrequency === 'biweekly'">
+        <div class="menu-divider"></div>
+        <div class="menu-item">
+          <div class="mi-icon mi-icon--green">🗓️</div>
+          <span class="mi-label">Días de pago</span>
+          <div class="biweekly-days">
+            <input class="mi-number" type="number" min="1" max="31" [(ngModel)]="paymentDay1" />
+            <span class="bw-sep">y</span>
+            <input class="mi-number" type="number" min="1" max="31" [(ngModel)]="paymentDay2" />
+            <button class="bw-ok" (click)="savePaymentDays()">OK</button>
+          </div>
+        </div>
+      </ng-container>
     </div>
 
-    <!-- Información de la App -->
-    <div class="settings-section">
-      <h3 class="section-title">
-        <ion-icon name="information-circle-outline"></ion-icon>
-        Información
-      </h3>
-
-      <ion-card class="settings-card">
-        <ion-list>
-          <!-- Versión -->
-          <ion-item>
-            <ion-icon name="code-outline" slot="start" class="item-icon"></ion-icon>
-            <ion-label>
-              <h3>Versión</h3>
-              <p>1.0.0</p>
-            </ion-label>
-          </ion-item>
-
-          <!-- Términos y condiciones -->
-          <ion-item button (click)="openTerms()">
-            <ion-icon name="document-text-outline" slot="start" class="item-icon"></ion-icon>
-            <ion-label>
-              <h3>Términos y Condiciones</h3>
-            </ion-label>
-          </ion-item>
-
-          <!-- Política de privacidad -->
-          <ion-item button (click)="openPrivacy()">
-            <ion-icon name="lock-closed-outline" slot="start" class="item-icon"></ion-icon>
-            <ion-label>
-              <h3>Política de Privacidad</h3>
-            </ion-label>
-          </ion-item>
-        </ion-list>
-      </ion-card>
+    <!-- ── SECCIÓN: DATOS ─────────────────────────────────────── -->
+    <div class="sec-label">Datos</div>
+    <div class="mf-card menu-card">
+      <button class="menu-item menu-btn-item" (click)="exportData()">
+        <div class="mi-icon mi-icon--green">📤</div>
+        <span class="mi-label">Exportar datos</span>
+        <span class="mi-meta">CSV/Excel</span>
+        <svg class="mi-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+      </button>
+      <div class="menu-divider"></div>
+      <button class="menu-item menu-btn-item" (click)="confirmDeleteData()">
+        <div class="mi-icon mi-icon--red">🗑️</div>
+        <span class="mi-label mi-label--red">Eliminar todos los datos</span>
+        <svg class="mi-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+      </button>
     </div>
 
-    <!-- Cerrar Sesión -->
-    <div class="settings-section">
-      <ion-button
-        expand="block"
-        color="danger"
-        (click)="logout()"
-        class="logout-button">
-        <ion-icon name="log-out-outline" slot="start"></ion-icon>
-        Cerrar Sesión
-      </ion-button>
+    <!-- ── SECCIÓN: INFORMACIÓN ──────────────────────────────── -->
+    <div class="sec-label">Información</div>
+    <div class="mf-card menu-card">
+      <div class="menu-item">
+        <div class="mi-icon mi-icon--blue">❓</div>
+        <span class="mi-label">Ayuda y soporte</span>
+        <svg class="mi-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+      </div>
+      <div class="menu-divider"></div>
+      <div class="menu-item">
+        <div class="mi-icon mi-icon--amber">⭐</div>
+        <span class="mi-label">Calificar la app</span>
+        <svg class="mi-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+      </div>
+      <div class="menu-divider"></div>
+      <div class="menu-item">
+        <div class="mi-icon mi-icon--violet">📄</div>
+        <span class="mi-label">Términos y privacidad</span>
+        <svg class="mi-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+      </div>
+      <div class="menu-divider"></div>
+      <div class="menu-item">
+        <div class="mi-icon mi-icon--surface">ℹ️</div>
+        <span class="mi-label">Versión</span>
+        <span class="mi-meta">1.0.0</span>
+      </div>
     </div>
 
-    <!-- Espaciado inferior -->
-    <div style="height: 40px;"></div>
+    <!-- Logout -->
+    <button class="logout-btn" (click)="logout()">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      Cerrar sesión
+    </button>
 
+    <div style="height:32px"></div>
   </div>
 </ion-content>

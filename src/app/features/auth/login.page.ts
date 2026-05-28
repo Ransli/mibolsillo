@@ -6,7 +6,7 @@
 // - Acciones: Continuar (con hint si está disponible) y Quitar.
 
 import { Component, OnInit, inject } from '@angular/core';
-import { IonicModule } from '@ionic/angular';
+import { IonContent } from '@ionic/angular/standalone';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 
@@ -23,7 +23,7 @@ type RecentUser = {
 @Component({
   standalone: true,
   selector: 'app-login',
-  imports: [IonicModule, CommonModule],
+  imports: [IonContent, CommonModule],
   templateUrl: './login.page.html',
   styleUrls: ['./login.page.scss'],
 })

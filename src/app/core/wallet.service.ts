@@ -18,9 +18,10 @@ import {
   getDocs,
   getDoc,
   updateDoc,
+  Timestamp,
 } from '@angular/fire/firestore';
 
-import { Observable, firstValueFrom, of, combineLatest, from } from 'rxjs';
+import { Observable, firstValueFrom, of, from } from 'rxjs';
 import { map, switchMap } from 'rxjs/operators';
 import { AuthService } from './auth.service';
 
@@ -59,20 +60,135 @@ export interface Totals {
   balance: number;
 }
 
+/**
+ * Historial de sueldos: cada entrada tiene un monto y la fecha
+ * desde cuando aplica (primer día del mes).  Esto permite que al
+ * filtrar el mes de enero el sistema use el sueldo que regía entonces,
+ * aunque haya subido en mayo.
+ */
+export interface SalaryEntry {
+  id?: string;
+  amount: number;
+  effectiveFrom: any;   // Timestamp | Date — primer día del mes
+  notes?: string;
+}
+
+export interface Loan {
+  id?: string;
+  name: string;               // Ej. "BanReservas Personal"
+  loanType: string;           // Personal, Hipotecario, Vehicular, Comercial
+  originalAmount: number;     // Monto original del préstamo
+  balance: number;            // Saldo pendiente actual
+  monthlyPayment: number;     // Cuota mensual
+  interestRate: number;       // Tasa de interés anual %
+  termMonths: number;         // Plazo total en meses
+  paidMonths: number;         // Meses ya pagados
+  nextPaymentDate: any;       // Próxima fecha de pago (Timestamp | Date)
+  color?: string;             // Color para mostrar en UI
+  notes?: string;
+  createdAt?: any;
+}
+
 @Injectable({ providedIn: 'root' })
 export class WalletService {
   private afs = inject(Firestore);
   private auth = inject(AuthService);
 
-  get currentUser() {
-    return this.auth.currentUser;
-  }
+  get currentUser() { return this.auth.currentUser; }
 
-  private col$<T extends DocumentData>(sub: 'tx' | 'categories' | 'cards'): Observable<CollectionReference<T> | null> {
+  private col$<T extends DocumentData>(sub: string): Observable<CollectionReference<T> | null> {
     return this.auth.user$.pipe(
-      map(u => u?.uid ? (collection(this.afs, `users/${u.uid}/${sub}`) as CollectionReference<T>) : null)
+      map(u => u?.uid
+        ? (collection(this.afs, `users/${u.uid}/${sub}`) as CollectionReference<T>)
+        : null)
     );
   }
+
+  // ─── Salary History ──────────────────────────────────────────────────────────
+
+  /**
+   * Devuelve el sueldo que estaba activo en el mes indicado.
+   * Busca en salaryHistory la entrada cuyo effectiveFrom sea la más reciente
+   * que NO supere el primer día del mes consultado.
+   */
+  async getSalaryForMonth(year: number, month: number): Promise<number> {
+    const user = this.currentUser;
+    if (!user?.uid) return 0;
+
+    // primer día del mes (00:00:00)
+    const monthStart = new Date(year, month, 1, 0, 0, 0, 0);
+
+    try {
+      const ref = collection(this.afs, `users/${user.uid}/salaryHistory`);
+      const q = query(
+        ref,
+        where('effectiveFrom', '<=', Timestamp.fromDate(monthStart)),
+        orderBy('effectiveFrom', 'desc'),
+        limit(1)
+      );
+      const snap = await getDocs(q);
+      if (!snap.empty) {
+        const data = snap.docs[0].data() as SalaryEntry;
+        return Number(data.amount) || 0;
+      }
+
+      // Fallback: salary en el documento del usuario (migración desde versión anterior)
+      const userRef = doc(this.afs, `users/${user.uid}`);
+      const userSnap = await getDoc(userRef);
+      if (userSnap.exists()) {
+        const d = userSnap.data();
+        return Number(d?.['salary']) || 0;
+      }
+      return 0;
+    } catch (e) {
+      console.error('[WalletService] getSalaryForMonth error:', e);
+      return 0;
+    }
+  }
+
+  /**
+   * Agrega una entrada al historial de sueldos.
+   * Si `effectiveFrom` no se indica usa el primer día del mes actual.
+   */
+  async addSalaryEntry(entry: { amount: number; effectiveFrom?: Date; notes?: string }): Promise<void> {
+    const user = this.currentUser;
+    if (!user?.uid) throw new Error('Sin sesión');
+
+    const from = entry.effectiveFrom ?? (() => {
+      const n = new Date();
+      return new Date(n.getFullYear(), n.getMonth(), 1);
+    })();
+
+    const ref = collection(this.afs, `users/${user.uid}/salaryHistory`);
+    await addDoc(ref, {
+      amount: entry.amount,
+      effectiveFrom: Timestamp.fromDate(from),
+      notes: entry.notes ?? null,
+    });
+    console.log('[WalletService] SalaryEntry agregado:', entry.amount, 'desde', from);
+  }
+
+  /** Obtiene todo el historial de sueldos, más reciente primero */
+  salaryHistory$(): Observable<SalaryEntry[]> {
+    return this.col$<SalaryEntry>('salaryHistory').pipe(
+      switchMap(col => {
+        if (!col) return of<SalaryEntry[]>([]);
+        return collectionData(
+          query(col, orderBy('effectiveFrom', 'desc')),
+          { idField: 'id' }
+        ) as Observable<SalaryEntry[]>;
+      })
+    );
+  }
+
+  async deleteSalaryEntry(entryId: string): Promise<void> {
+    const user = this.currentUser;
+    if (!user?.uid) return;
+    const ref = doc(this.afs, `users/${user.uid}/salaryHistory/${entryId}`);
+    await deleteDoc(ref);
+  }
+
+  // ─── Transactions ────────────────────────────────────────────────────────────
 
   lastTx$(takeCount = 10, range?: { start: Date; end: Date }): Observable<Tx[]> {
     return this.col$<Tx>('tx').pipe(
@@ -94,102 +210,61 @@ export class WalletService {
   }
 
   /**
-   * 🔥 CORREGIDO: Calcula los totales incluyendo el sueldo del mes actual
+   * Calcula totales para el rango dado, incluyendo el sueldo histórico correcto.
+   * El sueldo se trata como un ingreso fijo para ese mes (no se registra como Tx).
    */
-  totals$(range?: { start: Date; end: Date }): Observable<Totals> {
-    return combineLatest([
-      this.col$<Tx>('tx').pipe(
-        switchMap(col => {
-          if (!col) return of<Tx[]>([]);
-          let qRef = query(col, orderBy('createdAt', 'desc'));
-          if (range) {
-            qRef = query(
-              col,
-              where('createdAt', '>=', range.start),
-              where('createdAt', '<=', range.end),
-              orderBy('createdAt', 'desc')
-            );
-          }
-          return collectionData(qRef, { idField: 'id' }) as Observable<Tx[]>;
-        })
-      ),
-      this.auth.user$.pipe(
-        switchMap(user => {
-          if (!user?.uid) return of(null);
-          // 🔥 NUEVO: Obtener el sueldo desde Firestore
-          const userRef = doc(this.afs, `users/${user.uid}`);
-          return from(getDoc(userRef)).pipe(
-            map(docSnap => {
-              if (docSnap.exists()) {
-                const data = docSnap.data();
-                return data?.['salary'] || 0;
-              }
-              return 0;
-            })
-          );
-        })
-      )
-    ]).pipe(
-      map(([list, salary]) => {
-        let inc = 0, exp = 0;
-        
-        // 🔥 CORREGIDO: Agregar el sueldo como ingreso del mes actual
-        const now = new Date();
-        const currentMonth = now.getMonth();
-        const currentYear = now.getFullYear();
-        
-        // Si no hay rango, usar el mes actual
-        if (!range) {
-          if (salary) {
-            inc += Number(salary);
-            console.log('[WalletService] Sueldo mensual agregado:', salary);
-          }
-        } else {
-          // Si hay rango y el mes actual está en ese rango, agregar el sueldo
-          const rangeStartMonth = range.start.getMonth();
-          const rangeStartYear = range.start.getFullYear();
-          if (rangeStartMonth === currentMonth && rangeStartYear === currentYear) {
-            if (salary) {
-              inc += Number(salary);
-              console.log('[WalletService] Sueldo mensual agregado al rango:', salary);
-            }
-          }
-        }
-        
-        // Sumar transacciones
-        for (const t of list) {
-          const n = Number(t.amount || 0);
-          if (t.type === 'in') inc += n;
-          else exp += n;
-        }
-        
-        console.log('[WalletService] Totales calculados:', { in: inc, out: exp, balance: inc - exp });
-        return { in: inc, out: exp, balance: inc - exp };
-      })
+  async totalsForRange(range: { start: Date; end: Date }): Promise<Totals> {
+    const user = this.currentUser;
+    if (!user?.uid) return { in: 0, out: 0, balance: 0 };
+
+    // 1) Sueldo activo en ese mes
+    const salary = await this.getSalaryForMonth(
+      range.start.getFullYear(),
+      range.start.getMonth()
     );
+
+    // 2) Transacciones del rango
+    const txRef = collection(this.afs, `users/${user.uid}/tx`);
+    const q = query(
+      txRef,
+      where('createdAt', '>=', range.start),
+      where('createdAt', '<=', range.end),
+      orderBy('createdAt', 'desc')
+    );
+    const snap = await getDocs(q);
+    const txs = snap.docs.map(d => d.data()) as Tx[];
+
+    let inc = salary;
+    let exp = 0;
+    for (const t of txs) {
+      const n = Number(t.amount || 0);
+      if (t.type === 'in') inc += n;
+      else exp += n;
+    }
+
+    console.log('[WalletService] totalsForRange:', { salary, inc, exp, range });
+    return { in: inc, out: exp, balance: inc - exp };
+  }
+
+  /** Observable de totales para el rango (para el dashboard reactivo) */
+  totals$(range?: { start: Date; end: Date }): Observable<Totals> {
+    const now = new Date();
+    const r = range ?? {
+      start: new Date(now.getFullYear(), now.getMonth(), 1),
+      end:   new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999),
+    };
+    return from(this.totalsForRange(r));
   }
 
   async getAllTransactions(): Promise<Tx[]> {
     const user = this.currentUser;
-    if (!user?.uid) {
-      console.warn('[WalletService] No hay usuario autenticado para getAllTransactions');
-      return [];
-    }
-
+    if (!user?.uid) return [];
     try {
       const txRef = collection(this.afs, `users/${user.uid}/tx`);
-      const q = query(txRef, orderBy('createdAt', 'desc'));
-      
-      const snapshot = await getDocs(q);
-      const transactions = snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      })) as Tx[];
-
-      console.log(`[WalletService] Obtenidas ${transactions.length} transacciones`);
-      return transactions;
-    } catch (error) {
-      console.error('[WalletService] Error al obtener todas las transacciones:', error);
+      const snap = await getDocs(query(txRef, orderBy('createdAt', 'desc')));
+      return snap.docs.map(d => ({ id: d.id, ...d.data() })) as Tx[];
+    } catch (e) {
+      console.error('[WalletService] getAllTransactions error:', e);
       return [];
     }
   }
@@ -204,44 +279,25 @@ export class WalletService {
     note?: string | null;
   }): Promise<void> {
     const col = await firstValueFrom(this.col$<Tx>('tx'));
-    if (!col) {
-      console.warn('[WalletService] No se puede agregar transacción sin sesión');
-      throw new Error('No hay sesión activa');
-    }
-    
-    const txData = {
+    if (!col) throw new Error('Sin sesión');
+    await addDoc(col, {
       type: data.type,
       amount: data.amount,
       category: data.category,
       paymentMethod: data.paymentMethod ?? 'cash',
-      cardId: data.paymentMethod === 'card' ? data.cardId ?? null : null,
+      cardId: data.paymentMethod === 'card' ? (data.cardId ?? null) : null,
       note: data.note ?? null,
       createdAt: data.createdAt ?? serverTimestamp(),
-    };
-
-    console.log('[WalletService] Agregando transacción:', txData);
-    
-    await addDoc(col, txData);
-
-    console.log('[WalletService] ✅ Transacción agregada exitosamente');
+    });
   }
 
   async deleteTx(txId: string): Promise<void> {
     const user = this.currentUser;
-    if (!user?.uid) {
-      console.warn('[WalletService] No se puede eliminar transacción sin sesión');
-      return;
-    }
-
-    try {
-      const txRef = doc(this.afs, `users/${user.uid}/tx/${txId}`);
-      await deleteDoc(txRef);
-      console.log('[WalletService] Transacción eliminada');
-    } catch (error) {
-      console.error('[WalletService] Error eliminando transacción:', error);
-      throw error;
-    }
+    if (!user?.uid) return;
+    await deleteDoc(doc(this.afs, `users/${user.uid}/tx/${txId}`));
   }
+
+  // ─── Categories ──────────────────────────────────────────────────────────────
 
   categories$(): Observable<Category[]> {
     return this.col$<Category>('categories').pipe(
@@ -254,31 +310,17 @@ export class WalletService {
 
   async addCategory(cat: { name: string; emoji: string }): Promise<void> {
     const col = await firstValueFrom(this.col$<Category>('categories'));
-    if (!col) {
-      console.warn('[WalletService] No se puede agregar categoría sin sesión');
-      return;
-    }
-    
+    if (!col) return;
     await addDoc(col, { name: cat.name, emoji: cat.emoji });
-    console.log('[WalletService] Categoría agregada:', cat.name);
   }
 
-  async deleteCategory(categoryId: string): Promise<void> {
+  async deleteCategory(id: string): Promise<void> {
     const user = this.currentUser;
-    if (!user?.uid) {
-      console.warn('[WalletService] No se puede eliminar categoría sin sesión');
-      return;
-    }
-
-    try {
-      const categoryRef = doc(this.afs, `users/${user.uid}/categories/${categoryId}`);
-      await deleteDoc(categoryRef);
-      console.log('[WalletService] Categoría eliminada');
-    } catch (error) {
-      console.error('[WalletService] Error eliminando categoría:', error);
-      throw error;
-    }
+    if (!user?.uid) return;
+    await deleteDoc(doc(this.afs, `users/${user.uid}/categories/${id}`));
   }
+
+  // ─── Cards ───────────────────────────────────────────────────────────────────
 
   cards$(): Observable<Card[]> {
     return this.col$<Card>('cards').pipe(
@@ -291,113 +333,121 @@ export class WalletService {
 
   async addCard(card: { name: string; limit: number; cutoffDate: Date; paymentDate: Date }): Promise<void> {
     const col = await firstValueFrom(this.col$<Card>('cards'));
-    if (!col) {
-      console.warn('[WalletService] No se puede agregar tarjeta sin sesión');
-      return;
-    }
-    
-    await addDoc(col, {
-      name: card.name,
-      limit: card.limit,
-      cutoffDate: card.cutoffDate,
-      paymentDate: card.paymentDate
-    });
-    console.log('[WalletService] Tarjeta agregada:', card.name);
+    if (!col) return;
+    await addDoc(col, { ...card });
   }
 
   async deleteCard(cardId: string): Promise<void> {
     const user = this.currentUser;
-    if (!user?.uid) {
-      console.warn('[WalletService] No se puede eliminar tarjeta sin sesión');
-      return;
-    }
-
-    try {
-      const cardRef = doc(this.afs, `users/${user.uid}/cards/${cardId}`);
-      await deleteDoc(cardRef);
-      console.log('[WalletService] Tarjeta eliminada');
-    } catch (error) {
-      console.error('[WalletService] Error eliminando tarjeta:', error);
-      throw error;
-    }
+    if (!user?.uid) return;
+    await deleteDoc(doc(this.afs, `users/${user.uid}/cards/${cardId}`));
   }
 
-  /** Obtener todas las tarjetas (snapshot único) */
   async getAllCards(): Promise<Card[]> {
     const user = this.currentUser;
     if (!user?.uid) return [];
-
     try {
-      const cardsRef = collection(this.afs, `users/${user.uid}/cards`);
-      const snapshot = await getDocs(query(cardsRef, orderBy('name')));
-      return snapshot.docs.map(d => ({
-        id: d.id,
-        ...d.data()
-      })) as Card[];
-    } catch (error) {
-      console.error('[WalletService] Error obteniendo tarjetas:', error);
-      return [];
-    }
+      const ref = collection(this.afs, `users/${user.uid}/cards`);
+      const snap = await getDocs(query(ref, orderBy('name')));
+      return snap.docs.map(d => ({ id: d.id, ...d.data() })) as Card[];
+    } catch { return []; }
   }
 
-  /** Actualizar fechas de una tarjeta */
   async updateCardDates(cardId: string, cutoffDate: Date, paymentDate: Date): Promise<void> {
     const user = this.currentUser;
     if (!user?.uid) return;
-
-    try {
-      const cardRef = doc(this.afs, `users/${user.uid}/cards/${cardId}`);
-      await updateDoc(cardRef, { cutoffDate, paymentDate });
-      console.log('[WalletService] Fechas de tarjeta actualizadas:', cardId);
-    } catch (error) {
-      console.error('[WalletService] Error actualizando fechas:', error);
-      throw error;
-    }
+    const ref = doc(this.afs, `users/${user.uid}/cards/${cardId}`);
+    await updateDoc(ref, { cutoffDate, paymentDate });
   }
 
-  /** Avanzar fecha al siguiente mes (mantiene el mismo día) */
   getNextMonthDate(date: Date): Date {
     const d = new Date(date);
     const day = d.getDate();
     d.setMonth(d.getMonth() + 1);
-    // Si el día no existe en el nuevo mes (ej: 31 feb), ajustar
-    if (d.getDate() !== day) {
-      d.setDate(0); // Último día del mes anterior
-    }
+    if (d.getDate() !== day) d.setDate(0);
     return d;
   }
 
-  /** Verificar y actualizar fechas de tarjetas si ya pasaron */
+  // ─── Loans ───────────────────────────────────────────────────────────────────
+
+  loans$(): Observable<Loan[]> {
+    return this.col$<Loan>('loans').pipe(
+      switchMap(col => {
+        if (!col) return of<Loan[]>([]);
+        return collectionData(
+          query(col, orderBy('createdAt', 'desc')),
+          { idField: 'id' }
+        ) as Observable<Loan[]>;
+      })
+    );
+  }
+
+  async getAllLoans(): Promise<Loan[]> {
+    const user = this.currentUser;
+    if (!user?.uid) return [];
+    try {
+      const ref = collection(this.afs, `users/${user.uid}/loans`);
+      const snap = await getDocs(query(ref, orderBy('createdAt', 'desc')));
+      return snap.docs.map(d => ({ id: d.id, ...d.data() })) as Loan[];
+    } catch { return []; }
+  }
+
+  async addLoan(loan: Omit<Loan, 'id' | 'createdAt'>): Promise<void> {
+    const col = await firstValueFrom(this.col$<Loan>('loans'));
+    if (!col) throw new Error('Sin sesión');
+    await addDoc(col, {
+      ...loan,
+      nextPaymentDate: loan.nextPaymentDate instanceof Date
+        ? Timestamp.fromDate(loan.nextPaymentDate)
+        : loan.nextPaymentDate,
+      createdAt: serverTimestamp(),
+    });
+  }
+
+  async updateLoan(loanId: string, data: Partial<Loan>): Promise<void> {
+    const user = this.currentUser;
+    if (!user?.uid) return;
+    const ref = doc(this.afs, `users/${user.uid}/loans/${loanId}`);
+    await updateDoc(ref, { ...data });
+  }
+
+  async deleteLoan(loanId: string): Promise<void> {
+    const user = this.currentUser;
+    if (!user?.uid) return;
+    await deleteDoc(doc(this.afs, `users/${user.uid}/loans/${loanId}`));
+  }
+
+  /** % pagado del préstamo */
+  getLoanPaidPct(loan: Loan): number {
+    if (!loan.originalAmount || loan.originalAmount === 0) return 0;
+    const paid = loan.originalAmount - loan.balance;
+    return Math.min(Math.round((paid / loan.originalAmount) * 100), 100);
+  }
+
+  /** Días restantes para próximo pago */
+  getLoanDaysUntilPayment(loan: Loan): number {
+    if (!loan.nextPaymentDate) return 999;
+    const d = loan.nextPaymentDate?.toDate ? loan.nextPaymentDate.toDate() : new Date(loan.nextPaymentDate);
+    const now = new Date();
+    now.setHours(0, 0, 0, 0);
+    return Math.round((d.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+  }
+
   async checkAndUpdateCardDates(): Promise<void> {
     const cards = await this.getAllCards();
     const now = new Date();
     now.setHours(0, 0, 0, 0);
-
     for (const card of cards) {
       let needsUpdate = false;
-      let cutoffDate = card.cutoffDate instanceof Date
+      let cutoff = card.cutoffDate instanceof Date
         ? card.cutoffDate
         : (card.cutoffDate as any)?.toDate?.() || new Date(card.cutoffDate);
-      let paymentDate = card.paymentDate instanceof Date
+      let payment = card.paymentDate instanceof Date
         ? card.paymentDate
         : (card.paymentDate as any)?.toDate?.() || new Date(card.paymentDate);
-
-      // Si la fecha de corte ya pasó, avanzar al siguiente mes
-      while (cutoffDate < now) {
-        cutoffDate = this.getNextMonthDate(cutoffDate);
-        needsUpdate = true;
-      }
-
-      // Si la fecha de pago ya pasó, avanzar al siguiente mes
-      while (paymentDate < now) {
-        paymentDate = this.getNextMonthDate(paymentDate);
-        needsUpdate = true;
-      }
-
-      if (needsUpdate && card.id) {
-        await this.updateCardDates(card.id, cutoffDate, paymentDate);
-        console.log(`[WalletService] Fechas actualizadas para ${card.name}`);
-      }
+      while (cutoff < now) { cutoff = this.getNextMonthDate(cutoff); needsUpdate = true; }
+      while (payment < now) { payment = this.getNextMonthDate(payment); needsUpdate = true; }
+      if (needsUpdate && card.id) await this.updateCardDates(card.id, cutoff, payment);
     }
   }
 }

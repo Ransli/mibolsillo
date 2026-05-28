@@ -1,24 +1,46 @@
-<!-- src/app/tabs/tabs.page.html -->
+<!-- src/app/tabs/tabs.page.html — MoneyFlow bottom nav con FAB central -->
 <ion-tabs>
-  <ion-tab-bar slot="bottom">
-    <ion-tab-button tab="tab1">
-      <ion-icon name="home-outline"></ion-icon>
+  <ion-tab-bar slot="bottom" class="mf-tab-bar">
+
+    <ion-tab-button tab="tab1" class="tab-btn">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>
+      </svg>
       <ion-label>Inicio</ion-label>
     </ion-tab-button>
 
-    <ion-tab-button tab="tab2">
-      <ion-icon name="stats-chart-outline"></ion-icon>
-      <ion-label>Estadísticas</ion-label>
+    <ion-tab-button tab="tab2" class="tab-btn">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/>
+        <line x1="6" y1="20" x2="6" y2="14"/>
+      </svg>
+      <ion-label>Reportes</ion-label>
     </ion-tab-button>
 
-    <ion-tab-button tab="tab3">
-      <ion-icon name="card-outline"></ion-icon>
+    <!-- Placeholder para el espacio del FAB central -->
+    <ion-tab-button class="tab-fab-placeholder" disabled>
+    </ion-tab-button>
+
+    <ion-tab-button tab="tab3" class="tab-btn">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/>
+      </svg>
       <ion-label>Tarjetas</ion-label>
     </ion-tab-button>
 
-    <ion-tab-button tab="tab4">
-      <ion-icon name="settings-outline"></ion-icon>
-      <ion-label>Ajustes</ion-label>
+    <ion-tab-button tab="tab4" class="tab-btn">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+      </svg>
+      <ion-label>Perfil</ion-label>
     </ion-tab-button>
+
   </ion-tab-bar>
 </ion-tabs>
+
+<!-- FAB central flotante — posicionado encima de la tab bar -->
+<button class="tabs-center-fab" (click)="openNew($event)" aria-label="Nueva transacción">
+  <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+    <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+  </svg>
+</button>

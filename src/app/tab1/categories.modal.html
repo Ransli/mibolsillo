@@ -1,86 +1,56 @@
-<ion-header translucent="true">
-  <ion-toolbar>
-    <ion-title>Categorías</ion-title>
-    <ion-buttons slot="end">
-      <ion-button fill="clear" (click)="close()" class="close-btn">
-        Cerrar
-      </ion-button>
-    </ion-buttons>
-  </ion-toolbar>
-</ion-header>
+<!-- categories.modal.html — MoneyFlow Design -->
+<div class="modal-handle"></div>
 
-<ion-content class="ion-padding">
+<div class="modal-header">
+  <span class="modal-title">Categorías</span>
+  <button class="modal-close" (click)="close()">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+  </button>
+</div>
 
-  <!-- 🔥 FORMULARIO PRIMERO - Nueva categoría -->
-  <form [formGroup]="form" (ngSubmit)="add()">
-    <ion-list class="card-panel form-card">
-      <div class="form-header">
-        <ion-icon name="add-circle-outline"></ion-icon>
-        <h3>Nueva Categoría</h3>
+<ion-content class="cat-modal-content">
+  <div class="cat-body">
+
+    <!-- New category form -->
+    <div class="mf-card cat-form" [formGroup]="form">
+      <div class="cat-form-title">Nueva categoría</div>
+      <div class="cat-form-row">
+        <div class="cat-form-group" style="flex:0 0 70px">
+          <label class="cat-lbl">Emoji</label>
+          <input class="cat-input cat-emoji-inp" formControlName="emoji" placeholder="🗂️" />
+        </div>
+        <div class="cat-form-group" style="flex:1">
+          <label class="cat-lbl">Nombre</label>
+          <input class="cat-input" formControlName="name" placeholder="Ej.: Supermercado" />
+        </div>
       </div>
-
-      <ion-item lines="none">
-        <ion-label position="stacked">Nombre</ion-label>
-        <ion-input
-          formControlName="name"
-          placeholder="Ej.: Supermercado">
-        </ion-input>
-      </ion-item>
-
-      <ion-item lines="none">
-        <ion-label position="stacked">Emoji</ion-label>
-        <ion-input
-          formControlName="emoji"
-          placeholder="Ej.: 🛒">
-        </ion-input>
-      </ion-item>
-
-      <ion-button
-        type="submit"
-        expand="block"
-        color="primary"
-        [disabled]="form.invalid || saving"
-        class="add-button">
-        <ion-icon name="checkmark-circle-outline" slot="start"></ion-icon>
-        {{ saving ? 'Agregando...' : 'Agregar Categoría' }}
-      </ion-button>
-    </ion-list>
-  </form>
-
-  <div class="spacer-20"></div>
-
-  <!-- 🔥 LISTA DE CATEGORÍAS DESPUÉS -->
-  <div class="categories-header">
-    <ion-icon name="list-outline"></ion-icon>
-    <h3>Mis Categorías</h3>
-  </div>
-
-  <ion-list class="card-panel categories-list" *ngIf="(categories$ | async) as cats; else emptyCats">
-    <ion-item *ngFor="let c of cats" lines="none">
-      <ion-label>
-        <h3>{{ c.emoji }} {{ c.name }}</h3>
-      </ion-label>
-      
-      <!-- 🔥 BOTÓN ELIMINAR -->
-      <ion-button 
-        slot="end" 
-        color="danger"
-        class="delete-button"
-        (click)="deleteCategory(c.id!, c.name)">
-        Eliminar
-      </ion-button>
-    </ion-item>
-  </ion-list>
-
-  <ng-template #emptyCats>
-    <div class="empty-state">
-      <ion-icon name="albums-outline" class="empty-icon"></ion-icon>
-      <p>Aún no hay categorías</p>
-      <p class="empty-hint">¡Crea tu primera categoría arriba!</p>
+      <button class="cat-add-btn" [disabled]="form.invalid || saving" (click)="add()">
+        {{ saving ? 'Guardando…' : '+ Agregar categoría' }}
+      </button>
     </div>
-  </ng-template>
 
-  <!-- Espaciador final -->
-  <div style="height: 40px;"></div>
+    <!-- Categories list -->
+    <div class="cat-section-title" *ngIf="(categories$ | async) as cats">
+      Mis categorías ({{ cats.length }})
+    </div>
 
+    <ng-container *ngIf="(categories$ | async) as cats">
+      <div class="mf-card cat-list" *ngIf="cats.length > 0; else emptyCats">
+        <div class="cat-item" *ngFor="let c of cats; let last = last" [class.last]="last">
+          <div class="cat-bubble">{{ c.emoji || '🗂️' }}</div>
+          <span class="cat-item-name">{{ c.name }}</span>
+          <button class="cat-delete-btn" (click)="deleteCategory(c.id!, c.name)">🗑</button>
+        </div>
+      </div>
+      <ng-template #emptyCats>
+        <div class="cat-empty">
+          <div class="cat-empty-icon">🗂️</div>
+          <div class="cat-empty-text">Aún no hay categorías</div>
+          <div class="cat-empty-sub">Crea tu primera categoría arriba</div>
+        </div>
+      </ng-template>
+    </ng-container>
+
+    <div style="height:40px"></div>
+  </div>
 </ion-content>

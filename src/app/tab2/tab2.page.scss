@@ -1,310 +1,58 @@
-/* src/app/tab2/tab2.page.scss */
+// tab2.page.scss — MoneyFlow Reports
 
-/* ===== Tarjetas de resumen ===== */
-.summary-cards {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-    gap: 12px;
-    margin-bottom: 24px;
-  }
-  
-  .summary-card {
-    margin: 0;
-    border-radius: 16px;
-    box-shadow: 0 6px 18px rgba(31,41,55,.08);
-  
-    ion-card-content {
-      padding: 16px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      text-align: center;
-    }
-  
-    .summary-icon {
-      width: 48px;
-      height: 48px;
-      border-radius: 12px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin-bottom: 12px;
-  
-      ion-icon {
-        font-size: 24px;
-        color: white;
-      }
-  
-      &.success {
-        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-      }
-  
-      &.danger {
-        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-      }
-  
-      &.primary {
-        background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-      }
-    }
-  
-    .summary-label {
-      font-size: 12px;
-      font-weight: 600;
-      color: #64748b;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      margin: 0 0 8px;
-    }
-  
-    .summary-value {
-      font-size: 24px;
-      font-weight: 800;
-      color: var(--ion-text-color);
-      margin: 0;
-  
-      &.positive {
-        color: #10b981;
-      }
-  
-      &.negative {
-        color: #ef4444;
-      }
-    }
-  }
-  
-  /* ===== Secciones de gráficos ===== */
-  .chart-section {
-    margin-bottom: 32px;
-  }
-  
-  .section-title {
-    font-size: 18px;
-    font-weight: 800;
-    color: var(--ion-text-color);
-    margin: 0 0 16px;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-  }
-  
-  .chart-card {
-    margin: 0;
-    border-radius: 16px;
-    box-shadow: 0 10px 24px rgba(31,41,55,.08);
-    background: #fff;
-  
-    ion-card-content {
-      padding: 20px;
-    }
-  
-    canvas {
-      max-height: 300px;
-      margin-bottom: 20px;
-    }
-  }
-  
-  /* ===== Leyenda de gráfico ===== */
-  .chart-legend {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-  }
-  
-  .legend-item {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 8px;
-    border-radius: 8px;
-    background: #f8fafc;
-    transition: background 0.2s;
-  
-    &:hover {
-      background: #f1f5f9;
-    }
-  
-    .legend-color {
-      width: 16px;
-      height: 16px;
-      border-radius: 4px;
-      flex-shrink: 0;
-    }
-  
-    .legend-label {
-      flex: 1;
-      font-weight: 600;
-      color: var(--ion-text-color);
-      font-size: 14px;
-    }
-  
-    .legend-value {
-      font-weight: 700;
-      color: var(--ion-text-color);
-      font-size: 14px;
-    }
-  
-    .legend-percent {
-      color: #64748b;
-      font-size: 13px;
-      min-width: 50px;
-      text-align: right;
-    }
-  }
-  
-  /* ===== Estadísticas adicionales ===== */
-  .stats-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-    gap: 12px;
-    margin-top: 24px;
-  }
-  
-  .stat-card {
-    margin: 0;
-    border-radius: 12px;
-    box-shadow: 0 4px 12px rgba(31,41,55,.06);
-  
-    ion-card-content {
-      padding: 16px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      text-align: center;
-    }
-  
-    .stat-icon {
-      font-size: 32px;
-      color: var(--ion-color-primary);
-      margin-bottom: 8px;
-    }
-  
-    .stat-label {
-      font-size: 11px;
-      font-weight: 600;
-      color: #64748b;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      margin: 0 0 8px;
-    }
-  
-    .stat-value {
-      font-size: 18px;
-      font-weight: 800;
-      color: var(--ion-text-color);
-      margin: 0;
-    }
-  }
-  
-  /* ===== Mensaje vacío ===== */
-  .empty-message {
-    text-align: center;
-    color: #64748b;
-    font-size: 14px;
-    padding: 40px 20px;
-    margin: 0;
-  }
+.tab2-content { --background: var(--mf-bg); }
+.page-content { padding: 0 16px 100px; }
 
-  /* ===== 🔥 MODO OSCURO ===== */
-  :host-context(body.dark) {
-    .summary-card {
-      background: #1e293b;
-      box-shadow: 0 6px 18px rgba(0,0,0,.2);
-      
-      ion-card-content {
-        .summary-label {
-          color: #94a3b8;
-        }
-        
-        .summary-value {
-          color: #f1f5f9;
-          
-          &.positive {
-            color: #6ee7b7;
-          }
-          
-          &.negative {
-            color: #fca5a5;
-          }
-        }
-      }
-    }
-    
-    .section-title {
-      color: #f1f5f9;
-    }
-    
-    .chart-card {
-      background: #1e293b;
-      box-shadow: 0 10px 24px rgba(0,0,0,.3);
-      
-      ion-card-content {
-        background: #1e293b;
-      }
-    }
-    
-    /* 🔥 Leyendas en modo oscuro */
-    .chart-legend {
-      .legend-item {
-        background: #0f172a;
-        border: 1px solid #334155;
-        
-        &:hover {
-          background: #1e293b;
-        }
-        
-        .legend-label {
-          color: #f1f5f9;
-        }
-        
-        .legend-value {
-          color: #f1f5f9;
-        }
-        
-        .legend-percent {
-          color: #94a3b8;
-        }
-      }
-    }
-    
-    .stats-grid {
-      .stat-card {
-        background: #1e293b;
-        box-shadow: 0 4px 12px rgba(0,0,0,.2);
-        
-        ion-card-content {
-          .stat-label {
-            color: #94a3b8;
-          }
-          
-          .stat-value {
-            color: #f1f5f9;
-          }
-        }
-      }
-    }
-    
-    .empty-message {
-      color: #94a3b8;
-    }
-  }
-  
-  /* ===== Responsive ===== */
-  @media (max-width: 768px) {
-    .summary-cards {
-      grid-template-columns: 1fr;
-    }
-  
-    .stats-grid {
-      grid-template-columns: repeat(2, 1fr);
-    }
-  
-    .chart-card canvas {
-      max-height: 250px;
-    }
-  }
-  
-  @media (max-width: 480px) {
-    .stats-grid {
-      grid-template-columns: 1fr;
-    }
-  }
+.page-header { padding: 52px 4px 12px; }
+.page-title { color: var(--mf-text); font-weight: 800; font-size: 24px; letter-spacing: -.5px; }
+
+.period-bar { display: flex; align-items: center; justify-content: center; gap: 16px; margin-bottom: 16px; }
+.period-arrow { background: none; border: none; color: var(--mf-text2); cursor: pointer; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: 8px; &:disabled { opacity:.3; } }
+.period-label { color: var(--mf-text); font-weight: 700; font-size: 15px; min-width: 140px; text-align: center; }
+
+// KPI row
+.kpi-row { display: flex; gap: 8px; margin-bottom: 16px; }
+.kpi-card {
+  flex: 1; background: var(--mf-surface); border-radius: 14px; padding: 12px;
+  border: 1px solid transparent;
+  &--green { border-color: rgba(16,185,129,.3); }
+  &--red   { border-color: rgba(239,68,68,.3); }
+  &--violet{ border-color: rgba(124,58,237,.3); background: var(--mf-violet-soft); }
+}
+.kpi-lbl { color: var(--mf-text2); font-size: 10px; font-weight: 600; margin-top: 4px; margin-bottom: 2px; }
+.kpi-val { font-weight: 800; font-size: 14px; font-family: var(--mf-font-mono); }
+
+// Chart card
+.chart-card { margin-bottom: 16px; padding: 16px; }
+.chart-header { margin-bottom: 14px; }
+
+// Donut
+.donut-row { display: flex; align-items: center; gap: 16px; }
+.donut-wrap {
+  position: relative; width: 130px; height: 130px; flex-shrink: 0;
+  canvas { width: 130px !important; height: 130px !important; }
+}
+.donut-center {
+  position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center;
+}
+.donut-value { color: var(--mf-text); font-size: 16px; font-weight: 800; font-family: var(--mf-font-mono); }
+.donut-sub { color: var(--mf-text2); font-size: 10px; }
+
+.cat-legend { flex: 1; display: flex; flex-direction: column; gap: 6px; }
+.cat-legend-item { display: flex; align-items: center; gap: 6px; font-size: 11px; }
+.cat-dot { width: 8px; height: 8px; border-radius: 4px; flex-shrink: 0; }
+.cat-name { color: var(--mf-text2); flex: 1; }
+.cat-pct { color: var(--mf-text); font-weight: 700; }
+
+// Stats card
+.stats-card { margin-bottom: 16px; }
+.stats-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.stat-item { display: flex; flex-direction: column; gap: 4px; }
+.stat-lbl { color: var(--mf-text2); font-size: 11px; font-weight: 500; }
+.stat-val { color: var(--mf-text); font-weight: 700; font-size: 14px; font-family: var(--mf-font-mono); }
+
+// Empty
+.empty-state { text-align: center; padding: 40px 20px; }
+.empty-icon { font-size: 48px; margin-bottom: 12px; }
+.empty-title { color: var(--mf-text); font-weight: 700; font-size: 16px; }
+.empty-sub { color: var(--mf-text2); font-size: 13px; margin-top: 4px; }
