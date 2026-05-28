@@ -14,10 +14,11 @@
     <div style="width:36px"></div>
   </div>
 
-  <!-- Type tabs -->
+  <!-- Type tabs: GASTO / INGRESO / PRÉSTAMO -->
   <div class="type-tabs">
-    <button class="type-tab" [class.active-gasto]="form.value.type==='out'" [class.active-ingreso]="false" (click)="form.patchValue({type:'out'})">GASTO</button>
-    <button class="type-tab" [class.active-ingreso]="form.value.type==='in'" (click)="form.patchValue({type:'in'})">INGRESO</button>
+    <button class="type-tab" [class.active-gasto]="txMode==='expense'" (click)="setMode('expense')">GASTO</button>
+    <button class="type-tab" [class.active-ingreso]="txMode==='income'" (click)="setMode('income')">INGRESO</button>
+    <button class="type-tab" [class.active-loan]="txMode==='loan'" (click)="setMode('loan')">PRÉSTAMO</button>
   </div>
 
   <div class="modal-scroll">
@@ -26,57 +27,113 @@
       <div class="amount-label">MONTO</div>
       <div class="amount-display">
         <span class="amount-curr">RD$</span>
-        <span class="amount-value" [style.color]="form.value.type==='in' ? 'var(--mf-green)' : 'var(--mf-red)'">
+        <span class="amount-value"
+          [style.color]="txMode==='income' ? 'var(--mf-green)' : txMode==='loan' ? '#a78bfa' : 'var(--mf-red)'">
           {{ formattedAmount || '0' }}
         </span>
       </div>
     </div>
 
-    <!-- Fields row -->
-    <div class="fields-card" [formGroup]="form">
-      <div class="field-row">
-        <span class="field-key">Categoría</span>
-        <div class="field-val">
-          <ion-select formControlName="category" placeholder="Seleccionar" interface="popover" class="field-select" *ngIf="form.value.type==='out'">
-            <ion-select-option *ngFor="let c of (categories$ | async)" [value]="c.name">{{ c.emoji }} {{ c.name }}</ion-select-option>
-          </ion-select>
-          <span class="field-text" *ngIf="form.value.type==='in'" style="color:var(--mf-text3)">Ingreso</span>
+    <!-- ══ MODO GASTO / INGRESO ══ -->
+    <ng-container *ngIf="txMode !== 'loan'">
+      <div class="fields-card" [formGroup]="form">
+        <!-- Categoría (solo gastos) -->
+        <div class="field-row" *ngIf="txMode==='expense'">
+          <span class="field-key">Categoría</span>
+          <div class="field-val">
+            <ion-select formControlName="category" placeholder="Seleccionar" interface="popover" class="field-select">
+              <ion-select-option *ngFor="let c of (categories$ | async)" [value]="c.name">{{ c.emoji }} {{ c.name }}</ion-select-option>
+            </ion-select>
+          </div>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--mf-text3)" stroke-width="2" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
         </div>
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--mf-text3)" stroke-width="2" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
-      </div>
-      <div class="field-divider"></div>
-      <div class="field-row">
-        <span class="field-key">Método</span>
-        <ion-select formControlName="paymentMethod" interface="popover" class="field-select" (ionChange)="onPaymentChange($event)">
-          <ion-select-option value="cash">💵 Efectivo</ion-select-option>
-          <ion-select-option value="card">💳 Tarjeta</ion-select-option>
-        </ion-select>
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--mf-text3)" stroke-width="2" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
-      </div>
-      <ng-container *ngIf="form.value.paymentMethod==='card'">
-        <div class="field-divider"></div>
+        <div class="field-divider" *ngIf="txMode==='expense'"></div>
+
+        <!-- Método de pago -->
         <div class="field-row">
-          <span class="field-key">Tarjeta</span>
-          <ion-select formControlName="cardId" placeholder="Seleccionar" interface="popover" class="field-select">
-            <ion-select-option *ngFor="let c of (cards$ | async)" [value]="c.id">{{ c.name }}</ion-select-option>
+          <span class="field-key">Método</span>
+          <ion-select formControlName="paymentMethod" interface="popover" class="field-select" (ionChange)="onPaymentChange($event)">
+            <ion-select-option value="cash">💵 Efectivo</ion-select-option>
+            <ion-select-option value="card">💳 Tarjeta</ion-select-option>
           </ion-select>
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--mf-text3)" stroke-width="2" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
         </div>
-      </ng-container>
-      <div class="field-divider"></div>
-      <div class="field-row">
-        <span class="field-key">Fecha</span>
-        <input type="date" class="date-input" [value]="dateValue" (change)="onDateChange($event)" />
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--mf-text3)" stroke-width="2" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+        <ng-container *ngIf="form.value.paymentMethod==='card'">
+          <div class="field-divider"></div>
+          <div class="field-row">
+            <span class="field-key">Tarjeta</span>
+            <ion-select formControlName="cardId" placeholder="Seleccionar" interface="popover" class="field-select">
+              <ion-select-option *ngFor="let c of (cards$ | async)" [value]="c.id">{{ c.name }}</ion-select-option>
+            </ion-select>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--mf-text3)" stroke-width="2" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+          </div>
+        </ng-container>
+        <div class="field-divider"></div>
+        <div class="field-row">
+          <span class="field-key">Fecha</span>
+          <input type="date" class="date-input" [value]="dateValue" (change)="onDateChange($event)" />
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--mf-text3)" stroke-width="2" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </div>
+        <div class="field-divider"></div>
+        <div class="field-row">
+          <span class="field-key">Nota</span>
+          <input class="note-input" formControlName="note" placeholder="Descripción opcional..." />
+        </div>
       </div>
-      <div class="field-divider"></div>
-      <div class="field-row">
-        <span class="field-key">Nota</span>
-        <input class="note-input" formControlName="note" placeholder="Descripción opcional..." />
-      </div>
-    </div>
+    </ng-container>
 
-    <!-- Numpad -->
+    <!-- ══ MODO PRÉSTAMO ══ -->
+    <ng-container *ngIf="txMode === 'loan'">
+      <div class="fields-card" [formGroup]="form">
+        <!-- Selector de préstamo -->
+        <div class="field-row">
+          <span class="field-key">Préstamo</span>
+          <div class="field-val">
+            <ion-select formControlName="loanId" placeholder="Seleccionar préstamo" interface="popover" class="field-select"
+              (ionChange)="onLoanChange($event)">
+              <ion-select-option *ngFor="let l of loans" [value]="l.id">🏦 {{ l.name }}</ion-select-option>
+            </ion-select>
+          </div>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--mf-text3)" stroke-width="2" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </div>
+        <div class="field-divider"></div>
+        <div class="field-row">
+          <span class="field-key">Fecha</span>
+          <input type="date" class="date-input" [value]="dateValue" (change)="onDateChange($event)" />
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--mf-text3)" stroke-width="2" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </div>
+      </div>
+
+      <!-- Desglose del pago (cuando hay préstamo seleccionado y monto > 0) -->
+      <div class="loan-breakdown" *ngIf="selectedLoan && form.value.amount">
+        <div class="lb-header">Desglose del pago</div>
+        <div class="lb-row">
+          <span>💰 Capital amortizado</span>
+          <span class="lb-green">RD${{ fmt(loanCapitalPaid) }}</span>
+        </div>
+        <div class="lb-row">
+          <span>📈 Interés mensual</span>
+          <span class="lb-amber">RD${{ fmt(loanMonthlyInterest) }}</span>
+        </div>
+        <div class="lb-row lb-abono" *ngIf="loanExtraAbono > 0">
+          <span>🎯 Abono extra al capital</span>
+          <span class="lb-teal">RD${{ fmt(loanExtraAbono) }}</span>
+        </div>
+        <div class="lb-divider"></div>
+        <div class="lb-row lb-result">
+          <span>Nuevo saldo</span>
+          <span class="lb-teal">RD${{ fmt(loanNewBalance) }}</span>
+        </div>
+      </div>
+
+      <!-- Info si no hay préstamos -->
+      <div class="loan-empty" *ngIf="loans.length === 0">
+        <p>No tienes préstamos registrados.</p>
+        <p>Ve a <strong>Tarjetas → Préstamos</strong> para agregar uno.</p>
+      </div>
+    </ng-container>
+
+    <!-- Numpad (solo para modos que no pre-seleccionan monto, o siempre) -->
     <div class="numpad">
       <button class="numpad-key" *ngFor="let k of ['1','2','3','4','5','6','7','8','9','.','0','⌫']" (click)="press(k)">
         {{ k }}
@@ -84,8 +141,9 @@
     </div>
 
     <!-- Save button -->
-    <button class="save-btn" [disabled]="!canSave" (click)="save()">
-      Guardar transacción
+    <button class="save-btn" [disabled]="!canSave" (click)="save()"
+      [class.save-btn--loan]="txMode==='loan'">
+      {{ txMode === 'loan' ? 'Registrar pago de cuota' : 'Guardar transacción' }}
     </button>
 
     <div style="height:24px"></div>

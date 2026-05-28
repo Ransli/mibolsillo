@@ -37,7 +37,7 @@
 .type-tab {
   flex: 1; height: 40px; border: none; border-radius: 9px;
   background: transparent; color: var(--mf-text2);
-  font-weight: 700; font-size: 12px; letter-spacing: .6px;
+  font-weight: 700; font-size: 11px; letter-spacing: .6px;
   cursor: pointer; font-family: var(--mf-font);
   transition: all .18s;
 
@@ -48,6 +48,10 @@
   &.active-ingreso {
     background: rgba(16,185,129,0.18);
     color: var(--mf-green);
+  }
+  &.active-loan {
+    background: rgba(124,58,237,0.2);
+    color: #a78bfa;
   }
 }
 
@@ -122,4 +126,63 @@
   box-shadow: var(--mf-shadow-glow); font-family: var(--mf-font);
   transition: opacity .18s;
   &:disabled { opacity: .4; cursor: not-allowed; }
+
+  &--loan {
+    background: linear-gradient(135deg, #7C3AED 0%, #3B82F6 100%);
+    box-shadow: 0 6px 20px rgba(124,58,237,0.4);
+  }
+}
+
+// Loan breakdown
+.loan-breakdown {
+  background: rgba(124,58,237,0.08);
+  border: 1px solid rgba(124,58,237,0.25);
+  border-radius: 12px;
+  padding: 14px 16px;
+  margin-bottom: 16px;
+}
+
+.lb-header {
+  font-size: 10px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.6px; color: #a78bfa;
+  margin-bottom: 10px;
+}
+
+.lb-row {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 5px 0;
+  font-size: 13px;
+  color: var(--mf-text2);
+
+  &.lb-abono {
+    background: rgba(0,196,180,0.07);
+    border-radius: 6px;
+    padding: 6px 8px;
+    margin: 2px 0;
+    color: var(--mf-text);
+  }
+
+  &.lb-result {
+    padding-top: 8px;
+    font-weight: 700;
+    color: var(--mf-text);
+    font-size: 14px;
+  }
+}
+
+.lb-green { color: #10b981; font-weight: 700; }
+.lb-amber { color: #f59e0b; font-weight: 700; }
+.lb-teal  { color: #00c4b4; font-weight: 700; }
+
+.lb-divider { height: 1px; background: rgba(255,255,255,0.07); margin: 6px 0; }
+
+// Empty loans message
+.loan-empty {
+  text-align: center; padding: 16px 20px;
+  font-size: 13px; color: var(--mf-text2);
+  background: var(--mf-surface);
+  border: 1px solid var(--mf-border);
+  border-radius: 12px; margin-bottom: 16px;
+  strong { color: var(--mf-text); }
+  p { margin: 4px 0; }
 }

@@ -272,6 +272,11 @@
   strong { color: var(--mf-text); }
 }
 
+.loan-item__arrow {
+  display: flex; justify-content: flex-end;
+  margin-top: 8px; opacity: 0.5;
+}
+
 // Loan detail (expanded)
 .loan-detail { margin-top: 14px; }
 .loan-detail-divider { height: 1px; background: var(--mf-border); margin-bottom: 16px; }

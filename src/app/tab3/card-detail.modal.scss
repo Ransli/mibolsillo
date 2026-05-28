@@ -541,7 +541,32 @@ ion-content.cd-content {
   color: var(--cd-text);
 }
 
-// Empty state
+// ── Botón Pagar (tab Detalles) ────────────────────────────────────────────────
+.cd-pay-section {
+  margin: 4px 16px 16px;
+}
+
+.cd-pay-btn {
+  width: 100%;
+  height: 50px;
+  border: none;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #00c4b4 0%, #0a8a80 100%);
+  color: #fff;
+  font-size: 15px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  box-shadow: 0 6px 20px rgba(0,196,180,0.3);
+  transition: opacity 0.15s, transform 0.1s;
+
+  &:active { transform: scale(0.98); opacity: 0.9; }
+}
+
+// ── Empty state ───────────────────────────────────────────────────────────────
 .cd-empty {
   text-align: center;
   padding: 48px 24px;

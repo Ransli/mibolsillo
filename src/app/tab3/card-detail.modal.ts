@@ -4,6 +4,7 @@ import { Component, Input, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { IonContent, ModalController } from '@ionic/angular/standalone';
 import { WalletService } from '../core/wallet.service';
+import { CardPaymentModal } from './card-payment.modal';
 
 export interface CardData {
   id?: string;
@@ -12,6 +13,8 @@ export interface CardData {
   cutoffDate: any;
   paymentDate: any;
   lastFourDigits?: string;
+  /** Saldo pendiente del último estado de cuenta cerrado */
+  statementBalance?: number;
 }
 
 const CAT_EMOJI: Record<string, string> = {
@@ -64,6 +67,24 @@ export class CardDetailModal implements OnInit {
 
   dismiss(): void {
     this.modalCtrl.dismiss();
+  }
+
+  async openPayment(): Promise<void> {
+    const m = await this.modalCtrl.create({
+      component: CardPaymentModal,
+      componentProps: {
+        card: this.card,
+        currentSpent: this.periodSpent,
+      },
+    });
+    await m.present();
+    const { data } = await m.onDidDismiss();
+    if (data?.paid) {
+      // Actualizar el statementBalance local para que la UI se refresque sin recargar
+      this.card = { ...this.card, statementBalance: data.newStatementBalance };
+      // Recargar transacciones
+      await this.ngOnInit();
+    }
   }
 
   // ── Gradient ──────────────────────────────────────────────────────────────
@@ -122,13 +143,32 @@ export class CardDetailModal implements OnInit {
     return this.periodTx.reduce((s, t) => s + Number(t.amount || 0), 0);
   }
 
+  /** Balance al corte = saldo pendiente del último estado de cuenta */
+  get statementBalance(): number {
+    return Math.max(0, this.card.statementBalance || 0);
+  }
+
+  /** Pago mínimo = 5% del balance al corte, mínimo RD$100 */
+  get minimumPayment(): number {
+    const pct = this.statementBalance * 0.05;
+    return Math.max(pct, 100);
+  }
+
+  /**
+   * Balance a la fecha = balance al corte (sin pagar) + gastos período actual.
+   * Este es el total real que se debe a la fecha.
+   */
+  get balanceToDate(): number {
+    return this.statementBalance + this.periodSpent;
+  }
+
   get available(): number {
-    return Math.max(0, (this.card.limit || 0) - this.periodSpent);
+    return Math.max(0, (this.card.limit || 0) - this.balanceToDate);
   }
 
   get usagePct(): number {
     if (!this.card.limit) return 0;
-    return Math.min((this.periodSpent / this.card.limit) * 100, 100);
+    return Math.min((this.balanceToDate / this.card.limit) * 100, 100);
   }
 
   get usageColor(): string {

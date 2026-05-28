@@ -7,6 +7,8 @@ import { IonContent, AlertController, ToastController, ModalController } from '@
 import { WalletService, Loan } from '../core/wallet.service';
 import { NotificationService } from '../core/notification.service';
 import { CardDetailModal } from './card-detail.modal';
+import { CardPaymentModal } from './card-payment.modal';
+import { LoanDetailModal } from './loan-detail.modal';
 import { Observable } from 'rxjs';
 
 interface Card {
@@ -16,6 +18,8 @@ interface Card {
   cutoffDate: any;
   paymentDate: any;
   lastFourDigits?: string;
+  statementBalance?: number;
+  statementDate?: any;
 }
 
 const CAT_EMOJI: Record<string, string> = {
@@ -242,57 +246,18 @@ export class Tab3Page implements OnDestroy {
 
   async registerCardPayment(card: Card, ev: Event): Promise<void> {
     ev.stopPropagation();
-    const spent = this.getCardSpent(card);
-    const a = await this.alertCtrl.create({
-      header: `💳 Pago — ${card.name}`,
-      message: `Balance actual: RD$${this.formatNumber(spent)}`,
-      inputs: [
-        {
-          name: 'amount',
-          type: 'number',
-          placeholder: 'Monto del pago (RD$)',
-          min: 1,
-          value: spent > 0 ? spent.toString() : '',
-        },
-        {
-          name: 'note',
-          type: 'text',
-          placeholder: 'Nota (opcional)',
-        }
-      ],
-      buttons: [
-        { text: 'Cancelar', role: 'cancel' },
-        {
-          text: 'Registrar pago',
-          handler: async (data) => {
-            const amount = parseFloat(data.amount);
-            if (!amount || amount <= 0) {
-              const t = await this.toastCtrl.create({ message: '⚠️ Monto inválido', duration: 1800, position: 'top' });
-              await t.present();
-              return false;
-            }
-            try {
-              await this.wallet.addTx({
-                type: 'out',
-                amount,
-                category: 'Pago Tarjeta',
-                paymentMethod: 'cash',
-                cardId: null,
-                note: data.note || `Pago ${card.name}`,
-              });
-              const t = await this.toastCtrl.create({ message: `✅ Pago de RD$${this.formatNumber(amount)} registrado`, duration: 2000, position: 'top' });
-              await t.present();
-              setTimeout(() => this.loadData(), 300);
-            } catch {
-              const t = await this.toastCtrl.create({ message: '❌ Error al registrar', duration: 2000, position: 'top' });
-              await t.present();
-            }
-            return true;
-          }
-        }
-      ]
+    const m = await this.modalCtrl.create({
+      component: CardPaymentModal,
+      componentProps: {
+        card,
+        currentSpent: this.getCardSpent(card),
+      },
     });
-    await a.present();
+    await m.present();
+    const { data } = await m.onDidDismiss();
+    if (data?.paid) {
+      setTimeout(() => this.loadData(), 300);
+    }
   }
 
   async deleteCard(card: Card, ev: Event): Promise<void> {
@@ -453,6 +418,19 @@ export class Tab3Page implements OnDestroy {
 
   toggleLoanDetail(loan: Loan): void {
     this.selectedLoan = this.selectedLoan?.id === loan.id ? undefined : loan;
+  }
+
+  async openLoanDetail(loan: Loan): Promise<void> {
+    const m = await this.modalCtrl.create({
+      component: LoanDetailModal,
+      componentProps: { loan },
+    });
+    await m.present();
+    const { data } = await m.onDidDismiss();
+    if (data?.updated) {
+      // Recargar préstamos si hubo un pago
+      setTimeout(() => this.loadData(), 300);
+    }
   }
 
   async deleteLoan(loan: Loan, ev: Event): Promise<void> {

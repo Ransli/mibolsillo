@@ -255,7 +255,7 @@
           <button class="empty-cta" (click)="showAddLoan=true">+ Registrar préstamo</button>
         </div>
 
-        <div class="loan-item" *ngFor="let loan of loans" [style.border-left-color]="getLoanColor(loan)" (click)="toggleLoanDetail(loan)">
+        <div class="loan-item" *ngFor="let loan of loans" [style.border-left-color]="getLoanColor(loan)" (click)="openLoanDetail(loan)">
           <div class="loan-item__header">
             <div class="loan-icon" [style.background]="getLoanColor(loan) + '22'">
               <span style="font-size:18px">🏦</span>
@@ -295,87 +295,9 @@
             <span>Original: <strong>RD${{ loan.originalAmount | number:'1.0-0' }}</strong></span>
           </div>
 
-          <!-- Loan detail (expandable) -->
-          <div class="loan-detail" *ngIf="selectedLoan?.id === loan.id">
-            <div class="loan-detail-divider"></div>
-
-            <!-- Donut SVG -->
-            <div class="loan-donut-row">
-              <div class="loan-donut">
-                <svg width="120" height="120" viewBox="0 0 130 130">
-                  <circle cx="65" cy="65" r="56" fill="none" stroke="var(--mf-surface-alt)" stroke-width="14"/>
-                  <circle cx="65" cy="65" r="56" fill="none" [attr.stroke]="getLoanColor(loan)" stroke-width="14"
-                    [attr.stroke-dasharray]="getLoanDashArray(loan)"
-                    stroke-linecap="round" transform="rotate(-90 65 65)"/>
-                </svg>
-                <div class="loan-donut-center">
-                  <span class="loan-donut-pct">{{ getLoanPaidPct(loan) }}%</span>
-                  <span class="loan-donut-lbl">pagado</span>
-                </div>
-              </div>
-              <div class="loan-donut-legend">
-                <div class="legend-item">
-                  <div class="legend-dot" style="background:var(--mf-green)"></div>
-                  <div>
-                    <div class="legend-lbl">Pagado</div>
-                    <div class="legend-val">RD${{ (loan.originalAmount - loan.balance) | number:'1.0-0' }}</div>
-                  </div>
-                </div>
-                <div class="legend-item">
-                  <div class="legend-dot" [style.background]="getLoanColor(loan)"></div>
-                  <div>
-                    <div class="legend-lbl">Pendiente</div>
-                    <div class="legend-val">RD${{ loan.balance | number:'1.0-0' }}</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Detail grid -->
-            <div class="loan-detail-grid">
-              <div class="detail-cell">
-                <span class="detail-lbl">Cuota</span>
-                <span class="detail-val">RD${{ loan.monthlyPayment | number:'1.0-0' }}</span>
-              </div>
-              <div class="detail-cell">
-                <span class="detail-lbl">Tasa</span>
-                <span class="detail-val">{{ loan.interestRate }}% anual</span>
-              </div>
-              <div class="detail-cell">
-                <span class="detail-lbl">Plazo</span>
-                <span class="detail-val">{{ loan.termMonths }} meses</span>
-              </div>
-              <div class="detail-cell">
-                <span class="detail-lbl">Restantes</span>
-                <span class="detail-val">{{ loan.termMonths - loan.paidMonths }} meses</span>
-              </div>
-              <div class="detail-cell">
-                <span class="detail-lbl">Tipo</span>
-                <span class="detail-val">{{ loan.loanType }}</span>
-              </div>
-              <div class="detail-cell">
-                <span class="detail-lbl">Próximo pago</span>
-                <span class="detail-val">{{ formatLoanDate(loan.nextPaymentDate) }}</span>
-              </div>
-            </div>
-
-            <!-- Projection table -->
-            <div class="proj-title">Proyección de pagos</div>
-            <div class="mf-card proj-table">
-              <div class="proj-header">
-                <span>Mes</span><span>Cuota</span><span>Capital</span><span>Interés</span><span>Saldo</span>
-              </div>
-              <div class="proj-row" *ngFor="let p of getLoanProjection(loan); let last=last" [class.proj-row-last]="last">
-                <span>{{ p.month }}</span>
-                <span>{{ p.cuota | number:'1.0-0' }}</span>
-                <span style="color:var(--mf-green)">{{ p.capital | number:'1.0-0' }}</span>
-                <span style="color:var(--mf-amber)">{{ p.interest | number:'1.0-0' }}</span>
-                <span style="color:var(--mf-text2)">{{ p.balance | number:'1.0-0' }}</span>
-              </div>
-            </div>
-
-            <!-- Delete -->
-            <button class="loan-delete-btn" (click)="deleteLoan(loan, $event)">🗑 Eliminar préstamo</button>
+          <!-- Flecha indicadora de que hay más info -->
+          <div class="loan-item__arrow">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" style="color:var(--mf-text3)"><polyline points="9 18 15 12 9 6"/></svg>
           </div>
         </div>
       </ng-container>

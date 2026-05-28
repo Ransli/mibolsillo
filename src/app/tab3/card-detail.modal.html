@@ -54,7 +54,7 @@
 
     <!-- Usage bar bajo la tarjeta -->
     <div class="cd-usage-row">
-      <span class="cd-usage-lbl">Usado: <strong>{{ fmtAmount(periodSpent) }}</strong> de <strong>{{ fmtAmount(card.limit) }}</strong></span>
+      <span class="cd-usage-lbl">Balance: <strong>{{ fmtAmount(balanceToDate) }}</strong> de <strong>{{ fmtAmount(card.limit) }}</strong></span>
       <span class="cd-usage-pct" [style.color]="usageColor">{{ usagePct | number:'1.0-0' }}%</span>
     </div>
     <div class="cd-usage-track">
@@ -93,7 +93,12 @@
 
       <div class="cd-detail-row">
         <span class="cd-detail-lbl">Balance a la fecha</span>
-        <span class="cd-detail-val cd-val-teal">RD${{ fmtAmount(periodSpent) }}</span>
+        <span class="cd-detail-val cd-val-teal">RD${{ fmtAmount(balanceToDate) }}</span>
+      </div>
+
+      <div class="cd-detail-row">
+        <span class="cd-detail-lbl">Compras período actual</span>
+        <span class="cd-detail-val">RD${{ fmtAmount(periodSpent) }}</span>
       </div>
 
       <div class="cd-detail-row">
@@ -108,12 +113,14 @@
 
       <div class="cd-detail-row">
         <span class="cd-detail-lbl">Balance al corte</span>
-        <span class="cd-detail-val">RD${{ fmtAmount(0) }}</span>
+        <span class="cd-detail-val" [style.color]="statementBalance > 0 ? 'var(--mf-amber)' : 'inherit'">
+          RD${{ fmtAmount(statementBalance) }}
+        </span>
       </div>
 
       <div class="cd-detail-row">
         <span class="cd-detail-lbl">Pago mínimo</span>
-        <span class="cd-detail-val">RD${{ fmtAmount(periodSpent * 0.05) }}</span>
+        <span class="cd-detail-val">RD${{ fmtAmount(minimumPayment) }}</span>
       </div>
 
       <div class="cd-detail-row">
@@ -136,6 +143,16 @@
       <span class="cd-cashback-icon">🪙</span>
       <span class="cd-cashback-lbl">Cashback generado</span>
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" class="cd-cashback-arrow"><polyline points="9 18 15 12 9 6"/></svg>
+    </div>
+
+    <!-- Botón Pagar -->
+    <div class="cd-pay-section">
+      <button class="cd-pay-btn" (click)="openPayment()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+          <rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/>
+        </svg>
+        Realizar pago
+      </button>
     </div>
 
   </div>

@@ -1,0 +1,141 @@
+<!-- card-payment.modal.html — Pago de tarjeta tipo banco -->
+<ion-content class="cp-content" [fullscreen]="true">
+
+  <!-- Header -->
+  <div class="cp-header">
+    <button class="cp-close" (click)="dismiss()">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+        <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+      </svg>
+    </button>
+    <div class="cp-header-text">
+      <div class="cp-header-sub">PAGO DE TARJETA DE CRÉDITO</div>
+      <div class="cp-header-title">{{ card.name }}</div>
+    </div>
+  </div>
+
+  <!-- Resumen de balances -->
+  <div class="cp-balance-card">
+    <div class="cp-bal-row">
+      <span class="cp-bal-lbl">Balance al corte (estado de cta.)</span>
+      <span class="cp-bal-val">RD${{ fmt(statementBalance) }}</span>
+    </div>
+    <div class="cp-bal-divider"></div>
+    <div class="cp-bal-row">
+      <span class="cp-bal-lbl">Compras período actual</span>
+      <span class="cp-bal-val">RD${{ fmt(currentSpent) }}</span>
+    </div>
+    <div class="cp-bal-divider"></div>
+    <div class="cp-bal-row cp-bal-row--total">
+      <span class="cp-bal-lbl">Balance a la fecha</span>
+      <span class="cp-bal-val cp-val-teal">RD${{ fmt(currentTotalBalance) }}</span>
+    </div>
+  </div>
+
+  <!-- Sección: ¿Qué deseas pagar? -->
+  <div class="cp-section-title">¿Qué deseas pagar?</div>
+
+  <div class="cp-options">
+
+    <!-- Opción 1: Pago total estado de cuenta -->
+    <div class="cp-option" [class.selected]="selectedOption === 'statement'"
+         (click)="selectOption('statement')"
+         [class.disabled]="statementBalance === 0">
+      <div class="cp-radio">
+        <div class="cp-radio-dot" *ngIf="selectedOption === 'statement'"></div>
+      </div>
+      <div class="cp-opt-body">
+        <div class="cp-opt-title">Pago total del estado de cuenta</div>
+        <div class="cp-opt-desc">Cancela el balance del último corte</div>
+      </div>
+      <div class="cp-opt-amount" [class.teal]="selectedOption === 'statement'">
+        RD${{ fmt(statementBalance) }}
+      </div>
+    </div>
+
+    <!-- Opción 2: Pago mínimo -->
+    <div class="cp-option" [class.selected]="selectedOption === 'minimum'"
+         (click)="selectOption('minimum')"
+         [class.disabled]="statementBalance === 0">
+      <div class="cp-radio">
+        <div class="cp-radio-dot" *ngIf="selectedOption === 'minimum'"></div>
+      </div>
+      <div class="cp-opt-body">
+        <div class="cp-opt-title">Pago mínimo</div>
+        <div class="cp-opt-desc">Requerido para mantener la cuenta al día</div>
+      </div>
+      <div class="cp-opt-amount" [class.teal]="selectedOption === 'minimum'">
+        RD${{ fmt(minimumPayment) }}
+      </div>
+    </div>
+
+    <!-- Opción 3: Balance a la fecha -->
+    <div class="cp-option" [class.selected]="selectedOption === 'current'"
+         (click)="selectOption('current')"
+         [class.disabled]="currentTotalBalance === 0">
+      <div class="cp-radio">
+        <div class="cp-radio-dot" *ngIf="selectedOption === 'current'"></div>
+      </div>
+      <div class="cp-opt-body">
+        <div class="cp-opt-title">Balance a la fecha</div>
+        <div class="cp-opt-desc">Estado de cuenta + compras recientes</div>
+      </div>
+      <div class="cp-opt-amount" [class.teal]="selectedOption === 'current'">
+        RD${{ fmt(currentTotalBalance) }}
+      </div>
+    </div>
+
+    <!-- Opción 4: Otro monto -->
+    <div class="cp-option" [class.selected]="selectedOption === 'custom'"
+         (click)="selectOption('custom')">
+      <div class="cp-radio">
+        <div class="cp-radio-dot" *ngIf="selectedOption === 'custom'"></div>
+      </div>
+      <div class="cp-opt-body">
+        <div class="cp-opt-title">Otro monto</div>
+        <div class="cp-opt-desc">Ingresa el monto a pagar</div>
+      </div>
+      <div class="cp-opt-amount" *ngIf="selectedOption !== 'custom'">—</div>
+    </div>
+
+    <!-- Input monto personalizado -->
+    <div class="cp-custom-wrap" *ngIf="selectedOption === 'custom'">
+      <div class="cp-custom-input-row">
+        <span class="cp-currency">RD$</span>
+        <input
+          class="cp-custom-input"
+          type="number"
+          inputmode="decimal"
+          placeholder="0.00"
+          [(ngModel)]="customRaw"
+        />
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Nota informativa -->
+  <div class="cp-note" *ngIf="optionNote">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="flex-shrink:0;color:var(--cp-teal)">
+      <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+    </svg>
+    <span>{{ optionNote }}</span>
+  </div>
+
+  <!-- Separador visual -->
+  <div class="cp-spacer"></div>
+
+  <!-- Botón de pago -->
+  <div class="cp-footer">
+    <button class="cp-pay-btn" [disabled]="!canPay" (click)="processPayment()">
+      <span *ngIf="!processing">
+        Pagar · RD${{ fmt(paymentAmount) }}
+      </span>
+      <span *ngIf="processing" class="cp-spinner-row">
+        <span class="cp-spinner"></span> Procesando…
+      </span>
+    </button>
+    <button class="cp-cancel-btn" (click)="dismiss()">Cancelar</button>
+  </div>
+
+</ion-content>

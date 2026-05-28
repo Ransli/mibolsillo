@@ -34,6 +34,8 @@ export interface Tx {
   category: string;
   paymentMethod?: 'cash' | 'card';
   cardId?: string | null;
+  /** Id del préstamo al que corresponde este pago (solo para category='Pago Préstamo') */
+  loanId?: string | null;
   note?: string | null;
   createdAt: any;
 }
@@ -52,6 +54,10 @@ export interface Card {
   paymentDate: Date;
   lastFourDigits?: string;
   type?: 'credit' | 'debit';
+  /** Saldo pendiente del último estado de cuenta cerrado (balance al corte no pagado) */
+  statementBalance?: number;
+  /** Fecha del último corte procesado (para evitar doble conteo) */
+  statementDate?: any;
 }
 
 export interface Totals {
@@ -275,6 +281,7 @@ export class WalletService {
     category: string;
     paymentMethod?: 'cash' | 'card';
     cardId?: string | null;
+    loanId?: string | null;
     createdAt?: Date;
     note?: string | null;
   }): Promise<void> {
@@ -286,6 +293,7 @@ export class WalletService {
       category: data.category,
       paymentMethod: data.paymentMethod ?? 'cash',
       cardId: data.paymentMethod === 'card' ? (data.cardId ?? null) : null,
+      loanId: data.loanId ?? null,
       note: data.note ?? null,
       createdAt: data.createdAt ?? serverTimestamp(),
     });
@@ -358,6 +366,14 @@ export class WalletService {
     if (!user?.uid) return;
     const ref = doc(this.afs, `users/${user.uid}/cards/${cardId}`);
     await updateDoc(ref, { cutoffDate, paymentDate });
+  }
+
+  /** Actualiza campos arbitrarios de una tarjeta (p.ej. statementBalance) */
+  async updateCard(cardId: string, data: Partial<Card> & Record<string, any>): Promise<void> {
+    const user = this.currentUser;
+    if (!user?.uid) return;
+    const ref = doc(this.afs, `users/${user.uid}/cards/${cardId}`);
+    await updateDoc(ref, { ...data });
   }
 
   getNextMonthDate(date: Date): Date {
@@ -437,17 +453,70 @@ export class WalletService {
     const cards = await this.getAllCards();
     const now = new Date();
     now.setHours(0, 0, 0, 0);
+
+    // Cargamos todas las transacciones una sola vez
+    let allTx: Tx[] = [];
+    try { allTx = await this.getAllTransactions(); } catch {}
+
     for (const card of cards) {
       let needsUpdate = false;
+      let statementDelta = 0;
+
       let cutoff = card.cutoffDate instanceof Date
         ? card.cutoffDate
         : (card.cutoffDate as any)?.toDate?.() || new Date(card.cutoffDate);
       let payment = card.paymentDate instanceof Date
         ? card.paymentDate
         : (card.paymentDate as any)?.toDate?.() || new Date(card.paymentDate);
-      while (cutoff < now) { cutoff = this.getNextMonthDate(cutoff); needsUpdate = true; }
+
+      // statementDate marca el último corte que ya procesamos
+      const lastStatementDate: Date | null = (card as any).statementDate
+        ? ((card as any).statementDate?.toDate?.() || new Date((card as any).statementDate))
+        : null;
+
+      while (cutoff < now) {
+        // ¿Ya procesamos este período?
+        const alreadyProcessed = lastStatementDate !== null
+          && lastStatementDate.getTime() >= cutoff.getTime();
+
+        if (!alreadyProcessed && card.id) {
+          // Período que cierra: desde (cutoff − 1 mes) hasta cutoff
+          const pStart = new Date(cutoff.getFullYear(), cutoff.getMonth() - 1, cutoff.getDate());
+          const pEnd   = new Date(cutoff);
+
+          const periodSpent = allTx
+            .filter(tx => {
+              if (tx.cardId !== card.id || tx.paymentMethod !== 'card') return false;
+              const d = tx.createdAt?.toDate ? tx.createdAt.toDate() : new Date(tx.createdAt);
+              return d >= pStart && d < pEnd;
+            })
+            .reduce((s, t) => s + Number(t.amount || 0), 0);
+
+          statementDelta += periodSpent;
+        }
+
+        cutoff = this.getNextMonthDate(cutoff);
+        needsUpdate = true;
+      }
+
       while (payment < now) { payment = this.getNextMonthDate(payment); needsUpdate = true; }
-      if (needsUpdate && card.id) await this.updateCardDates(card.id, cutoff, payment);
+
+      if (needsUpdate && card.id) {
+        const currentStatement = Number((card as any).statementBalance || 0);
+        const updates: any = { cutoffDate: cutoff, paymentDate: payment };
+
+        if (statementDelta > 0) {
+          // La fecha del corte que acabamos de procesar es la cutoff ANTES de avanzar
+          // (la guardamos para no reprocesar en futuras ejecuciones)
+          const processedCutoff = card.cutoffDate instanceof Date
+            ? card.cutoffDate
+            : (card.cutoffDate as any)?.toDate?.() || new Date(card.cutoffDate);
+          updates.statementBalance = currentStatement + statementDelta;
+          updates.statementDate    = processedCutoff;
+        }
+
+        await this.updateCard(card.id, updates);
+      }
     }
   }
 }
