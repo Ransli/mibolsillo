@@ -94,21 +94,38 @@
 }
 
 // ─── PLASTIC CARD ────────────────────────────────────────────────────────────
-.card-item { margin-bottom: 24px; }
+.card-item {
+  margin-bottom: 28px;
+  position: relative; // contexto de apilamiento para z-index
+}
+
+// Contenedor centrado de la tarjeta (igual al diseño: display flex + justify center)
+.plastic-card-wrap {
+  display: flex;
+  justify-content: center;
+  position: relative;
+  z-index: 2;         // la tarjeta queda ENCIMA del panel
+}
 
 .plastic-card {
   border-radius: 18px; padding: 18px; position: relative; overflow: hidden;
-  box-shadow: 0 12px 32px rgba(0,0,0,0.45); color: #fff; cursor: pointer;
-  min-height: 180px; display: flex; flex-direction: column; justify-content: space-between;
+  box-shadow: 0 16px 40px rgba(0,0,0,0.55); color: #fff; cursor: pointer;
+  width: 100%;
+  min-height: 186px; display: flex; flex-direction: column; justify-content: space-between;
 
   &__shine {
     position: absolute; top: -50px; right: -50px; width: 200px; height: 200px;
     border-radius: 100px; background: radial-gradient(circle,rgba(255,255,255,0.2) 0%,transparent 60%);
+    pointer-events: none;
   }
   &__top { display: flex; justify-content: space-between; align-items: flex-start; }
   &__name { font-size: 12px; font-weight: 600; opacity: .85; }
   &__type { font-size: 9px; opacity: .5; text-transform: uppercase; letter-spacing: 1px; margin-top: 2px; }
-  &__number { font-family: var(--mf-font-mono); font-size: 16px; letter-spacing: 2px; font-weight: 500; margin: 12px 0; }
+  &__number {
+    font-family: var(--mf-font-mono); font-size: 16px; letter-spacing: 2.5px;
+    font-weight: 500;
+    position: absolute; bottom: 52px; left: 18px;
+  }
   &__footer { display: flex; gap: 16px; align-items: flex-end; }
 }
 
@@ -134,10 +151,17 @@
   &:active { opacity: 0.7; }
 }
 
-// Card info panel
+// Card info panel — se mete por DEBAJO de la tarjeta (efecto profundidad)
 .card-panel {
-  background: var(--mf-surface); border: 1px solid var(--mf-border);
-  border-radius: 16px; padding: 16px; margin-top: -18px; padding-top: 30px;
+  background: var(--mf-surface);
+  border: 1px solid var(--mf-border);
+  border-radius: 16px;
+  padding: 16px;
+  // Clave del efecto: el panel sube 22px para quedar detrás de la tarjeta
+  margin-top: -22px;
+  padding-top: 38px;
+  position: relative;
+  z-index: 1;         // por debajo de la tarjeta
 
   &__top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
   &__name { color: var(--mf-text); font-weight: 700; font-size: 14px; }

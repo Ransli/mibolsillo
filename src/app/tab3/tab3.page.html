@@ -66,38 +66,41 @@
         </div>
 
         <div class="card-item" *ngFor="let card of cards; let i = index">
-          <!-- Plastic card visual -->
-          <div class="plastic-card" [style.background]="getCardGradient(i)" (click)="selectCard(card)">
-            <div class="plastic-card__shine"></div>
-            <div class="plastic-card__top">
-              <div>
-                <div class="plastic-card__name">{{ card.name }}</div>
-                <div class="plastic-card__type">CRÉDITO</div>
+
+          <!-- Plastic card visual — z-index:2, encima del panel -->
+          <div class="plastic-card-wrap">
+            <div class="plastic-card" [style.background]="getCardGradient(i)" (click)="selectCard(card)">
+              <div class="plastic-card__shine"></div>
+              <div class="plastic-card__top">
+                <div>
+                  <div class="plastic-card__name">{{ card.name }}</div>
+                  <div class="plastic-card__type">CRÉDITO</div>
+                </div>
+                <div class="plastic-chip">
+                  <div class="chip-inner"></div>
+                </div>
               </div>
-              <div class="plastic-chip">
-                <div class="chip-inner"></div>
+              <div class="plastic-card__number">•••• •••• •••• {{ card.lastFourDigits || '****' }}</div>
+              <div class="plastic-card__footer">
+                <div>
+                  <div class="plastic-lbl">TITULAR</div>
+                  <div class="plastic-val-sm">MiBolsillo</div>
+                </div>
+                <div>
+                  <div class="plastic-lbl">CORTE</div>
+                  <div class="plastic-val">{{ formatCardDate(card.cutoffDate) }}</div>
+                </div>
+                <div>
+                  <div class="plastic-lbl">PAGO</div>
+                  <div class="plastic-val">{{ formatCardDate(card.paymentDate) }}</div>
+                </div>
+                <div class="card-brand">{{ i % 2 === 0 ? 'VISA' : 'MC' }}</div>
               </div>
+              <button class="del-btn" (click)="deleteCard(card, $event)">🗑</button>
             </div>
-            <div class="plastic-card__number">•••• •••• •••• {{ card.lastFourDigits || '****' }}</div>
-            <div class="plastic-card__footer">
-              <div>
-                <div class="plastic-lbl">TITULAR</div>
-                <div class="plastic-val-sm">MiBolsillo</div>
-              </div>
-              <div>
-                <div class="plastic-lbl">CORTE</div>
-                <div class="plastic-val">{{ formatCardDate(card.cutoffDate) }}</div>
-              </div>
-              <div>
-                <div class="plastic-lbl">PAGO</div>
-                <div class="plastic-val">{{ formatCardDate(card.paymentDate) }}</div>
-              </div>
-              <div class="card-brand">{{ i % 2 === 0 ? 'VISA' : 'MC' }}</div>
-            </div>
-            <button class="del-btn" (click)="deleteCard(card, $event)">🗑</button>
           </div>
 
-          <!-- Info panel (overlaps the card bottom) -->
+          <!-- Info panel — z-index:1, se mete detrás de la tarjeta (efecto profundidad) -->
           <div class="card-panel">
 
             <!-- Period navigation -->
